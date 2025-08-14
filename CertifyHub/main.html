@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CERTIFYHUB.com</title>
+    <link rel="stylesheet" href="main.css">
+    <style>
+        /* Original Styles */
+        .menu ul li {
+            position: relative;
+        }
+
+        .menu ul li:hover .submenu {
+            display: block;
+        }
+
+        .submenu {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        .submenu a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .submenu a:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* New Styles for Suggestions */
+        .suggestion-section {
+            margin: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #interest-selection {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        #suggested-courses {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .course-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            background: white;
+            width: 200px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <div class="navbar">
+            <div class="icon">
+                <h1 class="logo" style="color:white;">CertifyHub</h1>
+            </div>
+            <div class="menu">
+                <ul>
+                    <li><a href="#">HOME</a></li>
+                    <li class="dropdown">
+                        <a href="#">COURSES</a>
+                        <div class="submenu">
+                            <a href="pcourses.html">Programming Courses</a>
+                            <a href="design.html">Design</a>
+                            <a href="datascience.html">Data Science</a>
+                        </div>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#">TRENDINGS</a>
+                        <div class="submenu">
+                            <a href="jobs.html">Jobs</a>
+                            <a href="courses.html">Courses</a>
+                        </div>
+                    </li>
+                    <li>
+                        <a href="aboutus.html">ABOUT US</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="search">
+                <form action="https://www.google.com/search" method="get">
+                    <input class="srch" type="text" placeholder="Type to text">
+                    <a href="#"><button class="btn">Search</button></a>
+                </form>
+            </div>
+        </div>
+        
+        <div class="content">
+            <h1 style="color:#ff7300;font-size:70px"><br><br>Certification...<br></h1>
+            <span>Where Knowledge Meets <br> Opportunity!!!!</span>
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;
+        </div>
+        
+        <!-- Interest Selection and Suggestions -->
+        <div class="suggestion-section">
+            <h2>Select Your Interests</h2>
+            <form id="interest-selection">
+                <label>
+                    <input type="checkbox" name="interest" value="Data Science"> Data Science
+                </label>
+                <label>
+                    <input type="checkbox" name="interest" value="Web Development"> Web Development
+                </label>
+                <label>
+                    <input type="checkbox" name="interest" value="AI & ML"> AI & ML
+                </label>
+                <label>
+                    <input type="checkbox" name="interest" value="Cybersecurity"> Cybersecurity
+                </label>
+                <label>
+                    <input type="checkbox" name="interest" value="UI/UX Design"> UI/UX Design
+                </label>
+                <button type="button" id="submit-interests">Submit</button>
+            </form>
+        </div>
+        
+        <div id="course-suggestions" class="suggestion-section" style="display: none;">
+            <h2>Recommended Courses</h2>
+            <div id="suggested-courses">
+                <!-- Course recommendations will appear here -->
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>&copy; Thanks for visiting</p>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

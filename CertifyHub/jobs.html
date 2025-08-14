@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CERTIFYHUB.com</title>
+    <link rel="stylesheet" href="jobs.css">
+    <style>
+        body {
+            background-image: url('hub.jpg'); 
+            background-repeat: no-repeat;
+            background-attachment: fixed; 
+            background-size: 100% 100%;
+        }
+        .main{
+            width: 100%;
+            background: url(hub.jpg);
+            background-position: center;
+            background-size: cover;
+            height: 100vh;
+        }
+        header {
+            color:#ff7300;
+            padding: 20px;
+            text-align: center;
+        }
+        nav {
+            overflow: hidden;
+        }
+        nav a {
+            float: left;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+        }
+        nav a:hover {
+            color: orange;
+        }
+        .container {
+            margin: 20px auto;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .course {
+            width: calc(30% - 20px); /* Adjusted width to accommodate spacing */
+            height: 300px; /* Increased height */
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .course img {
+            float: left;
+            margin-right: 20px;
+            max-width: 100%;
+            height: auto;
+        }
+        .course h2 {
+            margin-top: 0;
+            color:#ff7300;
+        }
+        .course h3 {
+            color:white;
+        }
+        .btnn {
+            color: white;
+            background-color: #ff7300;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btnn:hover {
+            background-color: #ff9633;
+        }
+
+        @media (max-width: 768px) {
+            .course {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 style="color:orange;">TRENDING JOBS</h1>
+    </header>
+    <nav>
+        <a href="main.html">Home</a>
+    </nav>
+    <div class="container">
+        <div class="course">
+            <img src="DA.png" alt="Course Image">
+            <h2 style="color:white;">DATA ANALYST</h2>
+            <p style="color:white;">Data Analysts are professionals who collect, process, and performs statistical analyses of data and present it in ways that are both actionable and efficient.</p>
+            <a href="https://in.linkedin.com/jobs/data-analyst-jobs?position=1&pageNum=0" target="_blank" class="btnn">SEARCH</a>
+        </div>
+        <div class="course">
+            <img src="sd.jpeg" alt="Course Image">
+            <h2 style="color:white;">SOFTWARE DEVELOPER</h2>
+            <p style="color:white;">Software developers create applications and programs for computers and mobile devices. Some work for tech companies.</p>
+            <a href="https://in.linkedin.com/jobs/software-engineer-jobs?position=1&pageNum=0" target="_blank" class="btnn">SEARCH</a>
+        </div>
+        <div class="course">
+            <img src="FS.png" alt="Course Image">
+            <h2 style="color:white;">FULLSTACK DEVELOPER</h2>
+            <p style="color:white;">The role of a Full Stack Developer involves proficiency in both front-end and back-end development, offering versatility in creating complete web applications.</p>
+           <a href="https://in.linkedin.com/jobs/full-stack-developer-jobs?position=1&pageNum=0" target="_blank" class="btnn">SEARCH</a>
+        </div>
+        <div class="course">
+            <img src="CS.jpeg" alt="Course Image">
+            <h2 style="color:white;">CYBER SECURITY</h2>
+            <p style="color:white;">Cybersecurity Specialists are security experts who take care of the entire network/system security structure of a company.</p>
+            <a href="https://in.linkedin.com/jobs/cyber-security-jobs?position=1&pageNum=0" target="_blank" class="btnn">SEARCH</a>
+        </div>
+        <div class="course">
+            <img src="BD.jpeg" alt="Course Image">
+            <h2 style="color:white;">BLOCKCHAIN DEVELOPER</h2>
+            <p style="color:white;">Blockchain is the leading technology for the Banking and Finance Sector. And a professional expert to manage and handle the entire infrastructure of the company.</p>
+            <a href="https://in.linkedin.com/jobs/blockchain-developer-jobs?position=1&pageNum=0" target="_blank" class="btnn">SEARCH</a>
+        </div>
+        <div class="course">
+            <img src="DM.jpeg" alt="Course Image">
+            <h2 style="color:white;">DIGITAL MARKETER</h2>
+            <p style="color:white;">Digital marketers are the masters of the online world. They use various digital channels and platforms to promote and sell products</p>
+            <a href="https://in.linkedin.com/jobs/digital-marketing-jobs?position=1&pageNum=0" target="_blank" class="btnn">SEARCH</a>
+        </div>
+    </div>
+</body>
+</html>

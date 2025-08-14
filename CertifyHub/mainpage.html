@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CERTIFYHUB.com</title>
+    <link rel="stylesheet" href="mainpage.css">
+    <style>
+
+        .menu ul li {
+            position: relative;
+        }
+
+        .menu ul li:hover .submenu {
+            display: block;
+        }
+
+        .submenu {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        .submenu a {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .submenu a:hover {
+            background-color: #f1f1f1;
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <div class="navbar">
+            <div class="icon">
+                <h1 class="logo" style="color:white;">CertifyHub</h1>
+            </div>
+            <div class="menu">
+                <ul>
+                    <li><a href="#">HOME</a></li>
+                    <li class="dropdown">
+                        <a href="#">COURSES</a>
+                        <div class="submenu">
+                            <a href="pcourses.html">Programming Courses</a>
+			       
+                            <a href="design.html">Design</a>
+                            <a href="datascience.html">Data Science</a>
+                            
+                        </div>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#">TRENDINGS</a>
+                        <div class="submenu">
+                            <a href="jobs.html">Jobs</a>
+                            <a href="courses.html">Courses</a>
+                        </div>
+                    </li>
+                    <li >
+                        <a href="aboutus.html">ABOUT US</a>
+                       
+                    </li>
+                </ul>
+            </div>
+            <div class="search">
+	      <form action="https://www.google.com/search" method="get">
+                <input class="srch" type="text" name="" placeholder="Type to text">
+                <a href="#"><button class="btn">Search</button></a>
+            </div>
+        </div>
+        <div class="content">
+            <h1 style="color:#ff7300;font-size:70px"><br><br>Certification...<br></h1> <span>Where Knowledge Meets <br> Opportunity!!!!</span>
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;
+        </div>
+
+        <div class="footer">
+            <p>&copy; Thanks for visiting</p>
+        </div>
+    </div>
+   <script src="script.js"></script>
+ <div class="content">
+        
+    </div>
+
+</body>
+</html> 

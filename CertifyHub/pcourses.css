@@ -1,0 +1,31 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+.main{
+    width: 100%;
+    background: linear-gradient(to top, rgba(0,0,0,0.5)50%,rgba(0,0,0,0.5)50%),url(hub.jpg);
+    background-position: center;
+    background-size: cover;
+    height: 100vh;
+}
+.btnn{
+    width: 150px;
+    height: 35px;
+    background:  #ff7200;
+    border: none;
+    margin-top: 30px;
+    font-size: 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    color: grey;
+    transition: 0.4s ease;
+}
+.btnn:hover{
+    background: white;
+    color: #ff7200;
+}
+.btnn a{
+    text-decoration: none;
+    color: black;
+    font-weight: bold;

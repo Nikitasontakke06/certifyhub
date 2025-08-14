@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CERTIFYHUB.com</title>
+    <link rel="stylesheet" href="jobs.css">
+    <style>
+        body {
+            background-image: url('hub.jpg'); 
+            background-repeat: no-repeat;
+            background-attachment: fixed; 
+            background-size: 100% 100%;
+        }
+        .main{
+            width: 100%;
+            background: linear-gradient(to top, rgba(0,0,0,0.5)50%,rgba(0,0,0,0.5)50%), url(hub.jpg);
+            background-position: center;
+            background-size: cover;
+            height: 100vh;
+        }
+        header {
+            color:#ff7300;
+            padding: 20px;
+            text-align: center;
+        }
+        nav {
+            overflow: hidden;
+        }
+        nav a {
+            float: left;
+            display: block;
+            color: white;
+            text-align: center;
+            padding: 14px 20px;
+            text-decoration: none;
+        }
+        nav a:hover {
+            color: orange;
+        }
+        .container {
+            margin: 20px auto;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .course {
+            width: calc(30% - 20px); /* Adjusted width to accommodate spacing */
+            height: 300px; /* Increased height */
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .course img {
+            float: left;
+            margin-right: 20px;
+            max-width: 100%;
+            height: auto;
+        }
+        .course h2 {
+            margin-top: 0;
+            color:#ff7300;
+        }
+        .course h3 {
+            color:white;
+        }
+        .btnn {
+            color: white;
+            background-color: #ff7300;
+            border: none;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btnn:hover {
+            background-color: #ff9633;
+        }
+
+        @media (max-width: 768px) {
+            .course {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>TRENDING COURSES</h1>
+    </header>
+    <nav>
+        <a href="main.html">Home</a>
+    </nav>
+    <div class="container">
+        <div class="course">
+            <img src="DM.png" alt="Course Image">
+            <h2 style="color:white;">DIGITAL MARKETING</h2>
+            <a href="https://www.udemy.com/courses/search/?q=digital+marketing&src=sac&kw=digital" target="_blank" class="btnn">FOR UDEMY</a><br>
+	    <a href="https://www.coursera.org/search?query=digital%20marketing" target="_blank" class="btnn">FOR COURSERA</a><br>
+	    <a href="https://www.mygreatlearning.com/academy/search?keyword=digital%20marketing" target="_blank" class="btnn">FOR GREATLEARNING</a>
+        </div>
+        <div class="course">
+            <img src="bd1.png" alt="Course Image">
+            <h2 style="color:white;">BIG DATA</h2>
+            <a href="https://www.udemy.com/courses/search/?src=ukw&q=big+data" target="_blank" class="btnn">FOR UDEMY</a><br>
+	    <a href="https://www.coursera.org/search?query=digital%20marketing" target="_blank" class="btnn">FOR COURSERA</a><br>
+	    <a href="https://www.mygreatlearning.com/academy/search?keyword=big%20data" target="_blank" class="btnn">FOR GREATLEARNING</a> 
+       </div>
+
+        <div class="course">
+            <img src="CS.png" alt="Course Image">
+            <h2 style="color:white;">CYBER SECURITY</h2>
+            <a href="https://www.udemy.com/courses/search/?q=cybersecurity&src=sac&kw=cybersecurity" target="_blank" class="btnn">FOR UDEMY</a><br>
+	    <a href="https://www.coursera.org/search?query=cybersecurity" target="_blank" class="btnn">FOR COURSERA</a><br>
+	    <a href="https://www.mygreatlearning.com/academy/search?keyword=cyber%20security" target="_blank" class="btnn">FOR GREATLEARNING</a>           
+        </div>
+        <div class="course">
+            <img src="AI.png" alt="Course Image">
+            <h2 style="color:white;">ARTIFICIAL INTELLIGENCE</h2>
+            <a href="https://www.udemy.com/courses/search/?src=ukw&q=artificial+intelligence" target="_blank" class="btnn">FOR UDEMY</a><br>
+            <a href="https://www.coursera.org/search?query=artificial%20intelligence" target="_blank" class="btnn">FOR COURSERA</a><br>
+	    <a href="https://www.mygreatlearning.com/academy/search?keyword=artificial%20intelligence" target="_blank" class="btnn">FOR GREATLEARNING</a>
+        </div>
+        <div class="course">
+            <img src="ML.png" alt="Course Image">
+            <h2 style="color:white;">MACHINE LEARNING</h2>
+            <a href="https://www.udemy.com/courses/search/?q=machine+learning&src=sac&kw=machine" target="_blank" class="btnn">FOR UDEMY</a><br>
+            <a href="https://www.coursera.org/search?query=machine%20learning" target="_blank" class="btnn">FOR COURSERA</a><br>
+	    <a href="https://www.mygreatlearning.com/academy/search?keyword=machine%20learning" target="_blank" class="btnn">FOR GREATLEARNING</a>
+        </div>
+        <div class="course">
+            <img src="DS.png" alt="Course Image">
+            <h2 style="color:white;">DATA SCIENCE</h2>
+            <a href="https://www.udemy.com/courses/search/?q=data+science&src=sac&kw=data" target="_blank" class="btnn">FOR UDEMY</a><br>
+            <a href="https://www.coursera.org/search?query=data%20science" target="_blank" class="btnn">FOR COURSERA</a><br>
+	    <a href="https://www.mygreatlearning.com/academy/search?keyword=data%20science" target="_blank" class="btnn">FOR GREATLEARNING</a>
+        </div>
+    </div>
+</body>
+</html>
