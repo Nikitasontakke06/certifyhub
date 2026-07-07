@@ -7,6 +7,9 @@ export default function CourseCard({ course, isCompared, onToggleCompare }) {
       case "udemy": return "prov-udemy";
       case "coursera": return "prov-coursera";
       case "great learning": return "prov-gl";
+      case "pw skills": return "prov-pw";
+      case "simplilearn": return "prov-simplilearn";
+      case "swayam": return "prov-swayam";
       default: return "";
     }
   };
@@ -18,7 +21,7 @@ export default function CourseCard({ course, isCompared, onToggleCompare }) {
           {course.provider}
         </span>
         <span className="price-tag">
-          {course.price === 0 ? "FREE" : `$${course.price.toFixed(2)}`}
+          {course.price === 0 ? "FREE" : `₹${course.price.toLocaleString("en-IN")}`}
         </span>
       </div>
 
@@ -101,6 +104,24 @@ export default function CourseCard({ course, isCompared, onToggleCompare }) {
           background: rgba(16, 185, 129, 0.15);
           color: #10b981;
           border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .prov-pw {
+          background: rgba(0, 200, 255, 0.15);
+          color: #00c8ff;
+          border: 1px solid rgba(0, 200, 255, 0.3);
+        }
+
+        .prov-simplilearn {
+          background: rgba(255, 115, 0, 0.15);
+          color: #ff7300;
+          border: 1px solid rgba(255, 115, 0, 0.3);
+        }
+
+        .prov-swayam {
+          background: rgba(255, 215, 0, 0.15);
+          color: #ffd700;
+          border: 1px solid rgba(255, 215, 0, 0.3);
         }
 
         .price-tag {

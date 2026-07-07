@@ -132,12 +132,12 @@ export default function Navbar({ user, onLogout, openAuth }) {
           left: 0;
           width: 100%;
           z-index: 1000;
-          padding: 16px 40px;
+          padding: 16px 24px;
         }
 
         .navbar-content {
           width: 100%;
-          max-width: 100%;
+          max-width: 1280px;
           margin: 0 auto;
           display: flex;
           align-items: center;
