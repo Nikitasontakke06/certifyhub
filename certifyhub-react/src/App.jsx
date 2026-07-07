@@ -4,6 +4,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import AuthModal from "./components/AuthModal";
 import CompareQueue from "./components/CompareQueue";
+import ChatbotWidget from "./components/ChatbotWidget";
 
 // Pages
 import LandingPage from "./pages/LandingPage";
@@ -14,8 +15,11 @@ import AboutPage from "./pages/AboutPage";
 
 export default function App() {
   const [user, setUser] = useState(null);
+  const [courses, setCourses] = useState([]);
+  const [jobs, setJobs] = useState([]);
   const [compareList, setCompareList] = useState([]);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // Load user session on mount
   useEffect(() => {
@@ -27,6 +31,34 @@ export default function App() {
         localStorage.removeItem("current_user");
       }
     }
+  }, []);
+
+  // Fetch Courses and Jobs from API
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        const [coursesRes, jobsRes] = await Promise.all([
+          fetch("/api/courses"),
+          fetch("/api/jobs")
+        ]);
+        
+        if (coursesRes.ok && jobsRes.ok) {
+          const coursesData = await coursesRes.json();
+          const jobsData = await jobsRes.json();
+          setCourses(coursesData);
+          setJobs(jobsData);
+        } else {
+          console.error("API responses were not successful");
+        }
+      } catch (err) {
+        console.error("Failed to fetch data from API:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const handleLoginSuccess = (loggedUser) => {
@@ -77,6 +109,10 @@ export default function App() {
               path="/" 
               element={
                 <LandingPage 
+                  user={user}
+                  openAuth={() => setIsAuthOpen(true)}
+                  courses={courses}
+                  loading={loading}
                   onToggleCompare={handleToggleCompare} 
                   compareList={compareList} 
                 />
@@ -86,6 +122,8 @@ export default function App() {
               path="/courses" 
               element={
                 <CoursesPage 
+                  courses={courses}
+                  loading={loading}
                   onToggleCompare={handleToggleCompare} 
                   compareList={compareList} 
                 />
@@ -101,7 +139,15 @@ export default function App() {
                 />
               } 
             />
-            <Route path="/jobs" element={<JobsPage />} />
+            <Route 
+              path="/jobs" 
+              element={
+                <JobsPage 
+                  jobs={jobs} 
+                  loading={loading} 
+                />
+              } 
+            />
             <Route path="/about" element={<AboutPage />} />
           </Routes>
         </main>
@@ -114,6 +160,8 @@ export default function App() {
           onRemove={handleRemoveCompare} 
           onClear={handleClearCompare} 
         />
+        
+        <ChatbotWidget />
         
         <AuthModal 
           isOpen={isAuthOpen} 

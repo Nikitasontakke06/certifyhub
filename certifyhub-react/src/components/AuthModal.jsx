@@ -11,7 +11,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
@@ -26,46 +26,69 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
       return;
     }
 
-    // Mock authentication
-    if (isLogin) {
-      // Simulate login
-      const mockUsers = JSON.parse(localStorage.getItem("mock_users") || "[]");
-      const foundUser = mockUsers.find(u => u.email === email && u.password === password);
+    const endpoint = isLogin ? "/api/auth/login" : "/api/auth/signup";
+    try {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-      // We'll also allow a default fallback user for convenience
-      if (foundUser || (email === "demo@certifyhub.com" && password === "password")) {
-        const loggedUser = { email };
+      const data = await response.json();
+
+      if (response.ok) {
+        const loggedUser = { email: data.email };
         localStorage.setItem("current_user", JSON.stringify(loggedUser));
         onLoginSuccess(loggedUser);
-        setSuccess("Login successful!");
+        setSuccess(isLogin ? "Login successful!" : "Account created successfully!");
         setTimeout(() => {
           onClose();
           resetForm();
         }, 1000);
       } else {
-        setError("Invalid email or password. Use demo@certifyhub.com / password or Sign Up.");
+        setError(data.error || "Authentication failed. Please check credentials or sign up.");
       }
-    } else {
-      // Simulate signup
-      const mockUsers = JSON.parse(localStorage.getItem("mock_users") || "[]");
-      if (mockUsers.some(u => u.email === email)) {
-        setError("An account with this email already exists.");
-        return;
-      }
-
-      const newUser = { email, password };
-      mockUsers.push(newUser);
-      localStorage.setItem("mock_users", JSON.stringify(mockUsers));
-      
-      const loggedUser = { email };
-      localStorage.setItem("current_user", JSON.stringify(loggedUser));
-      onLoginSuccess(loggedUser);
-      setSuccess("Account created successfully!");
-      setTimeout(() => {
-        onClose();
-        resetForm();
-      }, 1000);
+    } catch (err) {
+      setError("Failed to connect to the authentication server.");
+      console.error(err);
     }
+  };
+
+  const handleGoogleLogin = () => {
+    setError("");
+    setSuccess("");
+
+    const width = 500;
+    const height = 600;
+    const left = window.screen.width / 2 - width / 2;
+    const top = window.screen.height / 2 - height / 2;
+
+    const popup = window.open(
+      "/google-auth-mock.html",
+      "GoogleSignIn",
+      `width=${width},height=${height},left=${left},top=${top},status=no,resizable=no`
+    );
+
+    const handleMessage = (event) => {
+      if (event.origin !== window.location.origin) return;
+
+      if (event.data && event.data.type === "GOOGLE_AUTH_SUCCESS") {
+        const loggedUser = { email: event.data.email };
+        localStorage.setItem("current_user", JSON.stringify(loggedUser));
+        onLoginSuccess(loggedUser);
+        setSuccess("Logged in with Google!");
+        window.removeEventListener("message", handleMessage);
+
+        setTimeout(() => {
+          onClose();
+          resetForm();
+        }, 1000);
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
   };
 
   const resetForm = () => {
@@ -155,6 +178,20 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
             <span>{isLogin ? "Log In" : "Sign Up"}</span>
           </button>
         </form>
+
+        {/* Separator and Google Auth Button */}
+        <div className="auth-separator">
+          <span>or continue with</span>
+        </div>
+
+        <button type="button" onClick={handleGoogleLogin} className="google-auth-btn">
+          <img 
+            src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" 
+            alt="Google" 
+            className="google-logo" 
+          />
+          <span>{isLogin ? "Sign In with Google" : "Sign In with Google"}</span>
+        </button>
 
         <div className="auth-toggle">
           <span>{isLogin ? "Don't have an account?" : "Already have an account?"}</span>
@@ -275,6 +312,56 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
           justify-content: center;
           margin-top: 10px;
           padding: 12px;
+        }
+
+        /* Separator and Google Button Styling */
+        .auth-separator {
+          display: flex;
+          align-items: center;
+          text-align: center;
+          margin: 20px 0;
+          color: var(--text-muted);
+          font-size: 0.75rem;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+
+        .auth-separator::before,
+        .auth-separator::after {
+          content: "";
+          flex: 1;
+          border-bottom: 1px solid var(--border-color);
+        }
+
+        .auth-separator span {
+          padding: 0 12px;
+        }
+
+        .google-auth-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          width: 100%;
+          padding: 12px;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid var(--border-color);
+          border-radius: var(--radius-md);
+          color: #fff;
+          font-size: 0.9rem;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all var(--transition-fast);
+        }
+
+        .google-auth-btn:hover {
+          background: rgba(255, 255, 255, 0.08);
+          border-color: var(--border-color-hover);
+        }
+
+        .google-logo {
+          width: 18px;
+          height: 18px;
         }
 
         .auth-toggle {

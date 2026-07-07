@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, ChevronDown, User, LogOut, BookOpen, Briefcase, Info, Home } from "lucide-react";
+import { Search, ChevronDown, User, LogOut, BookOpen, Briefcase, Info } from "lucide-react";
 
 export default function Navbar({ user, onLogout, openAuth }) {
   const [searchVal, setSearchVal] = useState("");
@@ -10,6 +10,10 @@ export default function Navbar({ user, onLogout, openAuth }) {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
+    if (!user) {
+      openAuth();
+      return;
+    }
     if (searchVal.trim()) {
       navigate(`/courses?search=${encodeURIComponent(searchVal)}`);
       setSearchVal("");
@@ -29,7 +33,6 @@ export default function Navbar({ user, onLogout, openAuth }) {
         <ul className="navbar-menu">
           <li>
             <Link to="/" className="menu-link">
-              <Home size={16} />
               <span>HOME</span>
             </Link>
           </li>
@@ -39,18 +42,27 @@ export default function Navbar({ user, onLogout, openAuth }) {
             onMouseEnter={() => setCoursesDropdown(true)}
             onMouseLeave={() => setCoursesDropdown(false)}
           >
-            <Link to="/courses" className="menu-link">
+            <Link to="/courses" className="menu-link" onClick={(e) => {
+              if (!user) {
+                e.preventDefault();
+                openAuth();
+              } else {
+                setCoursesDropdown(!coursesDropdown);
+              }
+            }}>
               <BookOpen size={16} />
               <span>COURSES</span>
               <ChevronDown size={14} className={coursesDropdown ? "rotated" : ""} />
             </Link>
             {coursesDropdown && (
               <div className="dropdown-menu glass-panel fade-in">
-                <Link to="/courses?category=programming" className="dropdown-item">Programming</Link>
-                <Link to="/courses?category=datascience" className="dropdown-item">Data Science</Link>
-                <Link to="/courses?category=design" className="dropdown-item">UI/UX & Design</Link>
-                <Link to="/courses?category=cybersecurity" className="dropdown-item">Cyber Security</Link>
-                <Link to="/courses?category=aiml" className="dropdown-item">AI & ML</Link>
+                <Link to="/courses?category=programming" className="dropdown-item" onClick={(e) => { if (!user) { e.preventDefault(); openAuth(); } else { setCoursesDropdown(false); } }}>Programming</Link>
+                <Link to="/courses?category=datascience" className="dropdown-item" onClick={(e) => { if (!user) { e.preventDefault(); openAuth(); } else { setCoursesDropdown(false); } }}>Data Science</Link>
+                <Link to="/courses?category=design" className="dropdown-item" onClick={(e) => { if (!user) { e.preventDefault(); openAuth(); } else { setCoursesDropdown(false); } }}>UI/UX & Design</Link>
+                <Link to="/courses?category=cybersecurity" className="dropdown-item" onClick={(e) => { if (!user) { e.preventDefault(); openAuth(); } else { setCoursesDropdown(false); } }}>Cyber Security</Link>
+                <Link to="/courses?category=aiml" className="dropdown-item" onClick={(e) => { if (!user) { e.preventDefault(); openAuth(); } else { setCoursesDropdown(false); } }}>AI & ML</Link>
+                <Link to="/courses?category=cloudcomputing" className="dropdown-item" onClick={(e) => { if (!user) { e.preventDefault(); openAuth(); } else { setCoursesDropdown(false); } }}>Cloud & DevOps</Link>
+                <Link to="/courses?category=business" className="dropdown-item" onClick={(e) => { if (!user) { e.preventDefault(); openAuth(); } else { setCoursesDropdown(false); } }}>Project Management</Link>
               </div>
             )}
           </li>
@@ -60,15 +72,15 @@ export default function Navbar({ user, onLogout, openAuth }) {
             onMouseEnter={() => setTrendingsDropdown(true)}
             onMouseLeave={() => setTrendingsDropdown(false)}
           >
-            <span className="menu-link" style={{ cursor: "pointer" }}>
+            <span className="menu-link" style={{ cursor: "pointer" }} onClick={() => setTrendingsDropdown(!trendingsDropdown)}>
               <Briefcase size={16} />
               <span>TRENDINGS</span>
               <ChevronDown size={14} className={trendingsDropdown ? "rotated" : ""} />
             </span>
             {trendingsDropdown && (
               <div className="dropdown-menu glass-panel fade-in">
-                <Link to="/jobs" className="dropdown-item">Jobs</Link>
-                <Link to="/courses" className="dropdown-item">Trending Courses</Link>
+                <Link to="/jobs" className="dropdown-item" onClick={(e) => { if (!user) { e.preventDefault(); openAuth(); } else { setTrendingsDropdown(false); } }}>Jobs</Link>
+                <Link to="/courses?sort=reviews" className="dropdown-item" onClick={(e) => { if (!user) { e.preventDefault(); openAuth(); } else { setTrendingsDropdown(false); } }}>Trending Courses</Link>
               </div>
             )}
           </li>
@@ -81,7 +93,7 @@ export default function Navbar({ user, onLogout, openAuth }) {
           </li>
         </ul>
 
-        {/* Search Bar */}
+        {/* Search */}
         <form onSubmit={handleSearchSubmit} className="navbar-search">
           <input
             type="text"
@@ -91,17 +103,16 @@ export default function Navbar({ user, onLogout, openAuth }) {
             className="search-input"
           />
           <button type="submit" className="search-button">
-            <Search size={18} />
+            <Search size={16} />
           </button>
         </form>
 
-        {/* User Auth controls */}
-        <div className="navbar-auth">
+        {/* User Auth Info */}
+        <div className="navbar-user">
           {user ? (
             <div className="user-profile">
-              <User size={18} className="profile-icon" />
-              <span className="user-email">{user.email.split('@')[0]}</span>
-              <button onClick={onLogout} className="logout-btn" title="Logout">
+              <span className="user-email" title={user.email}>{user.email}</span>
+              <button onClick={onLogout} className="btn-logout" title="Log Out">
                 <LogOut size={16} />
               </button>
             </div>
@@ -121,11 +132,12 @@ export default function Navbar({ user, onLogout, openAuth }) {
           left: 0;
           width: 100%;
           z-index: 1000;
-          padding: 16px 24px;
+          padding: 16px 40px;
         }
 
         .navbar-content {
-          max-width: 1280px;
+          width: 100%;
+          max-width: 100%;
           margin: 0 auto;
           display: flex;
           align-items: center;
@@ -209,6 +221,16 @@ export default function Navbar({ user, onLogout, openAuth }) {
           background: var(--bg-secondary);
         }
 
+        .dropdown-menu::before {
+          content: "";
+          position: absolute;
+          top: -12px;
+          left: 0;
+          width: 100%;
+          height: 12px;
+          background: transparent;
+        }
+
         .dropdown-item {
           padding: 8px 12px;
           font-size: 0.85rem;
@@ -257,8 +279,7 @@ export default function Navbar({ user, onLogout, openAuth }) {
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 32px;
-          height: 32px;
+          padding: 6px 10px;
           border-radius: var(--radius-full);
           transition: all var(--transition-fast);
         }
@@ -268,7 +289,7 @@ export default function Navbar({ user, onLogout, openAuth }) {
           background: rgba(255, 255, 255, 0.05);
         }
 
-        .navbar-auth {
+        .navbar-user {
           display: flex;
           align-items: center;
         }
@@ -276,42 +297,39 @@ export default function Navbar({ user, onLogout, openAuth }) {
         .user-profile {
           display: flex;
           align-items: center;
-          gap: 8px;
-          padding: 6px 12px;
+          gap: 12px;
           background: rgba(255, 255, 255, 0.03);
-          border: 1px solid var(--border-color);
+          padding: 6px 6px 6px 14px;
           border-radius: var(--radius-md);
-        }
-
-        .profile-icon {
-          color: var(--primary);
+          border: 1px solid var(--border-color);
         }
 
         .user-email {
           font-size: 0.85rem;
-          font-weight: 500;
-          max-width: 100px;
+          color: var(--text-primary);
+          max-width: 120px;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
+          font-weight: 500;
         }
 
-        .logout-btn {
+        .btn-logout {
           background: transparent;
           border: none;
           color: var(--text-muted);
           cursor: pointer;
-          padding: 4px;
           display: flex;
           align-items: center;
           justify-content: center;
+          padding: 6px;
           border-radius: var(--radius-sm);
           transition: all var(--transition-fast);
         }
 
-        .logout-btn:hover {
+        .btn-logout:hover {
           color: var(--error);
-          background: rgba(239, 68, 68, 0.1);
+          background: rgba(239, 68, 68, 0.08);
         }
 
         .auth-trigger-btn {
@@ -319,16 +337,9 @@ export default function Navbar({ user, onLogout, openAuth }) {
           font-size: 0.85rem;
         }
 
-        @media (max-width: 992px) {
-          .navbar-menu {
-            display: none;
-          }
-          .navbar-search {
-            width: 180px;
-          }
-          .navbar-search:focus-within {
-            width: 220px;
-          }
+        /* Rotated chevron helper */
+        .rotated {
+          transform: rotate(180deg);
         }
       `}} />
     </nav>
