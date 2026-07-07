@@ -211,8 +211,9 @@ button, input, select, textarea {
 /* Base Page Layout */
 .page-container {
   width: 100%;
-  max-width: 100%;
-  padding: 80px 40px 40px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 130px 24px 40px;
   min-height: calc(100vh - 60px);
 }
 

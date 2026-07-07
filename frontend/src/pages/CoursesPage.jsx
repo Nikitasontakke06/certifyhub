@@ -4,7 +4,7 @@ import { Filter, SlidersHorizontal, Search, RefreshCw, X } from "lucide-react";
 import CourseCard from "../components/CourseCard";
 import { COURSES_DATA, CATEGORIES } from "../data/mockData";
 
-export default function CoursesPage({ onToggleCompare, compareList }) {
+export default function CoursesPage({ courses = [], loading, onToggleCompare, compareList }) {
   const [searchParams, setSearchParams] = useSearchParams();
   
   // States
@@ -19,6 +19,7 @@ export default function CoursesPage({ onToggleCompare, compareList }) {
   useEffect(() => {
     const catParam = searchParams.get("category");
     const searchParam = searchParams.get("search");
+    const sortParam = searchParams.get("sort");
 
     if (catParam) {
       const match = CATEGORIES.some(c => c.id === catParam);
@@ -30,11 +31,16 @@ export default function CoursesPage({ onToggleCompare, compareList }) {
     if (searchParam) {
       setSearchQuery(decodeURIComponent(searchParam));
     }
+
+    if (sortParam) {
+      setSortBy(sortParam);
+    }
   }, [searchParams]);
 
   // Apply filters
   useEffect(() => {
-    let result = [...COURSES_DATA];
+    const sourceData = courses && courses.length > 0 ? courses : COURSES_DATA;
+    let result = [...sourceData];
 
     // 1. Category Filter
     if (activeCategory !== "all") {
@@ -80,7 +86,7 @@ export default function CoursesPage({ onToggleCompare, compareList }) {
     });
 
     setFilteredCourses(result);
-  }, [activeCategory, searchQuery, selectedProviders, priceFilter, sortBy]);
+  }, [activeCategory, searchQuery, selectedProviders, priceFilter, sortBy, courses]);
 
   const handleProviderToggle = (provider) => {
     setSelectedProviders(prev =>
@@ -131,7 +137,6 @@ export default function CoursesPage({ onToggleCompare, compareList }) {
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
-                  // Remove search param if user deletes query manually
                   if (!e.target.value) {
                     const newParams = new URLSearchParams(searchParams);
                     newParams.delete("search");
@@ -156,11 +161,51 @@ export default function CoursesPage({ onToggleCompare, compareList }) {
             </div>
           </div>
 
+          {/* Course Types Filter */}
+          <div className="filter-section">
+            <h4 className="filter-title">Course Types</h4>
+            <div className="radio-list">
+              {CATEGORIES.map(cat => (
+                <label key={cat.id} className="radio-label">
+                  <input
+                    type="radio"
+                    name="category-sidebar"
+                    value={cat.id}
+                    checked={activeCategory === cat.id}
+                    onChange={() => {
+                      setActiveCategory(cat.id);
+                      const newParams = new URLSearchParams(searchParams);
+                      if (cat.id === "all") {
+                        newParams.delete("category");
+                      } else {
+                        newParams.set("category", cat.id);
+                      }
+                      setSearchParams(newParams);
+                    }}
+                    className="styled-radio"
+                  />
+                  <span className="radio-custom"></span>
+                  <span className="label-text">{cat.name}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+
           {/* Providers Filter */}
           <div className="filter-section">
             <h4 className="filter-title">Platforms</h4>
             <div className="checkbox-list">
-              {["Udemy", "Coursera", "Great Learning"].map(provider => {
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={selectedProviders.length === 0}
+                  onChange={() => setSelectedProviders([])}
+                  className="styled-checkbox"
+                />
+                <span className="checkbox-custom"></span>
+                <span className="label-text">All Courses</span>
+              </label>
+              {["Udemy", "Coursera", "Great Learning", "PW Skills", "Simplilearn", "Swayam"].map(provider => {
                 const isChecked = selectedProviders.includes(provider);
                 return (
                   <label key={provider} className="checkbox-label">
@@ -206,28 +251,6 @@ export default function CoursesPage({ onToggleCompare, compareList }) {
 
         {/* Content Section */}
         <main className="courses-main">
-          {/* Categories Tab Bar */}
-          <div className="categories-tabs glass-panel fade-in">
-            {CATEGORIES.map(category => (
-              <button
-                key={category.id}
-                onClick={() => {
-                  setActiveCategory(category.id);
-                  const newParams = new URLSearchParams(searchParams);
-                  if (category.id === "all") {
-                    newParams.delete("category");
-                  } else {
-                    newParams.set("category", category.id);
-                  }
-                  setSearchParams(newParams);
-                }}
-                className={`tab-btn ${activeCategory === category.id ? "active" : ""}`}
-              >
-                {category.name}
-              </button>
-            ))}
-          </div>
-
           {/* Grid Info & Sorting */}
           <div className="grid-controls fade-in">
             <span className="courses-count">
@@ -252,7 +275,12 @@ export default function CoursesPage({ onToggleCompare, compareList }) {
 
           {/* Courses Grid */}
           <div className="courses-grid-layout">
-            {filteredCourses.length > 0 ? (
+            {loading ? (
+              <div style={{ gridColumn: "1/-1", textAlign: "center", padding: 60, color: "var(--text-secondary)" }}>
+                <div className="loading-spinner"></div>
+                <p style={{ marginTop: 12 }}>Connecting to database, loading courses...</p>
+              </div>
+            ) : filteredCourses.length > 0 ? (
               filteredCourses.map(course => (
                 <CourseCard
                   key={course.id}
@@ -296,14 +324,14 @@ export default function CoursesPage({ onToggleCompare, compareList }) {
 
         .courses-layout {
           display: grid;
-          grid-template-columns: 280px 1fr;
-          gap: 32px;
+          grid-template-columns: 230px 1fr;
+          gap: 24px;
           align-items: start;
         }
 
         /* Sidebar Filter Styling */
         .filters-sidebar {
-          padding: 24px;
+          padding: 16px;
           background: rgba(22, 24, 32, 0.5);
           position: sticky;
           top: 100px;
@@ -348,7 +376,7 @@ export default function CoursesPage({ onToggleCompare, compareList }) {
         }
 
         .filter-section {
-          margin-bottom: 24px;
+          margin-bottom: 18px;
         }
 
         .filter-title {
@@ -407,7 +435,7 @@ export default function CoursesPage({ onToggleCompare, compareList }) {
         .checkbox-list, .radio-list {
           display: flex;
           flex-direction: column;
-          gap: 10px;
+          gap: 8px;
         }
 
         /* Checkbox Custom Styles */
@@ -447,25 +475,11 @@ export default function CoursesPage({ onToggleCompare, compareList }) {
         }
 
         .styled-checkbox:checked ~ .checkbox-custom {
-          background: var(--primary);
           border-color: var(--primary);
+          background: var(--primary-light);
+          color: var(--primary);
         }
 
-        .checkbox-custom::after {
-          content: "";
-          display: none;
-          width: 4px;
-          height: 8px;
-          border: solid white;
-          border-width: 0 2px 2px 0;
-          transform: rotate(45deg) translate(-1px, -1px);
-        }
-
-        .styled-checkbox:checked ~ .checkbox-custom::after {
-          display: block;
-        }
-
-        /* Radio Custom Styles */
         .radio-custom {
           width: 18px;
           height: 18px;
@@ -473,63 +487,28 @@ export default function CoursesPage({ onToggleCompare, compareList }) {
           border: 1px solid var(--border-color);
           border-radius: var(--radius-full);
           transition: all var(--transition-fast);
-          display: flex;
-          align-items: center;
-          justify-content: center;
+          position: relative;
         }
 
         .styled-radio:checked ~ .radio-custom {
           border-color: var(--primary);
         }
 
-        .radio-custom::after {
+        .styled-radio:checked ~ .radio-custom::after {
           content: "";
-          display: none;
+          position: absolute;
+          top: 4px;
+          left: 4px;
           width: 8px;
           height: 8px;
+          border-radius: 50%;
           background: var(--primary);
-          border-radius: var(--radius-full);
         }
 
-        .styled-radio:checked ~ .radio-custom::after {
-          display: block;
-        }
-
-        /* Tabs and Main Area Styling */
         .courses-main {
           display: flex;
           flex-direction: column;
           gap: 20px;
-        }
-
-        .categories-tabs {
-          display: flex;
-          flex-wrap: wrap;
-          padding: 6px;
-          background: rgba(22, 24, 32, 0.3);
-          gap: 4px;
-        }
-
-        .tab-btn {
-          background: transparent;
-          border: none;
-          color: var(--text-secondary);
-          font-weight: 600;
-          font-size: 0.85rem;
-          padding: 8px 16px;
-          border-radius: var(--radius-sm);
-          cursor: pointer;
-          transition: all var(--transition-fast);
-        }
-
-        .tab-btn:hover {
-          color: #fff;
-          background: rgba(255, 255, 255, 0.03);
-        }
-
-        .tab-btn.active {
-          background: var(--primary);
-          color: white;
         }
 
         .grid-controls {
