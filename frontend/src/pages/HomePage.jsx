@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowRight,
@@ -7,19 +7,15 @@ import {
   Briefcase,
   CheckCircle2,
   Compass,
-  IndianRupee,
   Layers,
   Search,
   Sparkles,
   Star,
   TrendingUp,
-  Award,
   Activity,
-  DollarSign,
+  Award,
   LineChart,
-  Settings,
-  HelpCircle,
-  ShieldAlert
+  Settings
 } from "lucide-react";
 
 export default function HomePage({ user, openAuth, courses = [], jobs = [], loading }) {
@@ -76,14 +72,12 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
 
   // Matcher calculations
   const calculateMatch = () => {
-    // Basic mock calculation based on selected inputs
     let matchScore = 75;
     if (targetRole === "Data Scientist" && userExperience === "Intermediate") matchScore = 92;
     else if (targetRole === "Fullstack Developer" && userExperience === "Beginner") matchScore = 88;
     else if (targetRole === "AI Engineer" && userExperience === "Advanced") matchScore = 95;
     else if (targetRole === "UI/UX Designer") matchScore = 84;
     
-    // Find courses mapping to role keywords
     const keywords = targetRole.toLowerCase().split(" ");
     const matchedCourses = courses.filter(c => 
       keywords.some(kw => c.title.toLowerCase().includes(kw) || c.category.toLowerCase().includes(kw))
@@ -120,60 +114,46 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
           </div>
         </div>
 
-        {/* Dashboard 3-Column Layout */}
-        <div className="home-dashboard">
-          
-          {/* Sidebar Nav */}
-          <aside className="home-sidebar glass-panel">
-            <div className="sidebar-group">
-              <span className="sidebar-group-title">Menu</span>
-              <button 
-                className={`home-nav-item ${activeTab === "overview" ? "active" : ""}`} 
-                onClick={() => setActiveTab("overview")}
-              >
-                <Compass size={18} />
-                <span>Overview</span>
-              </button>
-              <button 
-                className={`home-nav-item ${activeTab === "analytics" ? "active" : ""}`} 
-                onClick={() => setActiveTab("analytics")}
-              >
-                <LineChart size={18} />
-                <span>Market Analytics</span>
-              </button>
-              <button 
-                className={`home-nav-item ${activeTab === "matcher" ? "active" : ""}`} 
-                onClick={() => setActiveTab("matcher")}
-              >
-                <Sparkles size={18} />
-                <span>Profile Matcher</span>
-              </button>
-            </div>
-            
-            <div className="sidebar-divider"></div>
-            
-            <div className="sidebar-group">
-              <span className="sidebar-group-title">Tools</span>
-              <button className="home-nav-item" onClick={() => requireUser("/compare")}>
-                <Layers size={18} />
-                <span>Comparison Center</span>
-              </button>
-              <button className="home-nav-item" onClick={() => requireUser("/jobs")}>
-                <Briefcase size={18} />
-                <span>Career Tracks</span>
-              </button>
-            </div>
-            
-            {/* Quick Helper Widget */}
-            <div className="sidebar-helper-card">
-              <HelpCircle size={20} color="var(--primary)" />
-              <h4>Need Advice?</h4>
-              <p>Try comparing certifications side-by-side to find the lowest pricing options.</p>
-            </div>
-          </aside>
+        {/* Horizontal Navigation Tabs */}
+        <div className="home-tabs-nav glass-panel">
+          <div className="tabs-nav-left">
+            <button 
+              className={`tab-nav-btn ${activeTab === "overview" ? "active" : ""}`} 
+              onClick={() => setActiveTab("overview")}
+            >
+              <Compass size={16} />
+              <span>Overview</span>
+            </button>
+            <button 
+              className={`tab-nav-btn ${activeTab === "analytics" ? "active" : ""}`} 
+              onClick={() => setActiveTab("analytics")}
+            >
+              <LineChart size={16} />
+              <span>Market Analytics</span>
+            </button>
+            <button 
+              className={`tab-nav-btn ${activeTab === "matcher" ? "active" : ""}`} 
+              onClick={() => setActiveTab("matcher")}
+            >
+              <Sparkles size={16} />
+              <span>Profile Matcher</span>
+            </button>
+          </div>
+          <div className="tabs-nav-right">
+            <button className="tab-nav-btn link-style-btn" onClick={() => requireUser("/compare")}>
+              <Layers size={16} />
+              <span>Compare</span>
+            </button>
+            <button className="tab-nav-btn link-style-btn" onClick={() => requireUser("/jobs")}>
+              <Briefcase size={16} />
+              <span>Career Tracks</span>
+            </button>
+          </div>
+        </div>
 
-          {/* Main Workspace Content Area */}
-          <main className="home-main">
+        {/* Main Single Column Workspace Content Area */}
+        <div className="home-dashboard-single">
+          <main className="home-main-full">
             
             {activeTab === "overview" && (
               <div className="tab-pane fade-in">
@@ -210,7 +190,7 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
                   </div>
                 </div>
 
-                {/* SVG Premium Interactive Chart Mock */}
+                {/* SVG Premium Chart Section */}
                 <section className="chart-section glass-panel">
                   <div className="chart-header">
                     <div>
@@ -220,7 +200,6 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
                     <span className="chart-badge">Live Index</span>
                   </div>
                   <div className="chart-body">
-                    {/* SVG Graphic represent mock interactive index chart */}
                     <svg viewBox="0 0 800 220" className="dashboard-svg-chart">
                       <defs>
                         <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
@@ -228,28 +207,22 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
                           <stop offset="100%" stopColor="var(--primary)" stopOpacity="0.00" />
                         </linearGradient>
                       </defs>
-                      <grid stroke="var(--border-color)" strokeWidth="0.5" />
                       <line x1="50" y1="20" x2="50" y2="180" stroke="var(--border-color)" strokeWidth="1" />
                       <line x1="50" y1="180" x2="780" y2="180" stroke="var(--border-color)" strokeWidth="1" />
                       
-                      {/* Grid Horizontal Guidelines */}
                       <line x1="50" y1="60" x2="780" y2="60" stroke="var(--border-color)" strokeDasharray="4 4" strokeWidth="0.5" />
                       <line x1="50" y1="120" x2="780" y2="120" stroke="var(--border-color)" strokeDasharray="4 4" strokeWidth="0.5" />
 
-                      {/* Area Fill */}
                       <path d="M 50 180 L 150 130 L 250 145 L 350 80 L 450 110 L 550 50 L 650 75 L 750 30 L 750 180 Z" fill="url(#chartGrad)" />
                       
-                      {/* Trend Line */}
                       <path d="M 50 180 L 150 130 L 250 145 L 350 80 L 450 110 L 550 50 L 650 75 L 750 30" 
                             fill="none" stroke="var(--primary)" strokeWidth="3" strokeLinecap="round" />
                       
-                      {/* Data Points */}
                       <circle cx="150" cy="130" r="5" fill="var(--primary)" stroke="#fff" strokeWidth="1.5" />
                       <circle cx="350" cy="80" r="5" fill="var(--primary)" stroke="#fff" strokeWidth="1.5" />
                       <circle cx="550" cy="50" r="5" fill="var(--primary)" stroke="#fff" strokeWidth="1.5" />
                       <circle cx="750" cy="30" r="5" fill="var(--primary)" stroke="#fff" strokeWidth="1.5" />
 
-                      {/* Labels */}
                       <text x="150" y="200" textAnchor="middle" fontSize="10" fill="var(--text-muted)">Jan</text>
                       <text x="350" y="200" textAnchor="middle" fontSize="10" fill="var(--text-muted)">Mar</text>
                       <text x="550" y="200" textAnchor="middle" fontSize="10" fill="var(--text-muted)">May</text>
@@ -353,7 +326,6 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
                       <p>Filter certification directories to compare costs and provider distribution.</p>
                     </div>
                     
-                    {/* Interactive Filter Category */}
                     <div className="analytics-filter">
                       <label htmlFor="catSelect">Domain:</label>
                       <select 
@@ -370,7 +342,6 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
                     </div>
                   </div>
 
-                  {/* Interactive Stats Report */}
                   <div className="analytics-report-grid">
                     <div className="report-card">
                       <h3>Average Price</h3>
@@ -397,7 +368,6 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
                     </div>
                   </div>
 
-                  {/* Provider Pricing Comparison Graph Mock */}
                   <div className="provider-pricing-bar-chart">
                     <h4>Approximate Price Range by Provider (INR)</h4>
                     <div className="bar-chart-container">
@@ -473,7 +443,6 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
                     </div>
                   </div>
 
-                  {/* Match Results Display */}
                   <div className="matcher-results">
                     <div className="match-score-radial">
                       <div className="radial-circle">
@@ -518,54 +487,6 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
             )}
 
           </main>
-
-          {/* Right Panel: Profile Completeness & Preferences Summary */}
-          <aside className="home-right-panel">
-            
-            {/* User Profile Card */}
-            <div className="profile-match-side-card glass-panel">
-              <div className="side-card-header">
-                <h3>Workspace Profile</h3>
-              </div>
-              <div className="profile-completeness">
-                <div className="progress-bar-wrapper">
-                  <div className="progress-bar-fill" style={{ width: "70%" }}></div>
-                </div>
-                <div className="progress-labels">
-                  <span>Syllabus preference set</span>
-                  <strong>70% Complete</strong>
-                </div>
-              </div>
-              
-              <div className="profile-quick-details">
-                <div className="detail-row">
-                  <span>Account Email</span>
-                  <strong>{user?.email || "Guest User"}</strong>
-                </div>
-                <div className="detail-row">
-                  <span>Status</span>
-                  <span className="active-pill">Premium Tier</span>
-                </div>
-              </div>
-
-              <button className="btn-secondary btn-full-width" onClick={() => requireUser("/profile")}>
-                <span>Manage Profile</span>
-                <ArrowRight size={14} />
-              </button>
-            </div>
-
-            {/* Quick Tips or Comparison Queue summary */}
-            <div className="tips-side-card glass-panel">
-              <h4>Active Insights Tooltip</h4>
-              <ul>
-                <li>📊 Use comparison view to compare syllabus coverage side-by-side.</li>
-                <li>🎯 Select "AI & ML" matching to view job market salary estimations in India.</li>
-                <li>🛡️ Government certifications audited via Swayam carry localized exam credits.</li>
-              </ul>
-            </div>
-
-          </aside>
-
         </div>
       </section>
 
@@ -578,9 +499,10 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
         .home-shell {
           display: flex;
           flex-direction: column;
-          gap: 28px;
-          max-width: 1280px;
+          gap: 24px;
+          max-width: 1200px;
           margin: 0 auto;
+          padding: 0 16px;
         }
 
         /* Premium Header banner */
@@ -588,7 +510,7 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 32px 40px;
+          padding: 28px 36px;
           background: linear-gradient(135deg, rgba(29, 92, 255, 0.05) 0%, rgba(9, 168, 216, 0.02) 100%), #FFFFFF;
           border: 1px solid var(--border-color);
         }
@@ -626,218 +548,67 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
           gap: 12px;
         }
 
-        /* 3-Column Layout structure */
-        .home-dashboard {
-          display: grid;
-          grid-template-columns: 240px 1fr 280px;
-          gap: 28px;
-          align-items: start;
-        }
-
-        /* Sidebar Nav Styling */
-        .home-sidebar {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-          padding: 20px 16px;
-          background: #FFFFFF;
-        }
-
-        .sidebar-group {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-
-        .sidebar-group-title {
-          font-size: 0.72rem;
-          font-weight: 800;
-          color: var(--text-muted);
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          padding-left: 12px;
-          margin-bottom: 8px;
-        }
-
-        .home-nav-item {
+        /* Horizontal Navigation Tabs Bar */
+        .home-tabs-nav {
           display: flex;
           align-items: center;
-          gap: 10px;
-          width: 100%;
+          justify-content: space-between;
+          padding: 10px 16px;
+          background: #FFFFFF;
+          border: 1px solid var(--border-color);
+        }
+
+        .tabs-nav-left, .tabs-nav-right {
+          display: flex;
+          gap: 8px;
+        }
+
+        .tab-nav-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
           border: 1px solid transparent;
           background: transparent;
           color: var(--text-secondary);
           border-radius: var(--radius-md);
-          padding: 12px 14px;
-          font-size: 0.9rem;
+          padding: 10px 16px;
+          font-size: 0.88rem;
           font-weight: 700;
-          text-align: left;
           cursor: pointer;
           transition: all var(--transition-fast);
         }
 
-        .home-nav-item:hover {
+        .tab-nav-btn:hover {
           color: var(--primary);
           background: var(--primary-light);
         }
 
-        .home-nav-item.active {
+        .tab-nav-btn.active {
           color: var(--primary);
           background: var(--primary-light);
           border-color: rgba(29, 92, 255, 0.1);
         }
 
-        .sidebar-divider {
-          height: 1px;
-          background: var(--border-color);
+        .link-style-btn {
+          opacity: 0.85;
         }
 
-        .sidebar-helper-card {
-          background: var(--bg-primary);
-          border-radius: var(--radius-md);
-          padding: 16px;
-          margin-top: 10px;
-          border: 1px solid var(--border-color);
+        .link-style-btn:hover {
+          opacity: 1;
         }
 
-        .sidebar-helper-card h4 {
-          font-size: 0.85rem;
-          font-weight: 800;
-          color: var(--text-primary);
-          margin: 8px 0 4px 0;
-        }
-
-        .sidebar-helper-card p {
-          font-size: 0.78rem;
-          color: var(--text-secondary);
-          line-height: 1.4;
-          margin: 0;
-        }
-
-        /* Right Panel side card styling */
-        .home-right-panel {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-        }
-
-        .profile-match-side-card {
-          padding: 20px;
-          background: #FFFFFF;
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-
-        .side-card-header h3 {
-          font-size: 0.95rem;
-          font-weight: 800;
-          color: var(--text-primary);
-          margin: 0;
-        }
-
-        .profile-completeness {
-          display: flex;
-          flex-direction: column;
-          gap: 6px;
-        }
-
-        .progress-bar-wrapper {
+        /* Main Single Column Workspace Content */
+        .home-dashboard-single {
           width: 100%;
-          height: 6px;
-          background: var(--bg-primary);
-          border-radius: var(--radius-full);
-          overflow: hidden;
         }
 
-        .progress-bar-fill {
-          height: 100%;
-          background: var(--primary);
-          border-radius: var(--radius-full);
-        }
-
-        .progress-labels {
-          display: flex;
-          justify-content: space-between;
-          font-size: 0.72rem;
-          color: var(--text-muted);
-        }
-
-        .profile-quick-details {
+        .home-main-full {
           display: flex;
           flex-direction: column;
-          gap: 10px;
-          background: var(--bg-primary);
-          padding: 12px;
-          border-radius: var(--radius-sm);
+          gap: 24px;
         }
 
-        .detail-row {
-          display: flex;
-          justify-content: space-between;
-          font-size: 0.78rem;
-        }
-
-        .detail-row span {
-          color: var(--text-secondary);
-        }
-
-        .detail-row strong {
-          color: var(--text-primary);
-          text-overflow: ellipsis;
-          overflow: hidden;
-          white-space: nowrap;
-          max-width: 130px;
-        }
-
-        .active-pill {
-          background: #DEF7EC;
-          color: #03543F;
-          font-size: 0.72rem;
-          font-weight: 700;
-          padding: 1px 6px;
-          border-radius: 4px;
-        }
-
-        .btn-full-width {
-          width: 100%;
-          justify-content: center;
-        }
-
-        .tips-side-card {
-          padding: 18px;
-          background: #FFFFFF;
-        }
-
-        .tips-side-card h4 {
-          font-size: 0.85rem;
-          font-weight: 800;
-          margin-bottom: 10px;
-          color: var(--text-primary);
-        }
-
-        .tips-side-card ul {
-          padding-left: 0;
-          list-style: none;
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .tips-side-card li {
-          font-size: 0.75rem;
-          color: var(--text-secondary);
-          line-height: 1.4;
-        }
-
-        /* Main Dashboard view elements */
-        .home-main {
-          display: flex;
-          flex-direction: column;
-          gap: 28px;
-          min-width: 0;
-        }
-
+        /* Metrics grid */
         .metric-grid {
           display: grid;
           grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1382,28 +1153,15 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
           font-weight: 700;
         }
 
-        /* Responsive Dashboard styling */
         @media (max-width: 1024px) {
-          .home-dashboard {
-            grid-template-columns: 1fr;
+          .home-tabs-nav {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 12px;
           }
           
-          .home-sidebar {
-            flex-direction: row;
-            overflow-x: auto;
-            white-space: nowrap;
-          }
-
-          .sidebar-group {
-            flex-direction: row;
-          }
-
-          .sidebar-group-title, .sidebar-divider, .sidebar-helper-card {
-            display: none;
-          }
-
-          .home-right-panel {
-            grid-row: 2;
+          .tabs-nav-left, .tabs-nav-right {
+            justify-content: center;
           }
         }
 
