@@ -11,7 +11,17 @@ export default function ComparePage({ compareList, onRemove, onClear }) {
       case "pw skills": return "prov-pw";
       case "simplilearn": return "prov-simplilearn";
       case "swayam": return "prov-swayam";
-      default: return "";
+      case "scrimba": return "prov-scrimba";
+      case "datacamp": return "prov-datacamp";
+      case "interaction design foundation": return "prov-ixdf";
+      case "hack design": return "prov-hackdesign";
+      case "ine": return "prov-ine";
+      case "tryhackme": return "prov-tryhackme";
+      case "fast.ai": return "prov-fastai";
+      case "hubspot academy": return "prov-hubspot";
+      case "kodekloud": return "prov-kodekloud";
+      case "project management institute (pmi)": return "prov-pmi";
+      default: return "prov-generic";
     }
   };
 
@@ -474,6 +484,72 @@ export default function ComparePage({ compareList, onRemove, onClear }) {
           background: rgba(255, 215, 0, 0.15);
           color: #ffd700;
           border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+
+        .prov-scrimba {
+          background: rgba(244, 63, 94, 0.15);
+          color: #f43f5e;
+          border: 1px solid rgba(244, 63, 94, 0.3);
+        }
+
+        .prov-datacamp {
+          background: rgba(16, 185, 129, 0.15);
+          color: #10b981;
+          border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .prov-ixdf {
+          background: rgba(59, 130, 246, 0.15);
+          color: #3b82f6;
+          border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .prov-hackdesign {
+          background: rgba(245, 158, 11, 0.15);
+          color: #f59e0b;
+          border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .prov-ine {
+          background: rgba(6, 182, 212, 0.15);
+          color: #06b6d4;
+          border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+
+        .prov-tryhackme {
+          background: rgba(239, 68, 68, 0.15);
+          color: #ef4444;
+          border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .prov-fastai {
+          background: rgba(99, 102, 241, 0.15);
+          color: #6366f1;
+          border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .prov-hubspot {
+          background: rgba(249, 115, 22, 0.15);
+          color: #f97316;
+          border: 1px solid rgba(249, 115, 22, 0.3);
+        }
+
+        .prov-kodekloud {
+          background: rgba(139, 92, 246, 0.15);
+          color: #8b5cf6;
+          border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .prov-pmi {
+          background: rgba(148, 163, 184, 0.15);
+          color: #94a3b8;
+          border: 1px solid rgba(148, 163, 184, 0.3);
+        }
+
+        .prov-generic {
+          background: rgba(255, 255, 255, 0.08);
+          color: var(--text-secondary);
+          border: 1px solid rgba(255, 255, 255, 0.15);
         }
       `}} />
     </div>

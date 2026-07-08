@@ -7,6 +7,13 @@ import { COURSES_DATA, CATEGORIES } from "../data/mockData";
 export default function CoursesPage({ courses = [], loading, onToggleCompare, compareList }) {
   const [searchParams, setSearchParams] = useSearchParams();
   
+  // Get unique providers dynamically from loaded courses or mock fallback
+  const availableProviders = React.useMemo(() => {
+    const sourceData = courses && courses.length > 0 ? courses : COURSES_DATA;
+    const unique = Array.from(new Set(sourceData.map(c => c.provider)));
+    return unique.sort();
+  }, [courses]);
+
   // States
   const [activeCategory, setActiveCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -205,7 +212,7 @@ export default function CoursesPage({ courses = [], loading, onToggleCompare, co
                 <span className="checkbox-custom"></span>
                 <span className="label-text">All Courses</span>
               </label>
-              {["Udemy", "Coursera", "Great Learning", "PW Skills", "Simplilearn", "Swayam"].map(provider => {
+              {availableProviders.map(provider => {
                 const isChecked = selectedProviders.includes(provider);
                 return (
                   <label key={provider} className="checkbox-label">
@@ -432,7 +439,34 @@ export default function CoursesPage({ courses = [], loading, onToggleCompare, co
           color: #fff;
         }
 
-        .checkbox-list, .radio-list {
+        .checkbox-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          max-height: 200px;
+          overflow-y: auto;
+          padding-right: 4px;
+        }
+
+        .checkbox-list::-webkit-scrollbar {
+          width: 5px;
+        }
+
+        .checkbox-list::-webkit-scrollbar-track {
+          background: rgba(0, 0, 0, 0.15);
+          border-radius: var(--radius-sm);
+        }
+
+        .checkbox-list::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.12);
+          border-radius: var(--radius-sm);
+        }
+
+        .checkbox-list::-webkit-scrollbar-thumb:hover {
+          background: var(--primary);
+        }
+
+        .radio-list {
           display: flex;
           flex-direction: column;
           gap: 8px;

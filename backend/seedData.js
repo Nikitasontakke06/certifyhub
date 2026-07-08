@@ -407,6 +407,246 @@ export const SEED_COURSES = [
     link: "https://swayam.gov.in",
     description: "Core foundations of artificial intelligence, search algorithms, state space search, and neural networks designed by IISc.",
     features: ["Free access", "IISc syllabus", "Video lectures", "Doubt forum"]
+  },
+  // Scrimba Programming
+  {
+    id: "prog-scrimba-1",
+    title: "The Frontend Developer Career Path",
+    category: "programming",
+    provider: "Scrimba",
+    price: 7999,
+    rating: 4.9,
+    reviewsCount: 8500,
+    duration: "75 hours",
+    level: "Beginner",
+    link: "https://scrimba.com/learn/frontend",
+    description: "Become a job-ready frontend developer. Learn HTML, CSS, JavaScript, React, and build dozens of interactive projects in a unique hands-on editor.",
+    features: ["Shareable certificate", "Interactive code editor", "Community discord access", "Code reviews"]
+  },
+  // Advanced Programming
+  {
+    id: "prog-udemy-2",
+    title: "JavaScript: The Advanced Concepts (2026)",
+    category: "programming",
+    provider: "Udemy",
+    price: 1999,
+    rating: 4.8,
+    reviewsCount: 35600,
+    duration: "25 hours",
+    level: "Advanced",
+    link: "https://www.udemy.com/courses/search/?q=javascript",
+    description: "Learn modern advanced JavaScript practices and be in the top 10% of JavaScript developers. Master closures, prototypes, async, and OOP.",
+    features: ["Certificate of completion", "Full lifetime access", "Access on mobile and TV", "24 articles"]
+  },
+  // DataCamp Data Science
+  {
+    id: "ds-datacamp-1",
+    title: "Data Scientist with Python",
+    category: "datascience",
+    provider: "DataCamp",
+    price: 9500,
+    rating: 4.7,
+    reviewsCount: 24200,
+    duration: "88 hours",
+    level: "Intermediate",
+    link: "https://www.datacamp.com/tracks/data-scientist-with-python",
+    description: "Gain the career-ready skills you need to start your journey as a data scientist. Learn to import, clean, manipulate, and analyze data.",
+    features: ["DataCamp certification", "Interactive in-browser coding", "20+ course path", "Real-world projects"]
+  },
+  // Coursera Data Science
+  {
+    id: "ds-coursera-2",
+    title: "Applied Data Science with Python Specialization",
+    category: "datascience",
+    provider: "Coursera",
+    price: 3299,
+    rating: 4.6,
+    reviewsCount: 41000,
+    duration: "5 months (10 hrs/week)",
+    level: "Intermediate",
+    link: "https://www.coursera.org/specializations/data-science-python",
+    description: "Gain skills in data visualization, machine learning, text analysis, and social network analysis through popular python toolkits.",
+    features: ["Shareable specialization certificate", "Taught by UMich faculty", "Hands-on programming assignments", "Flexible schedule"]
+  },
+  // IxDF UX Design
+  {
+    id: "design-interactive-1",
+    title: "User Experience: The Ultimate Guide to UX/UI",
+    category: "design",
+    provider: "Interaction Design Foundation",
+    price: 11200,
+    rating: 4.8,
+    reviewsCount: 15400,
+    duration: "28 hours",
+    level: "Beginner",
+    link: "https://www.interaction-design.org/courses",
+    description: "Get a comprehensive introduction to user experience design. Learn design thinking, user research, wireframing, and visual design.",
+    features: ["IxDF Industry certificate", "Portfolio builder", "Taught by industry experts", "Lifetime course access"]
+  },
+  // Hack Design (Free Design)
+  {
+    id: "design-hackdesign-1",
+    title: "Design Lesson Path for Developers",
+    category: "design",
+    provider: "Hack Design",
+    price: 0,
+    rating: 4.5,
+    reviewsCount: 52000,
+    duration: "50 weeks (self-paced)",
+    level: "Beginner",
+    link: "https://hackdesign.org/",
+    description: "An easy-to-follow design course for programmers and builders. Receive curations of top design articles, videos, and tutorials weekly.",
+    features: ["Free registration", "Curated reading lists", "Weekly lessons by design masters", "Interactive challenges"]
+  },
+  // INE Cybersecurity
+  {
+    id: "cyber-ine-1",
+    title: "eLearnSecurity Certified Penetration Tester (eCPPTv2)",
+    category: "cybersecurity",
+    provider: "INE",
+    price: 24900,
+    rating: 4.7,
+    reviewsCount: 5400,
+    duration: "45 hours",
+    level: "Advanced",
+    link: "https://ine.com/learning-paths/ecpptv2",
+    description: "Master professional network penetration testing. Perform buffer overflows, advanced system exploitation, and professional reporting.",
+    features: ["eCPPTv2 Certification exam voucher", "Interactive lab environments", "Full coverage of system exploits", "Access on mobile and desktop"]
+  },
+  // TryHackMe Cybersecurity
+  {
+    id: "cyber-tryhackme-1",
+    title: "Pre-Security Pathway",
+    category: "cybersecurity",
+    provider: "TryHackMe",
+    price: 1200,
+    rating: 4.8,
+    reviewsCount: 88200,
+    duration: "40 hours",
+    level: "Beginner",
+    link: "https://tryhackme.com/path/outline/presecurity",
+    description: "Learn the foundational cybersecurity concepts: networking, operating systems, and web technologies required to start a security career.",
+    features: ["TryHackMe badge & certificate", "Hands-on gamified rooms", "Interactive Linux/Windows targets", "Self-paced study"]
+  },
+  // fast.ai AI & ML
+  {
+    id: "ai-fastai-1",
+    title: "Practical Deep Learning for Coders",
+    category: "aiml",
+    provider: "fast.ai",
+    price: 0,
+    rating: 4.9,
+    reviewsCount: 154000,
+    duration: "25 hours",
+    level: "Intermediate",
+    link: "https://course.fast.ai/",
+    description: "A free deep learning course for programmers. Learn how to build state-of-the-art computer vision, NLP, and tabular models using fastai and PyTorch.",
+    features: ["Free online book & videos", "PyTorch based training", "Active student forum", "Colab / Kaggle integration"]
+  },
+  // Coursera AI & ML
+  {
+    id: "ai-coursera-2",
+    title: "Deep Learning Specialization",
+    category: "aiml",
+    provider: "Coursera",
+    price: 4099,
+    rating: 4.9,
+    reviewsCount: 168000,
+    duration: "5 months (10 hrs/week)",
+    level: "Advanced",
+    link: "https://www.coursera.org/specializations/deep-learning",
+    description: "Master deep learning foundations from Andrew Ng. Build and train neural networks, CNNs, RNNs, Transformers, and apply them in projects.",
+    features: ["Taught by Andrew Ng", "Shareable specialization certificate", "Python programming assignments", "Access to career resources"]
+  },
+  // HubSpot Digital Marketing
+  {
+    id: "mkt-hubspot-1",
+    title: "Inbound Marketing Certification Course",
+    category: "marketing",
+    provider: "HubSpot Academy",
+    price: 0,
+    rating: 4.7,
+    reviewsCount: 42300,
+    duration: "5 hours",
+    level: "Beginner",
+    link: "https://academy.hubspot.com/courses/inbound-marketing",
+    description: "Learn inbound marketing strategies, content creation, social promotion, conversational growth, and lead nurturing.",
+    features: ["Free industry certificate", "15 video lessons", "4 quizzes", "Downloadable templates"]
+  },
+  // Udemy Digital Marketing
+  {
+    id: "mkt-udemy-2",
+    title: "Social Media Marketing Agency (SMMA) Course",
+    category: "marketing",
+    provider: "Udemy",
+    price: 1699,
+    rating: 4.6,
+    reviewsCount: 18200,
+    duration: "18.5 hours",
+    level: "All Levels",
+    link: "https://www.udemy.com/courses/search/?q=smma",
+    description: "Learn how to build a social media marketing agency from scratch. Find clients, run Facebook ads, and scale operations.",
+    features: ["Certificate of completion", "32 downloadable templates", "Lifetime access", "Client contract templates"]
+  },
+  // KodeKloud Cloud & DevOps
+  {
+    id: "cloud-kodekloud-1",
+    title: "Certified Kubernetes Administrator (CKA)",
+    category: "cloudcomputing",
+    provider: "KodeKloud",
+    price: 4500,
+    rating: 4.8,
+    reviewsCount: 19400,
+    duration: "32 hours",
+    level: "Intermediate",
+    link: "https://kodekloud.com/courses/certified-kubernetes-administrator-cka/",
+    description: "Prepare for the official CNCF CKA exam. Learn Kubernetes architecture, scheduling, service networking, and troubleshooting.",
+    features: ["Shareable certificate", "In-browser Kubernetes labs", "Mock exams included", "Doubt support forum"]
+  },
+  // Udemy Cloud & DevOps
+  {
+    id: "cloud-udemy-2",
+    title: "Docker & Kubernetes: The Practical Guide",
+    category: "cloudcomputing",
+    provider: "Udemy",
+    price: 1499,
+    rating: 4.7,
+    reviewsCount: 65100,
+    duration: "23 hours",
+    level: "Beginner",
+    link: "https://www.udemy.com/courses/search/?q=docker+kubernetes",
+    description: "Learn Docker, Kubernetes, Compose, Swarm and Registry. Build and deploy containerized apps locally and on AWS/GCP.",
+    features: ["Certificate of completion", "54 downloadable resources", "Lifetime access", "Full code repository access"]
+  },
+  // Coursera Project Management
+  {
+    id: "pm-coursera-2",
+    title: "Scrum Master Certification Specialization",
+    category: "business",
+    provider: "Coursera",
+    price: 3299,
+    rating: 4.7,
+    reviewsCount: 8800,
+    duration: "3 months (10 hrs/week)",
+    level: "Beginner",
+    link: "https://www.coursera.org/specializations/scrum-master",
+    description: "Build a strong foundation in Scrum frameworks. Learn to lead agile teams, remove blocker backlogs, and run effective sprint rituals.",
+    features: ["Professional specialization certificate", "Agile workspace simulation", "Prep for PSM I exam", "Flexible schedule"]
+  },
+  // PMI Project Management
+  {
+    id: "pm-pmi-1",
+    title: "Certified Associate in Project Management (CAPM) Prep",
+    category: "business",
+    provider: "Project Management Institute (PMI)",
+    price: 18500,
+    rating: 4.5,
+    reviewsCount: 12500,
+    duration: "23 hours",
+    level: "Beginner",
+    link: "https://www.pmi.org/certifications/certified-associate-capm",
+    description: "Prepare for the CAPM exam. Master foundational project management terminology, agile concepts, and business analysis framework.",
+    features: ["Official PMI CAPM prep hours", "Practice questions", "PMBOK guide exercises", "Shareable badge"]
   }
 ];
 
