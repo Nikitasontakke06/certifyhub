@@ -26,7 +26,7 @@ export default function Navbar({ user, onLogout, openAuth }) {
       <div className="navbar-content glass-panel">
         {/* Logo */}
         <Link to="/" className="navbar-logo">
-          <span className="logo-icon">CH</span>
+          <img src="/logo.png" alt="CH" className="logo-img" />
           <span className="logo-text">Certify<span style={{ color: "var(--primary)" }}>Hub</span></span>
         </Link>
 
@@ -188,17 +188,10 @@ export default function Navbar({ user, onLogout, openAuth }) {
           letter-spacing: -0.02em;
         }
 
-        .logo-icon {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: linear-gradient(135deg, var(--primary) 0%, var(--accent-cyan) 100%);
-          color: #ffffff;
-          width: 32px;
+        .logo-img {
           height: 32px;
-          font-size: 0.9rem;
-          border-radius: 8px;
-          box-shadow: 0 4px 10px rgba(29, 92, 255, 0.3);
+          width: auto;
+          object-fit: contain;
         }
 
         .navbar-menu {
