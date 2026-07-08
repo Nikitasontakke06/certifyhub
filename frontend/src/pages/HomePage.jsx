@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   ArrowRight,
@@ -12,22 +12,65 @@ import {
   Sparkles,
   Star,
   TrendingUp,
-  Activity,
   Award,
   LineChart,
-  Settings
+  Settings,
+  Activity,
+  Code,
+  Database,
+  Palette,
+  Shield,
+  Cpu,
+  Cloud,
+  Check,
+  ChevronRight
 } from "lucide-react";
 
-export default function HomePage({ user, openAuth, courses = [], jobs = [], loading }) {
+export default function HomePage({ 
+  user, 
+  openAuth, 
+  courses = [], 
+  jobs = [], 
+  loading, 
+  compareList = [], 
+  onToggleCompare 
+}) {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview"); // "overview" | "analytics" | "matcher"
   
+  // Dynamic user data states
+  const [userPrefs, setUserPrefs] = useState(null);
+  const [personalizedRecs, setPersonalizedRecs] = useState([]);
+  const [fetchingPrefs, setFetchingPrefs] = useState(false);
+
   // States for interactive Analytics tab
   const [selectedCategory, setSelectedCategory] = useState("all");
   
   // States for interactive Skill Matcher tab
   const [targetRole, setTargetRole] = useState("Fullstack Developer");
   const [userExperience, setUserExperience] = useState("Beginner");
+
+  // Fetch preferences and recommendations from APIs on mount
+  useEffect(() => {
+    if (user && user.email) {
+      setFetchingPrefs(true);
+      
+      // Fetch user profile preferences
+      fetch(`/api/preferences?email=${encodeURIComponent(user.email)}`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data) setUserPrefs(data);
+        })
+        .catch(err => console.error("Error loading preferences:", err));
+
+      // Fetch personalized recommendations
+      fetch(`/api/recommendations?email=${encodeURIComponent(user.email)}`)
+        .then(res => res.ok ? res.json() : [])
+        .then(data => setPersonalizedRecs(data))
+        .catch(err => console.error("Error loading recommendations:", err))
+        .finally(() => setFetchingPrefs(false));
+    }
+  }, [user]);
 
   const topCourses = [...courses]
     .sort((a, b) => (b.rating || 0) - (a.rating || 0))
@@ -48,16 +91,23 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
     navigate(path);
   };
 
-  // Get course categories
-  const categories = Array.from(new Set(courses.map(c => c.category)));
+  // Categories list
+  const categories = [
+    { id: "programming", label: "Programming", icon: <Code size={16} /> },
+    { id: "datascience", label: "Data Science", icon: <Database size={16} /> },
+    { id: "design", label: "UI/UX Design", icon: <Palette size={16} /> },
+    { id: "cybersecurity", label: "Cyber Security", icon: <Shield size={16} /> },
+    { id: "aiml", label: "AI & ML", icon: <Cpu size={16} /> },
+    { id: "cloudcomputing", label: "Cloud & DevOps", icon: <Cloud size={16} /> }
+  ];
 
-  // Analytics stats helper
+  // Dynamic calculations for Analytics tab based on loaded course data
   const getCategoryStats = () => {
     const filtered = selectedCategory === "all" 
       ? courses 
       : courses.filter(c => c.category === selectedCategory);
     
-    if (filtered.length === 0) return { avgPrice: 0, topRated: "N/A", avgRating: 0 };
+    if (filtered.length === 0) return { avgPrice: 0, topRated: "N/A", avgRating: 0, count: 0 };
     
     const totalVal = filtered.reduce((acc, curr) => acc + (curr.price || 0), 0);
     const avgPrice = Math.round(totalVal / filtered.length);
@@ -70,18 +120,31 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
 
   const catStats = getCategoryStats();
 
-  // Matcher calculations
+  // Skill Matcher Logic mapping target roles to actual course categories
   const calculateMatch = () => {
+    let targetCat = "programming";
     let matchScore = 75;
-    if (targetRole === "Data Scientist" && userExperience === "Intermediate") matchScore = 92;
-    else if (targetRole === "Fullstack Developer" && userExperience === "Beginner") matchScore = 88;
-    else if (targetRole === "AI Engineer" && userExperience === "Advanced") matchScore = 95;
-    else if (targetRole === "UI/UX Designer") matchScore = 84;
-    
-    const keywords = targetRole.toLowerCase().split(" ");
-    const matchedCourses = courses.filter(c => 
-      keywords.some(kw => c.title.toLowerCase().includes(kw) || c.category.toLowerCase().includes(kw))
-    ).slice(0, 3);
+
+    if (targetRole === "Data Scientist") {
+      targetCat = "datascience";
+      matchScore = userExperience === "Intermediate" ? 92 : userExperience === "Advanced" ? 95 : 78;
+    } else if (targetRole === "AI Engineer") {
+      targetCat = "aiml";
+      matchScore = userExperience === "Advanced" ? 96 : userExperience === "Intermediate" ? 88 : 74;
+    } else if (targetRole === "UI/UX Designer") {
+      targetCat = "design";
+      matchScore = userExperience === "Beginner" ? 82 : 88;
+    } else {
+      // Fullstack Developer
+      targetCat = "programming";
+      matchScore = userExperience === "Beginner" ? 89 : 91;
+    }
+
+    // Filter real courses matching the category
+    const matchedCourses = courses
+      .filter(c => c.category === targetCat)
+      .sort((a, b) => (b.rating || 0) - (a.rating || 0))
+      .slice(0, 3);
 
     return { matchScore, matchedCourses };
   };
@@ -90,31 +153,23 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
 
   return (
     <div className="home-page page-container">
+      
+      {/* Dynamic Welcome & Notification Banner */}
+      <div className="home-header fade-in">
+        <h1>Workspace Dashboard</h1>
+        <p>
+          Welcome back, <strong>{user?.name || user?.email?.split("@")[0] || "Learner"}</strong>. 
+          {userPrefs ? (
+            <span> Your target level is set to <span className="pref-highlight">{userPrefs.skillLevel}</span> with preferred domains: <span className="pref-highlight">{userPrefs.preferredDomains.join(", ")}</span>.</span>
+          ) : (
+            <span> Track certification matrices, syllabus overlays, and live hiring metrics across Indian job sectors.</span>
+          )}
+        </p>
+      </div>
+
       <section className="home-shell fade-in">
         
-        {/* Dynamic Premium Header */}
-        <div className="home-topbar-wrapper glass-panel">
-          <div className="home-topbar-info">
-            <span className="home-eyebrow-badge">
-              <Activity size={12} />
-              <span>Workspace Active</span>
-            </span>
-            <h1>Welcome back, <span className="gradient-text">{user?.name || user?.email?.split("@")[0] || "Learner"}</span></h1>
-            <p className="home-subtitle">Analyze, compare, and match certifications against active Indian market demand.</p>
-          </div>
-          <div className="home-topbar-actions">
-            <button className="btn-secondary" onClick={() => requireUser("/profile")}>
-              <Settings size={16} />
-              <span>Preferences</span>
-            </button>
-            <button className="btn-primary" onClick={() => requireUser("/courses")}>
-              <Search size={16} />
-              <span>Explore Courses</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Horizontal Navigation Tabs */}
+        {/* Horizontal Navigation Tabs Bar */}
         <div className="home-tabs-nav glass-panel">
           <div className="tabs-nav-left">
             <button 
@@ -122,7 +177,7 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
               onClick={() => setActiveTab("overview")}
             >
               <Compass size={16} />
-              <span>Overview</span>
+              <span>Overview Hub</span>
             </button>
             <button 
               className={`tab-nav-btn ${activeTab === "analytics" ? "active" : ""}`} 
@@ -142,7 +197,7 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
           <div className="tabs-nav-right">
             <button className="tab-nav-btn link-style-btn" onClick={() => requireUser("/compare")}>
               <Layers size={16} />
-              <span>Compare</span>
+              <span>Compare Center ({compareList.length})</span>
             </button>
             <button className="tab-nav-btn link-style-btn" onClick={() => requireUser("/jobs")}>
               <Briefcase size={16} />
@@ -151,14 +206,31 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
           </div>
         </div>
 
-        {/* Main Single Column Workspace Content Area */}
+        {/* Quick Category Navigation Strip */}
+        <div className="category-navigation-strip glass-panel">
+          <span className="strip-label">Quick Search by Category:</span>
+          <div className="category-badges">
+            {categories.map(cat => (
+              <button 
+                key={cat.id} 
+                className="cat-badge-btn"
+                onClick={() => requireUser(`/courses?category=${cat.id}`)}
+              >
+                {cat.icon}
+                <span>{cat.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Main Single Column Content */}
         <div className="home-dashboard-single">
           <main className="home-main-full">
             
             {activeTab === "overview" && (
               <div className="tab-pane fade-in">
                 
-                {/* Metric Dashboard */}
+                {/* Metric Cards (Real values) */}
                 <div className="metric-grid">
                   <div className="metric-card glass-panel">
                     <div className="metric-icon blue"><BookOpen size={20} /></div>
@@ -190,7 +262,77 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
                   </div>
                 </div>
 
-                {/* SVG Premium Chart Section */}
+                {/* Real-time Comparison Queue Integration Widget */}
+                {compareList.length > 0 && (
+                  <div className="active-compare-widget glass-panel">
+                    <div className="widget-header">
+                      <div className="widget-title">
+                        <Layers size={18} color="var(--primary)" />
+                        <h3>Active Comparison Queue</h3>
+                      </div>
+                      <span className="queue-count-pill">{compareList.length} / 3 Selected</span>
+                    </div>
+                    <p className="widget-desc">You have selected courses to review. Overlay pricing, hours, and syllabus coverage now.</p>
+                    <div className="widget-queue-list">
+                      {compareList.map(item => (
+                        <div key={item.id} className="widget-queue-item">
+                          <div>
+                            <strong>{item.title}</strong>
+                            <span>{item.provider}</span>
+                          </div>
+                          <button 
+                            onClick={() => onToggleCompare(item)} 
+                            className="remove-queue-btn"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                    <button onClick={() => navigate("/compare")} className="btn-primary widget-action-btn">
+                      <span>Launch Compare Matrices</span>
+                      <ArrowRight size={16} />
+                    </button>
+                  </div>
+                )}
+
+                {/* Personalized Recommendations Section (Real API output) */}
+                {personalizedRecs.length > 0 && (
+                  <section className="personalized-recommendations-section glass-panel">
+                    <div className="section-header">
+                      <div className="header-info">
+                        <span className="home-eyebrow">Personalized Matching</span>
+                        <h2>Recommended For You</h2>
+                      </div>
+                      <span className="engine-badge">AI Recommendation Engine</span>
+                    </div>
+                    <div className="personalized-grid">
+                      {personalizedRecs.map(rec => (
+                        <div key={rec.id} className="personalized-card glass-panel">
+                          <div className="card-top">
+                            <span className="rec-platform">{rec.provider}</span>
+                            <span className="rec-price">{rec.price === 0 ? "Free" : `₹${rec.price.toLocaleString("en-IN")}`}</span>
+                          </div>
+                          <h4>{rec.title}</h4>
+                          <div className="card-bottom">
+                            <div className="rating">
+                              <Star size={12} fill="var(--primary)" color="var(--primary)" />
+                              <span>{rec.rating} ({rec.reviews ? rec.reviews.toLocaleString() : "0"} reviews)</span>
+                            </div>
+                            <button 
+                              onClick={() => onToggleCompare(rec)}
+                              className={`btn-secondary mini-btn ${compareList.some(item => item.id === rec.id) ? "compared" : ""}`}
+                            >
+                              {compareList.some(item => item.id === rec.id) ? <Check size={12} /> : "+ Compare"}
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                {/* SVG Demand Trend Chart Section */}
                 <section className="chart-section glass-panel">
                   <div className="chart-header">
                     <div>
@@ -255,20 +397,33 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
                         <div className="list-empty">Loading courses...</div>
                       ) : topCourses.length > 0 ? (
                         topCourses.map(course => (
-                          <button 
+                          <div 
                             key={course.id} 
-                            className="course-row" 
-                            onClick={() => requireUser(`/courses?search=${encodeURIComponent(course.title)}`)}
+                            className="course-row-item"
                           >
-                            <div className="course-row-details">
-                              <h3>{course.title}</h3>
-                              <span className="course-row-platform">{course.provider}</span>
+                            <button 
+                              className="course-row-main"
+                              onClick={() => requireUser(`/courses?search=${encodeURIComponent(course.title)}`)}
+                            >
+                              <div className="course-row-details">
+                                <h3>{course.title}</h3>
+                                <span className="course-row-platform">{course.provider} • ₹{course.price === 0 ? "Free" : course.price.toLocaleString("en-IN")}</span>
+                              </div>
+                            </button>
+                            <div className="course-row-actions">
+                              <button 
+                                onClick={() => onToggleCompare(course)}
+                                className={`row-action-compare-btn ${compareList.some(item => item.id === course.id) ? "compared" : ""}`}
+                                title={compareList.some(item => item.id === course.id) ? "Remove from comparison" : "Add to comparison"}
+                              >
+                                {compareList.some(item => item.id === course.id) ? <Check size={14} /> : "Compare"}
+                              </button>
+                              <div className="row-meta">
+                                <Star size={12} fill="var(--primary)" color="var(--primary)" />
+                                <strong>{course.rating}</strong>
+                              </div>
                             </div>
-                            <div className="row-meta">
-                              <Star size={12} fill="var(--primary)" color="var(--primary)" />
-                              <strong>{course.rating}</strong>
-                            </div>
-                          </button>
+                          </div>
                         ))
                       ) : (
                         <div className="list-empty">No courses available.</div>
@@ -336,7 +491,7 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
                       >
                         <option value="all">All Categories</option>
                         {categories.map(cat => (
-                          <option key={cat} value={cat}>{cat.toUpperCase()}</option>
+                          <option key={cat.id} value={cat.id}>{cat.label}</option>
                         ))}
                       </select>
                     </div>
@@ -345,7 +500,7 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
                   <div className="analytics-report-grid">
                     <div className="report-card">
                       <h3>Average Price</h3>
-                      <span className="stat-value">₹{catStats.avgPrice}</span>
+                      <span className="stat-value">₹{catStats.avgPrice.toLocaleString("en-IN")}</span>
                       <p className="stat-desc">Calculated across this category's providers.</p>
                     </div>
                     <div className="report-card">
@@ -460,13 +615,24 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
                       <div className="recommended-list">
                         {matchData.matchedCourses.length > 0 ? (
                           matchData.matchedCourses.map(course => (
-                            <div key={course.id} className="recommended-course-card">
+                            <div key={course.id} className="recommended-course-card glass-panel">
                               <span className="rec-badge">Best Match</span>
                               <h5>{course.title}</h5>
-                              <p className="rec-meta">{course.provider} • ⭐ {course.rating}</p>
-                              <button onClick={() => requireUser(`/courses?search=${encodeURIComponent(course.title)}`)} className="btn-secondary mini-btn">
-                                View syllabus
-                              </button>
+                              <p className="rec-meta">{course.provider} • ⭐ {course.rating} • {course.price === 0 ? "Free" : `₹${course.price.toLocaleString("en-IN")}`}</p>
+                              <div className="rec-actions">
+                                <button 
+                                  onClick={() => requireUser(`/courses?search=${encodeURIComponent(course.title)}`)} 
+                                  className="btn-secondary mini-btn"
+                                >
+                                  View Syllabus
+                                </button>
+                                <button 
+                                  onClick={() => onToggleCompare(course)}
+                                  className={`btn-primary mini-btn ${compareList.some(item => item.id === course.id) ? "compared" : ""}`}
+                                >
+                                  {compareList.some(item => item.id === course.id) ? <Check size={12} /> : "Add Compare"}
+                                </button>
+                              </div>
                             </div>
                           ))
                         ) : (
@@ -492,60 +658,36 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
 
       <style dangerouslySetInnerHTML={{__html: `
         .home-page {
-          padding-top: 110px;
-          padding-bottom: 60px;
+          display: flex;
+          flex-direction: column;
+        }
+
+        .home-header {
+          margin-bottom: 32px;
+        }
+
+        .home-header h1 {
+          font-size: 2.25rem;
+          font-weight: 800;
+          color: var(--text-primary);
+          margin-bottom: 8px;
+        }
+
+        .home-header p {
+          color: var(--text-secondary);
+          font-size: 1rem;
+          line-height: 1.5;
+        }
+
+        .pref-highlight {
+          color: var(--primary);
+          font-weight: 700;
         }
 
         .home-shell {
           display: flex;
           flex-direction: column;
           gap: 24px;
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 0 16px;
-        }
-
-        /* Premium Header banner */
-        .home-topbar-wrapper {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 28px 36px;
-          background: linear-gradient(135deg, rgba(29, 92, 255, 0.05) 0%, rgba(9, 168, 216, 0.02) 100%), #FFFFFF;
-          border: 1px solid var(--border-color);
-        }
-
-        .home-topbar-info h1 {
-          font-size: 2.25rem;
-          font-weight: 800;
-          color: var(--text-primary);
-          margin: 6px 0;
-          letter-spacing: -0.02em;
-        }
-
-        .home-eyebrow-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          color: var(--primary);
-          background: var(--primary-light);
-          padding: 4px 10px;
-          border-radius: var(--radius-full);
-          font-size: 0.72rem;
-          font-weight: 800;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-        }
-
-        .home-subtitle {
-          color: var(--text-secondary);
-          font-size: 0.95rem;
-          margin: 0;
-        }
-
-        .home-topbar-actions {
-          display: flex;
-          gap: 12px;
         }
 
         /* Horizontal Navigation Tabs Bar */
@@ -554,7 +696,7 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
           align-items: center;
           justify-content: space-between;
           padding: 10px 16px;
-          background: #FFFFFF;
+          background: var(--bg-glass);
           border: 1px solid var(--border-color);
         }
 
@@ -586,7 +728,7 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
         .tab-nav-btn.active {
           color: var(--primary);
           background: var(--primary-light);
-          border-color: rgba(29, 92, 255, 0.1);
+          border-color: var(--primary-glow);
         }
 
         .link-style-btn {
@@ -597,7 +739,51 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
           opacity: 1;
         }
 
-        /* Main Single Column Workspace Content */
+        /* Quick Category Strip */
+        .category-navigation-strip {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          padding: 8px 0;
+          background: transparent;
+          border: none;
+        }
+
+        .strip-label {
+          font-size: 0.85rem;
+          font-weight: 700;
+          color: var(--text-secondary);
+          white-space: nowrap;
+        }
+
+        .category-badges {
+          display: flex;
+          gap: 10px;
+          flex-wrap: wrap;
+        }
+
+        .cat-badge-btn {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          background: var(--bg-secondary);
+          border: 1px solid var(--border-color);
+          border-radius: var(--radius-full);
+          padding: 6px 14px;
+          font-size: 0.82rem;
+          font-weight: 700;
+          color: var(--text-secondary);
+          cursor: pointer;
+          transition: all var(--transition-fast);
+        }
+
+        .cat-badge-btn:hover {
+          border-color: var(--primary);
+          color: var(--primary);
+          background: var(--primary-light);
+        }
+
+        /* Main Single Column Content */
         .home-dashboard-single {
           width: 100%;
         }
@@ -606,6 +792,209 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
           display: flex;
           flex-direction: column;
           gap: 24px;
+        }
+
+        /* Active Compare Queue Widget */
+        .active-compare-widget {
+          padding: 24px;
+          background: var(--bg-glass);
+          border: 1px solid rgba(37, 99, 235, 0.25);
+          box-shadow: 0 4px 20px rgba(37, 99, 235, 0.05);
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .widget-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .widget-title {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .widget-title h3 {
+          font-size: 1.15rem;
+          font-weight: 800;
+          color: var(--text-primary);
+        }
+
+        .queue-count-pill {
+          background: var(--primary);
+          color: #FFFFFF;
+          font-size: 0.75rem;
+          font-weight: 700;
+          padding: 4px 10px;
+          border-radius: var(--radius-full);
+        }
+
+        .widget-desc {
+          font-size: 0.88rem;
+          color: var(--text-secondary);
+          margin: 0;
+        }
+
+        .widget-queue-list {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          margin: 6px 0;
+        }
+
+        .widget-queue-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          background: var(--bg-secondary);
+          border: 1px solid var(--border-color);
+          padding: 10px 16px;
+          border-radius: var(--radius-md);
+        }
+
+        .widget-queue-item strong {
+          font-size: 0.88rem;
+          color: var(--text-primary);
+          display: block;
+        }
+
+        .widget-queue-item span {
+          font-size: 0.75rem;
+          color: var(--text-muted);
+        }
+
+        .remove-queue-btn {
+          background: transparent;
+          border: none;
+          color: var(--error);
+          font-size: 0.78rem;
+          font-weight: 700;
+          cursor: pointer;
+        }
+
+        .remove-queue-btn:hover {
+          text-decoration: underline;
+        }
+
+        .widget-action-btn {
+          align-self: flex-start;
+        }
+
+        /* Personalized Recommendations Grid */
+        .personalized-recommendations-section {
+          padding: 24px;
+          background: var(--bg-glass);
+          border: 1px solid var(--border-color);
+        }
+
+        .section-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+          font-size: 1.25rem;
+          font-weight: 800;
+          color: var(--text-primary);
+        }
+
+        .engine-badge {
+          background: #DEF7EC;
+          color: #03543F;
+          font-size: 0.72rem;
+          font-weight: 700;
+          padding: 4px 10px;
+          border-radius: var(--radius-full);
+          border: 1px solid rgba(3, 84, 63, 0.15);
+        }
+
+        .personalized-grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 16px;
+        }
+
+        .personalized-card {
+          padding: 18px;
+          background: var(--bg-secondary);
+          border: 1px solid var(--border-color);
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          transition: all var(--transition-fast);
+        }
+
+        .personalized-card:hover {
+          border-color: var(--primary);
+          transform: translateY(-2px);
+          box-shadow: var(--shadow-sm);
+        }
+
+        .card-top {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .rec-platform {
+          font-size: 0.72rem;
+          font-weight: 800;
+          background: var(--primary-light);
+          color: var(--primary);
+          padding: 2px 8px;
+          border-radius: 4px;
+          text-transform: uppercase;
+        }
+
+        .rec-price {
+          font-size: 0.85rem;
+          font-weight: 800;
+          color: var(--text-primary);
+        }
+
+        .personalized-card h4 {
+          font-size: 0.9rem;
+          font-weight: 800;
+          color: var(--text-primary);
+          line-height: 1.4;
+          margin: 0;
+          height: 38px;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        .card-bottom {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-top: auto;
+        }
+
+        .personalized-card .rating {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 0.75rem;
+          color: var(--text-secondary);
+        }
+
+        .mini-btn {
+          padding: 6px 12px;
+          font-size: 0.78rem;
+          font-weight: 700;
+        }
+
+        .mini-btn.compared {
+          background: #DEF7EC;
+          color: #03543F;
+          border-color: rgba(3, 84, 63, 0.15);
         }
 
         /* Metrics grid */
@@ -620,7 +1009,7 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
           display: flex;
           align-items: center;
           gap: 12px;
-          background: #FFFFFF;
+          background: var(--bg-glass);
           border: 1px solid var(--border-color);
         }
 
@@ -663,7 +1052,7 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
 
         /* SVG Chart Design */
         .chart-section {
-          background: #FFFFFF;
+          background: var(--bg-glass);
           padding: 24px;
         }
 
@@ -681,14 +1070,24 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
           margin-top: 4px;
         }
 
+        .home-eyebrow {
+          display: inline-block;
+          color: var(--primary);
+          font-size: 0.75rem;
+          font-weight: 800;
+          letter-spacing: 0.14em;
+          text-transform: uppercase;
+          margin-bottom: 4px;
+        }
+
         .chart-badge {
-          background: #EFF6FF;
+          background: var(--primary-light);
           color: var(--primary);
           font-size: 0.72rem;
           font-weight: 800;
           padding: 4px 10px;
           border-radius: var(--radius-full);
-          border: 1px solid rgba(29, 92, 255, 0.15);
+          border: 1px solid var(--border-glow);
         }
 
         .dashboard-svg-chart {
@@ -718,7 +1117,7 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
 
         .home-list-panel {
           padding: 24px;
-          background: #FFFFFF;
+          background: var(--bg-glass);
         }
 
         .panel-heading {
@@ -747,27 +1146,33 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
           gap: 10px;
         }
 
-        .course-row, .job-row {
+        .course-row-item {
           display: flex;
           align-items: center;
           justify-content: space-between;
           padding: 12px 14px;
           border: 1px solid var(--border-color);
           border-radius: var(--radius-md);
-          background: #FFFFFF;
-          cursor: pointer;
-          text-align: left;
-          width: 100%;
+          background: var(--bg-secondary);
           transition: all var(--transition-fast);
         }
 
-        .course-row:hover, .job-row:hover {
+        .course-row-item:hover {
           border-color: var(--primary);
           transform: translateY(-2px);
           box-shadow: var(--shadow-sm);
         }
 
-        .course-row-details h3, .job-row-details h3 {
+        .course-row-main {
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          text-align: left;
+          flex-grow: 1;
+          padding: 0;
+        }
+
+        .course-row-details h3 {
           font-size: 0.88rem;
           font-weight: 800;
           color: var(--text-primary);
@@ -779,9 +1184,39 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
           overflow: hidden;
         }
 
-        .course-row-platform, .job-row-skills {
+        .course-row-platform {
           font-size: 0.75rem;
           color: var(--text-secondary);
+        }
+
+        .course-row-actions {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .row-action-compare-btn {
+          background: transparent;
+          border: 1px solid var(--border-color);
+          border-radius: var(--radius-sm);
+          color: var(--text-secondary);
+          font-size: 0.75rem;
+          font-weight: 700;
+          padding: 4px 10px;
+          cursor: pointer;
+          transition: all var(--transition-fast);
+        }
+
+        .row-action-compare-btn:hover {
+          border-color: var(--primary);
+          color: var(--primary);
+          background: var(--primary-light);
+        }
+
+        .row-action-compare-btn.compared {
+          background: #DEF7EC;
+          color: #03543F;
+          border-color: rgba(3, 84, 63, 0.15);
         }
 
         .row-meta, .growth-pill {
@@ -795,6 +1230,43 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
           font-size: 0.75rem;
           font-weight: 700;
           flex-shrink: 0;
+        }
+
+        .job-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 12px 14px;
+          border: 1px solid var(--border-color);
+          border-radius: var(--radius-md);
+          background: var(--bg-secondary);
+          cursor: pointer;
+          text-align: left;
+          width: 100%;
+          transition: all var(--transition-fast);
+        }
+
+        .job-row:hover {
+          border-color: var(--primary);
+          transform: translateY(-2px);
+          box-shadow: var(--shadow-sm);
+        }
+
+        .job-row-details h3 {
+          font-size: 0.88rem;
+          font-weight: 800;
+          color: var(--text-primary);
+          margin: 0 0 2px 0;
+          line-height: 1.3;
+          display: -webkit-box;
+          -webkit-line-clamp: 1;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        .job-row-skills {
+          font-size: 0.75rem;
+          color: var(--text-secondary);
         }
 
         .growth-pill {
@@ -811,7 +1283,7 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
 
         /* Analytics Explorer page */
         .analytics-explorer, .matcher-workspace {
-          background: #FFFFFF;
+          background: var(--bg-glass);
           padding: 32px;
         }
 
@@ -855,7 +1327,7 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
           padding: 8px 12px;
           border-radius: var(--radius-sm);
           border: 1px solid var(--border-color);
-          background: var(--bg-primary);
+          background: var(--bg-secondary);
           color: var(--text-primary);
           font-size: 0.85rem;
           outline: none;
@@ -875,7 +1347,7 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
 
         .report-card {
           padding: 20px;
-          background: var(--bg-primary);
+          background: var(--bg-secondary);
           border-radius: var(--radius-md);
           border: 1px solid var(--border-color);
         }
@@ -910,7 +1382,7 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
           background: var(--primary-light);
           padding: 16px 20px;
           border-radius: var(--radius-md);
-          border: 1px solid rgba(29, 92, 255, 0.1);
+          border: 1px solid var(--border-glow);
           margin-bottom: 28px;
         }
 
@@ -957,7 +1429,7 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
 
         .bar-track {
           height: 10px;
-          background: var(--bg-primary);
+          background: var(--bg-secondary);
           border-radius: var(--radius-full);
           overflow: hidden;
         }
@@ -1019,7 +1491,7 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
           flex: 1;
           padding: 8px;
           border: 1px solid var(--border-color);
-          background: #FFFFFF;
+          background: var(--bg-secondary);
           border-radius: var(--radius-sm);
           font-size: 0.85rem;
           font-weight: 700;
@@ -1051,7 +1523,7 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
           flex-direction: column;
           align-items: center;
           gap: 16px;
-          background: var(--bg-primary);
+          background: var(--bg-secondary);
           padding: 24px;
           border-radius: var(--radius-md);
           border: 1px solid var(--border-color);
@@ -1067,7 +1539,7 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          background: #FFFFFF;
+          background: var(--bg-secondary);
           box-shadow: 0 4px 12px rgba(29, 92, 255, 0.15);
         }
 
@@ -1116,14 +1588,14 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
           padding: 16px;
           border: 1px solid var(--border-color);
           border-radius: var(--radius-md);
-          background: var(--bg-tertiary);
-          position: relative;
+          background: var(--bg-secondary);
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
         }
 
         .rec-badge {
-          position: absolute;
-          top: 12px;
-          right: 12px;
+          align-self: flex-start;
           background: var(--primary);
           color: #FFFFFF;
           font-size: 0.62rem;
@@ -1137,20 +1609,19 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
           font-size: 0.88rem;
           font-weight: 800;
           color: var(--text-primary);
-          margin: 0 0 4px 0;
-          padding-right: 70px;
+          margin: 0;
         }
 
         .rec-meta {
           font-size: 0.75rem;
           color: var(--text-secondary);
-          margin-bottom: 10px;
+          margin: 0;
         }
 
-        .mini-btn {
-          padding: 6px 12px;
-          font-size: 0.78rem;
-          font-weight: 700;
+        .rec-actions {
+          display: flex;
+          gap: 8px;
+          margin-top: 4px;
         }
 
         @media (max-width: 1024px) {
@@ -1163,21 +1634,25 @@ export default function HomePage({ user, openAuth, courses = [], jobs = [], load
           .tabs-nav-left, .tabs-nav-right {
             justify-content: center;
           }
+
+          .category-navigation-strip {
+            flex-direction: column;
+            align-items: stretch;
+          }
         }
 
         @media (max-width: 768px) {
-          .home-topbar-wrapper {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 16px;
-            padding: 20px;
-          }
-
-          .metric-grid {
+          .metric-grid, .personalized-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
           }
 
           .home-content-grid, .analytics-report-grid, .matcher-form, .matcher-results {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .metric-grid, .personalized-grid {
             grid-template-columns: 1fr;
           }
         }

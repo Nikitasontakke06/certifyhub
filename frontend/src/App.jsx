@@ -136,6 +136,8 @@ export default function App() {
                     courses={courses}
                     jobs={jobs}
                     loading={loading}
+                    compareList={compareList}
+                    onToggleCompare={handleToggleCompare}
                   />
                 ) : (
                   <LandingPage 
