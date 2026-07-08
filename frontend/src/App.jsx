@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import AuthModal from "./components/AuthModal";
@@ -8,11 +8,27 @@ import ChatbotWidget from "./components/ChatbotWidget";
 
 // Pages
 import LandingPage from "./pages/LandingPage";
+import HomePage from "./pages/HomePage";
 import CoursesPage from "./pages/CoursesPage";
 import ComparePage from "./pages/ComparePage";
 import JobsPage from "./pages/JobsPage";
 import AboutPage from "./pages/AboutPage";
 import ProfilePage from "./pages/ProfilePage";
+
+// ProtectedRoute component helper
+function ProtectedRoute({ user, openAuth, children }) {
+  useEffect(() => {
+    if (!user) {
+      openAuth();
+    }
+  }, [user, openAuth]);
+
+  if (!user) {
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -113,54 +129,72 @@ export default function App() {
             <Route 
               path="/" 
               element={
-                <LandingPage 
-                  user={user}
-                  openAuth={() => setIsAuthOpen(true)}
-                  courses={courses}
-                  loading={loading}
-                  onToggleCompare={handleToggleCompare} 
-                  compareList={compareList} 
-                />
+                user ? (
+                  <HomePage 
+                    user={user}
+                    openAuth={() => setIsAuthOpen(true)}
+                    courses={courses}
+                    jobs={jobs}
+                    loading={loading}
+                  />
+                ) : (
+                  <LandingPage 
+                    user={user}
+                    openAuth={() => setIsAuthOpen(true)}
+                    courses={courses}
+                    loading={loading}
+                    onToggleCompare={handleToggleCompare} 
+                    compareList={compareList} 
+                  />
+                )
               } 
             />
             <Route 
               path="/courses" 
               element={
-                <CoursesPage 
-                  courses={courses}
-                  loading={loading}
-                  onToggleCompare={handleToggleCompare} 
-                  compareList={compareList} 
-                />
+                <ProtectedRoute user={user} openAuth={() => setIsAuthOpen(true)}>
+                  <CoursesPage 
+                    courses={courses}
+                    loading={loading}
+                    onToggleCompare={handleToggleCompare} 
+                    compareList={compareList} 
+                  />
+                </ProtectedRoute>
               } 
             />
             <Route 
               path="/compare" 
               element={
-                <ComparePage 
-                  compareList={compareList} 
-                  onRemove={handleRemoveCompare} 
-                  onClear={handleClearCompare} 
-                />
+                <ProtectedRoute user={user} openAuth={() => setIsAuthOpen(true)}>
+                  <ComparePage 
+                    compareList={compareList} 
+                    onRemove={handleRemoveCompare} 
+                    onClear={handleClearCompare} 
+                  />
+                </ProtectedRoute>
               } 
             />
             <Route 
               path="/jobs" 
               element={
-                <JobsPage 
-                  jobs={jobs} 
-                  loading={loading} 
-                />
+                <ProtectedRoute user={user} openAuth={() => setIsAuthOpen(true)}>
+                  <JobsPage 
+                    jobs={jobs} 
+                    loading={loading} 
+                  />
+                </ProtectedRoute>
               } 
             />
             <Route path="/about" element={<AboutPage />} />
             <Route 
               path="/profile" 
               element={
-                <ProfilePage 
-                  user={user}
-                  onLoadComparison={handleLoadComparison}
-                />
+                <ProtectedRoute user={user} openAuth={() => setIsAuthOpen(true)}>
+                  <ProfilePage 
+                    user={user}
+                    onLoadComparison={handleLoadComparison}
+                  />
+                </ProtectedRoute>
               } 
             />
           </Routes>
