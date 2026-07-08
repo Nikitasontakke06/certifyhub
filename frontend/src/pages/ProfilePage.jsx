@@ -302,7 +302,7 @@ export default function ProfilePage({ user, onLoadComparison }) {
 
                   <div className="form-group-section">
                     <label className="section-label">
-                      Budget Range Limit (INR): <span className="highlight-text">â‚¹{budgetLimit.toLocaleString("en-IN")}</span>
+                      Budget Range Limit (INR): <span className="highlight-text">₹{budgetLimit.toLocaleString("en-IN")}</span>
                     </label>
                     <div className="budget-slider-box">
                       <input
@@ -315,8 +315,8 @@ export default function ProfilePage({ user, onLoadComparison }) {
                         className="budget-range-slider"
                       />
                       <div className="slider-limits">
-                        <span>â‚¹0 (Free)</span>
-                        <span>â‚¹60,000+</span>
+                        <span>₹0 (Free)</span>
+                        <span>₹60,000+</span>
                       </div>
                     </div>
                   </div>

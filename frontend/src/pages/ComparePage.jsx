@@ -155,7 +155,7 @@ export default function ComparePage({ compareList, onRemove, onClear }) {
                 return (
                   <td key={course.id} className="course-col font-medium">
                     <span className="price-val">
-                      {course.price === 0 ? "FREE" : `â‚¹${course.price.toLocaleString("en-IN")}`}
+                      {course.price === 0 ? "FREE" : `₹${course.price.toLocaleString("en-IN")}`}
                     </span>
                     {isCheapest && (
                       <span className="highlight-badge cheapest-badge">Best Price</span>

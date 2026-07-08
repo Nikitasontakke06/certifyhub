@@ -31,7 +31,7 @@ export default function CourseCard({ course, isCompared, onToggleCompare }) {
           {course.provider}
         </span>
         <span className="price-tag">
-          {course.price === 0 ? "FREE" : `â‚¹${course.price.toLocaleString("en-IN")}`}
+          {course.price === 0 ? "FREE" : `₹${course.price.toLocaleString("en-IN")}`}
         </span>
       </div>
 
