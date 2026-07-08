@@ -143,7 +143,7 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
               </div>
               <div className="stat-divider"></div>
               <div className="stat-box">
-                <h3>â‚¹ INR</h3>
+                <h3>₹ INR</h3>
                 <p>Localized Pricing</p>
               </div>
             </div>
@@ -160,7 +160,7 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
                 <div className="mock-body">
                   <div className="mock-header">
                     <span className="mock-provider prov-udemy">Udemy</span>
-                    <span className="mock-price">â‚¹1,499</span>
+                    <span className="mock-price">₹1,499</span>
                   </div>
                   <h4>Complete Python Bootcamp</h4>
                   <div className="mock-meta">
@@ -181,7 +181,7 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
                 <div className="mock-body">
                   <div className="mock-header">
                     <span className="mock-provider prov-coursera">Coursera</span>
-                    <span className="mock-price">â‚¹3,299</span>
+                    <span className="mock-price">₹3,299</span>
                   </div>
                   <h4>IBM Data Science Professional</h4>
                   <div className="mock-meta">
