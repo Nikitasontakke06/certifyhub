@@ -25,6 +25,27 @@ export default function ComparePage({ compareList, onRemove, onClear }) {
     }
   };
 
+  React.useEffect(() => {
+    const savedUser = localStorage.getItem("current_user");
+    if (savedUser && compareList && compareList.length >= 2) {
+      try {
+        const userObj = JSON.parse(savedUser);
+        if (userObj && userObj.email) {
+          fetch("/api/comparison-history", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: userObj.email,
+              courseIds: compareList.map(c => c.id)
+            })
+          }).catch(err => console.error("Error logging comparison history:", err));
+        }
+      } catch (e) {
+        console.error("Failed to parse user session", e);
+      }
+    }
+  }, [compareList]);
+
   // Find the cheapest/highest rated courses for highlighting
   const cheapest = compareList.length > 0 ? Math.min(...compareList.map(c => c.price)) : 0;
   const bestRated = compareList.length > 0 ? Math.max(...compareList.map(c => c.rating)) : 0;
