@@ -12,6 +12,7 @@ import CoursesPage from "./pages/CoursesPage";
 import ComparePage from "./pages/ComparePage";
 import JobsPage from "./pages/JobsPage";
 import AboutPage from "./pages/AboutPage";
+import ProfilePage from "./pages/ProfilePage";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -94,6 +95,10 @@ export default function App() {
     setCompareList([]);
   };
 
+  const handleLoadComparison = (courses) => {
+    setCompareList(courses);
+  };
+
   return (
     <Router>
       <div className="app-layout">
@@ -149,6 +154,15 @@ export default function App() {
               } 
             />
             <Route path="/about" element={<AboutPage />} />
+            <Route 
+              path="/profile" 
+              element={
+                <ProfilePage 
+                  user={user}
+                  onLoadComparison={handleLoadComparison}
+                />
+              } 
+            />
           </Routes>
         </main>
 

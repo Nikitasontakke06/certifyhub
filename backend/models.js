@@ -133,3 +133,57 @@ export const User = mongoose.model("User", userSchema);
 export const Course = mongoose.model("Course", courseSchema);
 export const Job = mongoose.model("Job", jobSchema);
 export const JobTrendHistory = mongoose.model("JobTrendHistory", jobTrendHistorySchema);
+
+// 5. User Preference Schema
+const userPreferenceSchema = new mongoose.Schema({
+  userEmail: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    trim: true
+  },
+  preferredDomains: {
+    type: [String],
+    default: []
+  },
+  skillLevel: {
+    type: String,
+    default: "Beginner"
+  },
+  budgetLimit: {
+    type: Number,
+    default: 10000
+  },
+  preferredPlatforms: {
+    type: [String],
+    default: []
+  },
+  emailNotifications: {
+    type: Boolean,
+    default: true
+  },
+  themePreference: {
+    type: String,
+    default: "dark"
+  }
+});
+
+// 6. Comparison History Schema
+const comparisonHistorySchema = new mongoose.Schema({
+  userEmail: {
+    type: String,
+    required: true
+  },
+  courses: [{
+    type: String,
+    ref: "Course"
+  }],
+  date: {
+    type: Date,
+    default: Date.now
+  }
+});
+
+export const UserPreference = mongoose.model("UserPreference", userPreferenceSchema);
+export const ComparisonHistory = mongoose.model("ComparisonHistory", comparisonHistorySchema);

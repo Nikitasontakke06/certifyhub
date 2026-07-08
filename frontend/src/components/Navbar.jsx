@@ -6,6 +6,7 @@ export default function Navbar({ user, onLogout, openAuth }) {
   const [searchVal, setSearchVal] = useState("");
   const [coursesDropdown, setCoursesDropdown] = useState(false);
   const [trendingsDropdown, setTrendingsDropdown] = useState(false);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleSearchSubmit = (e) => {
@@ -110,11 +111,42 @@ export default function Navbar({ user, onLogout, openAuth }) {
         {/* User Auth Info */}
         <div className="navbar-user">
           {user ? (
-            <div className="user-profile">
-              <span className="user-email" title={user.email}>{user.email}</span>
-              <button onClick={onLogout} className="btn-logout" title="Log Out">
-                <LogOut size={16} />
+            <div 
+              className="user-profile-menu-container"
+              onMouseLeave={() => setProfileDropdownOpen(false)}
+            >
+              <button 
+                onClick={() => setProfileDropdownOpen(!profileDropdownOpen)} 
+                className="user-profile-btn glass-panel"
+                title="Account Menu"
+              >
+                <User size={16} color="var(--primary)" />
+                <span className="user-email" title={user.email}>{user.email}</span>
+                <ChevronDown size={14} className={profileDropdownOpen ? "rotated" : ""} />
               </button>
+              
+              {profileDropdownOpen && (
+                <div className="profile-dropdown-menu glass-panel fade-in">
+                  <Link 
+                    to="/profile" 
+                    className="dropdown-item"
+                    onClick={() => setProfileDropdownOpen(false)}
+                  >
+                    <User size={14} style={{ marginRight: 8, display: "inline-block", verticalAlign: "middle" }} />
+                    <span style={{ display: "inline-block", verticalAlign: "middle" }}>Profile Dashboard</span>
+                  </Link>
+                  <button 
+                    onClick={() => {
+                      setProfileDropdownOpen(false);
+                      onLogout();
+                    }} 
+                    className="dropdown-item logout-dropdown-item"
+                  >
+                    <LogOut size={14} style={{ marginRight: 8, display: "inline-block", verticalAlign: "middle" }} />
+                    <span style={{ display: "inline-block", verticalAlign: "middle" }}>Log Out</span>
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <button onClick={openAuth} className="btn-primary auth-trigger-btn">
@@ -294,14 +326,54 @@ export default function Navbar({ user, onLogout, openAuth }) {
           align-items: center;
         }
 
-        .user-profile {
+        .user-profile-menu-container {
+          position: relative;
+        }
+
+        .user-profile-btn {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 10px;
           background: rgba(255, 255, 255, 0.03);
-          padding: 6px 6px 6px 14px;
+          padding: 8px 16px;
           border-radius: var(--radius-md);
           border: 1px solid var(--border-color);
+          color: var(--text-primary);
+          font-weight: 600;
+          cursor: pointer;
+          transition: all var(--transition-fast);
+        }
+
+        .user-profile-btn:hover {
+          background: rgba(255, 255, 255, 0.06);
+          border-color: rgba(255, 115, 0, 0.3);
+        }
+
+        .profile-dropdown-menu {
+          position: absolute;
+          top: 100%;
+          right: 0;
+          min-width: 180px;
+          padding: 8px;
+          margin-top: 8px;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          z-index: 1000;
+          background: var(--bg-secondary);
+        }
+
+        .logout-dropdown-item {
+          width: 100%;
+          background: transparent;
+          border: none;
+          text-align: left;
+          cursor: pointer;
+        }
+
+        .logout-dropdown-item:hover {
+          background: rgba(239, 68, 68, 0.1) !important;
+          color: var(--error) !important;
         }
 
         .user-email {
@@ -312,24 +384,6 @@ export default function Navbar({ user, onLogout, openAuth }) {
           text-overflow: ellipsis;
           white-space: nowrap;
           font-weight: 500;
-        }
-
-        .btn-logout {
-          background: transparent;
-          border: none;
-          color: var(--text-muted);
-          cursor: pointer;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 6px;
-          border-radius: var(--radius-sm);
-          transition: all var(--transition-fast);
-        }
-
-        .btn-logout:hover {
-          color: var(--error);
-          background: rgba(239, 68, 68, 0.08);
         }
 
         .auth-trigger-btn {

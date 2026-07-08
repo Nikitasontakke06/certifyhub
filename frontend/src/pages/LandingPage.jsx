@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   Search, CheckCircle, ArrowRight, Award, Compass, BookOpen, 
@@ -13,6 +13,23 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
   const [showRecs, setShowRecs] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
+
+  // Personalized recommendations
+  const [personalizedRecs, setPersonalizedRecs] = useState([]);
+  const [personalRecsLoading, setPersonalRecsLoading] = useState(false);
+
+  useEffect(() => {
+    if (user && user.email) {
+      setPersonalRecsLoading(true);
+      fetch(`/api/recommendations?email=${encodeURIComponent(user.email)}`)
+        .then(res => res.ok ? res.json() : [])
+        .then(data => setPersonalizedRecs(data))
+        .catch(err => console.error("Error loading recommendations:", err))
+        .finally(() => setPersonalRecsLoading(false));
+    } else {
+      setPersonalizedRecs([]);
+    }
+  }, [user]);
 
   const interestsList = [
     { id: "datascience", label: "Data Science", category: "datascience", icon: <Database size={16} /> },
@@ -242,6 +259,41 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
           </div>
         </div>
       </section>
+
+      {/* Personalized Profile Recommendations Section */}
+      {user && (
+        <section className="personalized-recs-section fade-in">
+          <div className="section-header">
+            <Award size={24} color="var(--primary)" />
+            <h2>Recommended for You</h2>
+          </div>
+          <p className="section-subtitle">
+            Dynamic course recommendations customized for your profile level and budget limits.
+          </p>
+
+          <div className="recs-grid" style={{ marginTop: 24 }}>
+            {personalRecsLoading ? (
+              <div style={{ gridColumn: "1/-1", textAlign: "center", padding: 40, color: "var(--text-secondary)" }}>
+                <div className="loading-spinner"></div>
+                <p style={{ marginTop: 12 }}>Connecting to database, loading recommendations...</p>
+              </div>
+            ) : personalizedRecs.length > 0 ? (
+              personalizedRecs.map(course => (
+                <CourseCard
+                  key={course.id}
+                  course={course}
+                  isCompared={compareList.some(item => item.id === course.id)}
+                  onToggleCompare={onToggleCompare}
+                />
+              ))
+            ) : (
+              <div className="no-recs glass-panel" style={{ width: "100%", padding: 24, textAlign: "center" }}>
+                <p>No courses match your profile preferences. Try updating your profile interests or budget!</p>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Select Interests Form with icons */}
       <section className="interests-section glass-panel fade-in">
