@@ -147,7 +147,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
               <Lock className="input-icon" size={16} />
               <input
                 type="password"
-                placeholder="••••••••"
+                placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="form-input text-input-padding"
@@ -163,7 +163,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
                 <Lock className="input-icon" size={16} />
                 <input
                   type="password"
-                  placeholder="••••••••"
+                  placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="form-input text-input-padding"
@@ -211,7 +211,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
           left: 0;
           width: 100%;
           height: 100%;
-          background: rgba(0, 0, 0, 0.7);
+          background: rgba(15, 23, 42, 0.34);
           backdrop-filter: blur(8px);
           -webkit-backdrop-filter: blur(8px);
           display: flex;
@@ -246,8 +246,8 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
         }
 
         .auth-close-btn:hover {
-          color: #fff;
-          background: rgba(255, 255, 255, 0.05);
+          color: var(--text-primary);
+          background: rgba(29, 92, 255, 0.06);
         }
 
         .auth-header {
@@ -258,7 +258,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
         .auth-header h2 {
           font-size: 1.6rem;
           font-weight: 700;
-          color: #fff;
+          color: var(--text-primary);
           margin-bottom: 8px;
         }
 
@@ -344,10 +344,10 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
           gap: 10px;
           width: 100%;
           padding: 12px;
-          background: rgba(255, 255, 255, 0.04);
+          background: rgba(148, 163, 184, 0.16);
           border: 1px solid var(--border-color);
           border-radius: var(--radius-md);
-          color: #fff;
+          color: var(--text-primary);
           font-size: 0.9rem;
           font-weight: 600;
           cursor: pointer;
@@ -355,7 +355,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
         }
 
         .google-auth-btn:hover {
-          background: rgba(255, 255, 255, 0.08);
+          background: rgba(29, 92, 255, 0.1);
           border-color: var(--border-color-hover);
         }
 

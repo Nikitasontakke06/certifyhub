@@ -320,7 +320,7 @@ export default function CoursesPage({ courses = [], loading, onToggleCompare, co
         .courses-header h1 {
           font-size: 2.25rem;
           font-weight: 800;
-          color: #fff;
+          color: var(--text-primary);
           margin-bottom: 8px;
         }
 
@@ -339,7 +339,7 @@ export default function CoursesPage({ courses = [], loading, onToggleCompare, co
         /* Sidebar Filter Styling */
         .filters-sidebar {
           padding: 16px;
-          background: rgba(22, 24, 32, 0.5);
+          background: var(--bg-glass);
           position: sticky;
           top: 100px;
         }
@@ -362,7 +362,7 @@ export default function CoursesPage({ courses = [], loading, onToggleCompare, co
         .header-title h3 {
           font-size: 1.1rem;
           font-weight: 700;
-          color: #fff;
+          color: var(--text-primary);
         }
 
         .reset-filters-btn {
@@ -409,7 +409,7 @@ export default function CoursesPage({ courses = [], loading, onToggleCompare, co
 
         .filter-search-input {
           width: 100%;
-          background: rgba(0, 0, 0, 0.2);
+          background: rgba(255, 255, 255, 0.72);
           border: 1px solid var(--border-color);
           border-radius: var(--radius-md);
           padding: 10px 32px 10px 36px;
@@ -436,7 +436,7 @@ export default function CoursesPage({ courses = [], loading, onToggleCompare, co
         }
 
         .search-clear-btn:hover {
-          color: #fff;
+          color: var(--text-primary);
         }
 
         .checkbox-list {
@@ -453,7 +453,7 @@ export default function CoursesPage({ courses = [], loading, onToggleCompare, co
         }
 
         .checkbox-list::-webkit-scrollbar-track {
-          background: rgba(0, 0, 0, 0.15);
+          background: rgba(15, 23, 42, 0.04);
           border-radius: var(--radius-sm);
         }
 
@@ -485,7 +485,7 @@ export default function CoursesPage({ courses = [], loading, onToggleCompare, co
         }
 
         .checkbox-label:hover, .radio-label:hover {
-          color: #fff;
+          color: var(--text-primary);
         }
 
         .styled-checkbox, .styled-radio {
@@ -499,7 +499,7 @@ export default function CoursesPage({ courses = [], loading, onToggleCompare, co
         .checkbox-custom {
           width: 18px;
           height: 18px;
-          background: rgba(0, 0, 0, 0.3);
+          background: rgba(255, 255, 255, 0.78);
           border: 1px solid var(--border-color);
           border-radius: var(--radius-sm);
           transition: all var(--transition-fast);
@@ -517,7 +517,7 @@ export default function CoursesPage({ courses = [], loading, onToggleCompare, co
         .radio-custom {
           width: 18px;
           height: 18px;
-          background: rgba(0, 0, 0, 0.3);
+          background: rgba(255, 255, 255, 0.78);
           border: 1px solid var(--border-color);
           border-radius: var(--radius-full);
           transition: all var(--transition-fast);
@@ -557,7 +557,7 @@ export default function CoursesPage({ courses = [], loading, onToggleCompare, co
         }
 
         .courses-count strong {
-          color: #fff;
+          color: var(--text-primary);
         }
 
         .sort-box {
@@ -569,11 +569,11 @@ export default function CoursesPage({ courses = [], loading, onToggleCompare, co
         }
 
         .sort-select {
-          background: rgba(0, 0, 0, 0.2);
+          background: rgba(255, 255, 255, 0.72);
           border: 1px solid var(--border-color);
           border-radius: var(--radius-md);
           padding: 6px 12px;
-          color: #fff;
+          color: var(--text-primary);
           outline: none;
           font-size: 0.85rem;
           cursor: pointer;
@@ -593,13 +593,13 @@ export default function CoursesPage({ courses = [], loading, onToggleCompare, co
           justify-content: center;
           text-align: center;
           padding: 60px 40px;
-          background: rgba(22, 24, 32, 0.4);
+          background: var(--bg-glass);
         }
 
         .no-courses-found h3 {
           font-size: 1.3rem;
           font-weight: 700;
-          color: #fff;
+          color: var(--text-primary);
           margin-top: 16px;
           margin-bottom: 8px;
         }

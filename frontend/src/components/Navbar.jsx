@@ -176,7 +176,7 @@ export default function Navbar({ user, onLogout, openAuth }) {
           justify-content: space-between;
           padding: 12px 24px;
           border-radius: var(--radius-md);
-          background: rgba(13, 14, 18, 0.7);
+          background: rgba(255, 255, 255, 0.9);
         }
 
         .navbar-logo {
@@ -192,13 +192,13 @@ export default function Navbar({ user, onLogout, openAuth }) {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: linear-gradient(135deg, var(--primary) 0%, #ff5500 100%);
-          color: white;
+          background: linear-gradient(135deg, var(--primary) 0%, var(--accent-cyan) 100%);
+          color: #ffffff;
           width: 32px;
           height: 32px;
           font-size: 0.9rem;
           border-radius: 8px;
-          box-shadow: 0 4px 10px rgba(255, 115, 0, 0.3);
+          box-shadow: 0 4px 10px rgba(29, 92, 255, 0.3);
         }
 
         .navbar-menu {
@@ -224,7 +224,7 @@ export default function Navbar({ user, onLogout, openAuth }) {
 
         .menu-link:hover, .menu-link:focus {
           color: var(--text-primary);
-          background: rgba(255, 255, 255, 0.05);
+          background: rgba(29, 92, 255, 0.06);
         }
 
         .menu-item-dropdown {
@@ -272,7 +272,7 @@ export default function Navbar({ user, onLogout, openAuth }) {
         }
 
         .dropdown-item:hover {
-          color: #fff;
+          color: var(--text-primary);
           background: var(--primary-light);
           padding-left: 16px;
         }
@@ -280,7 +280,7 @@ export default function Navbar({ user, onLogout, openAuth }) {
         .navbar-search {
           display: flex;
           align-items: center;
-          background: rgba(0, 0, 0, 0.3);
+          background: rgba(255, 255, 255, 0.78);
           border: 1px solid var(--border-color);
           border-radius: var(--radius-full);
           padding: 2px 4px 2px 14px;
@@ -318,7 +318,7 @@ export default function Navbar({ user, onLogout, openAuth }) {
 
         .search-button:hover {
           color: var(--primary);
-          background: rgba(255, 255, 255, 0.05);
+          background: rgba(29, 92, 255, 0.06);
         }
 
         .navbar-user {
@@ -334,7 +334,7 @@ export default function Navbar({ user, onLogout, openAuth }) {
           display: flex;
           align-items: center;
           gap: 10px;
-          background: rgba(255, 255, 255, 0.03);
+          background: rgba(255, 255, 255, 0.82);
           padding: 8px 16px;
           border-radius: var(--radius-md);
           border: 1px solid var(--border-color);
@@ -345,8 +345,8 @@ export default function Navbar({ user, onLogout, openAuth }) {
         }
 
         .user-profile-btn:hover {
-          background: rgba(255, 255, 255, 0.06);
-          border-color: rgba(255, 115, 0, 0.3);
+          background: rgba(29, 92, 255, 0.08);
+          border-color: rgba(29, 92, 255, 0.3);
         }
 
         .profile-dropdown-menu {

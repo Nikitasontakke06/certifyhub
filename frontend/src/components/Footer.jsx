@@ -41,7 +41,7 @@ export default function Footer() {
           margin: 0 auto;
           padding: 40px 40px 20px;
           border-radius: var(--radius-md);
-          background: rgba(22, 24, 32, 0.4);
+          background: var(--bg-glass);
         }
 
         .footer-grid {
@@ -78,7 +78,7 @@ export default function Footer() {
         .footer-links h4, .footer-providers h4 {
           font-size: 0.95rem;
           font-weight: 600;
-          color: #fff;
+          color: var(--text-primary);
           margin-bottom: 8px;
         }
 

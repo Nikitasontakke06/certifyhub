@@ -6,7 +6,7 @@ export default function ChatbotWidget() {
   const [messages, setMessages] = useState([
     {
       id: 1,
-      text: "Welcome to CertifyHub! 👋 I am your learning assistant. Ask me anything about programming, data science, careers, salaries, or comparing courses!",
+      text: "Welcome to CertifyHub! ðŸ‘‹ I am your learning assistant. Ask me anything about programming, data science, careers, salaries, or comparing courses!",
       isBot: true,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     }
@@ -165,21 +165,21 @@ export default function ChatbotWidget() {
           width: 56px;
           height: 56px;
           border-radius: 50%;
-          background: linear-gradient(135deg, var(--primary) 0%, #ff5500 100%);
-          color: white;
+          background: linear-gradient(135deg, var(--primary) 0%, var(--accent-cyan) 100%);
+          color: #ffffff;
           border: none;
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 8px 24px rgba(255, 115, 0, 0.4);
+          box-shadow: 0 8px 24px rgba(29, 92, 255, 0.4);
           z-index: 9999;
           transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .chatbot-toggle-btn:hover {
           transform: scale(1.08) translateY(-2px);
-          box-shadow: 0 10px 28px rgba(255, 115, 0, 0.6);
+          box-shadow: 0 10px 28px rgba(29, 92, 255, 0.6);
         }
 
         .chatbot-toggle-btn:active {
@@ -188,7 +188,7 @@ export default function ChatbotWidget() {
 
         .chatbot-toggle-btn.active {
           background: var(--bg-tertiary);
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
           border: 1px solid var(--border-color);
         }
 
@@ -199,9 +199,9 @@ export default function ChatbotWidget() {
           right: 28px;
           width: 380px;
           height: 520px;
-          background: rgba(22, 24, 32, 0.9);
+          background: var(--bg-glass);
           border: 1px solid var(--border-color);
-          box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+          box-shadow: 0 18px 48px rgba(15, 23, 42, 0.18);
           border-radius: var(--radius-lg);
           display: flex;
           flex-direction: column;
@@ -214,7 +214,7 @@ export default function ChatbotWidget() {
           align-items: center;
           justify-content: space-between;
           padding: 16px 20px;
-          background: rgba(13, 14, 18, 0.6);
+          background: rgba(255, 255, 255, 0.9);
           border-bottom: 1px solid var(--border-color);
         }
 
@@ -233,13 +233,13 @@ export default function ChatbotWidget() {
           display: flex;
           align-items: center;
           justify-content: center;
-          border: 1px solid rgba(255, 115, 0, 0.2);
+          border: 1px solid rgba(29, 92, 255, 0.2);
         }
 
         .bot-info h4 {
           font-size: 0.9rem;
           font-weight: 700;
-          color: #fff;
+          color: var(--text-primary);
           margin-bottom: 2px;
           text-align: left;
         }
@@ -269,7 +269,7 @@ export default function ChatbotWidget() {
         }
 
         .chat-close-btn:hover {
-          color: #fff;
+          color: var(--text-primary);
         }
 
         /* Messages area styling */
@@ -280,7 +280,7 @@ export default function ChatbotWidget() {
           display: flex;
           flex-direction: column;
           gap: 16px;
-          background: rgba(0, 0, 0, 0.1);
+          background: rgba(15, 23, 42, 0.04);
         }
 
         .message-row {
@@ -306,17 +306,17 @@ export default function ChatbotWidget() {
         }
 
         .bot .message-bubble {
-          background: rgba(255, 255, 255, 0.05);
+          background: rgba(29, 92, 255, 0.06);
           color: var(--text-primary);
           border: 1px solid var(--border-color);
           border-bottom-left-radius: 4px;
         }
 
         .user .message-bubble {
-          background: linear-gradient(135deg, var(--primary) 0%, #ff5500 100%);
-          color: #fff;
+          background: linear-gradient(135deg, var(--primary) 0%, var(--accent-cyan) 100%);
+          color: #ffffff;
           border-bottom-right-radius: 4px;
-          box-shadow: 0 4px 12px rgba(255, 115, 0, 0.15);
+          box-shadow: 0 4px 12px rgba(29, 92, 255, 0.15);
         }
 
         .message-bubble p {
@@ -370,14 +370,14 @@ export default function ChatbotWidget() {
           display: flex;
           align-items: center;
           padding: 12px 16px;
-          background: rgba(13, 14, 18, 0.6);
+          background: rgba(255, 255, 255, 0.9);
           border-top: 1px solid var(--border-color);
           gap: 12px;
         }
 
         .chat-input {
           flex-grow: 1;
-          background: rgba(0, 0, 0, 0.2);
+          background: rgba(255, 255, 255, 0.72);
           border: 1px solid var(--border-color);
           border-radius: var(--radius-md);
           padding: 10px 14px;
@@ -396,7 +396,7 @@ export default function ChatbotWidget() {
           height: 36px;
           border-radius: 50%;
           background: var(--primary);
-          color: #fff;
+          color: #ffffff;
           border: none;
           cursor: pointer;
           display: flex;
