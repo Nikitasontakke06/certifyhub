@@ -72,7 +72,7 @@ function JobCard({ job }) {
 
           {job.dailyGrowthRate !== undefined && (
             <span className={`growth-badge ${isPositive ? "positive" : "negative"}`}>
-              {isPositive ? "▲" : "▼"} {Math.abs(job.dailyGrowthRate)}% openings
+              {isPositive ? "â–²" : "â–¼"} {Math.abs(job.dailyGrowthRate)}% openings
             </span>
           )}
         </div>
@@ -163,7 +163,7 @@ export default function JobsPage({ jobs = [], loading }) {
         .jobs-header h1 {
           font-size: 2.25rem;
           font-weight: 800;
-          color: #fff;
+          color: var(--text-primary);
           margin-bottom: 8px;
         }
 
@@ -179,7 +179,7 @@ export default function JobsPage({ jobs = [], loading }) {
           padding: 10px 16px;
           border-radius: var(--radius-md);
           max-width: 500px;
-          background: rgba(0, 0, 0, 0.3);
+          background: rgba(255, 255, 255, 0.78);
           border: 1px solid var(--border-color);
         }
 
@@ -211,7 +211,7 @@ export default function JobsPage({ jobs = [], loading }) {
 
         .job-card {
           padding: 28px;
-          background: rgba(22, 24, 32, 0.5);
+          background: var(--bg-glass);
           display: flex;
           flex-direction: column;
           gap: 20px;
@@ -243,7 +243,7 @@ export default function JobsPage({ jobs = [], loading }) {
         .title-area h3 {
           font-size: 1.25rem;
           font-weight: 700;
-          color: #fff;
+          color: var(--text-primary);
         }
 
         .trend-area {
@@ -256,7 +256,7 @@ export default function JobsPage({ jobs = [], loading }) {
           background: rgba(255, 255, 255, 0.02);
           border-radius: 4px;
           padding: 2px 4px;
-          border: 1px solid rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(148, 163, 184, 0.16);
         }
 
         .sparkline {
@@ -288,7 +288,7 @@ export default function JobsPage({ jobs = [], loading }) {
           font-weight: 700;
           padding: 6px 12px;
           border-radius: 6px;
-          border: 1px solid rgba(255, 115, 0, 0.2);
+          border: 1px solid rgba(29, 92, 255, 0.2);
           white-space: nowrap;
         }
 
@@ -329,7 +329,7 @@ export default function JobsPage({ jobs = [], loading }) {
         .skills-area h4 {
           font-size: 0.8rem;
           font-weight: 700;
-          color: #fff;
+          color: var(--text-primary);
           text-transform: uppercase;
           letter-spacing: 0.05em;
         }
@@ -344,7 +344,7 @@ export default function JobsPage({ jobs = [], loading }) {
           font-size: 0.75rem;
           font-weight: 600;
           color: var(--text-primary);
-          background: rgba(255, 255, 255, 0.05);
+          background: rgba(29, 92, 255, 0.06);
           border: 1px solid var(--border-color);
           padding: 4px 10px;
           border-radius: 6px;
@@ -376,7 +376,7 @@ export default function JobsPage({ jobs = [], loading }) {
         .no-jobs-found h3 {
           font-size: 1.25rem;
           font-weight: 700;
-          color: #fff;
+          color: var(--text-primary);
         }
 
         .no-jobs-found p {

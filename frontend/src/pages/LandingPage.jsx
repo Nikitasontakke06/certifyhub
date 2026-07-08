@@ -143,7 +143,7 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
               </div>
               <div className="stat-divider"></div>
               <div className="stat-box">
-                <h3>₹ INR</h3>
+                <h3>â‚¹ INR</h3>
                 <p>Localized Pricing</p>
               </div>
             </div>
@@ -160,12 +160,12 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
                 <div className="mock-body">
                   <div className="mock-header">
                     <span className="mock-provider prov-udemy">Udemy</span>
-                    <span className="mock-price">₹1,499</span>
+                    <span className="mock-price">â‚¹1,499</span>
                   </div>
                   <h4>Complete Python Bootcamp</h4>
                   <div className="mock-meta">
                     <div className="rating">
-                      <Star size={12} fill="#ff7300" color="#ff7300" />
+                      <Star size={12} fill="var(--primary)" color="var(--primary)" />
                       <span>4.6 (485k reviews)</span>
                     </div>
                     <span className="badge">Best Seller</span>
@@ -181,12 +181,12 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
                 <div className="mock-body">
                   <div className="mock-header">
                     <span className="mock-provider prov-coursera">Coursera</span>
-                    <span className="mock-price">₹3,299</span>
+                    <span className="mock-price">â‚¹3,299</span>
                   </div>
                   <h4>IBM Data Science Professional</h4>
                   <div className="mock-meta">
                     <div className="rating">
-                      <Star size={12} fill="#ff7300" color="#ff7300" />
+                      <Star size={12} fill="var(--primary)" color="var(--primary)" />
                       <span>4.8 (65k reviews)</span>
                     </div>
                     <span className="badge">Professional</span>
@@ -315,7 +315,7 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
                 className={`interest-badge-btn glass-panel ${isSelected ? "selected" : ""}`}
               >
                 <div className="checkbox-indicator">
-                  {isSelected && <CheckCircle size={16} fill="var(--primary)" color="white" />}
+                  {isSelected && <CheckCircle size={16} fill="var(--primary)" color="#ffffff" />}
                 </div>
                 <span className="interest-icon-box">{interest.icon}</span>
                 <span>{interest.label}</span>
@@ -392,7 +392,7 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
         }
 
         .orb-1 {
-          background: radial-gradient(circle, #ff6a00 0%, rgba(255, 106, 0, 0) 70%);
+          background: radial-gradient(circle, var(--primary) 0%, rgba(29, 92, 255, 0) 70%);
           top: 0%;
           left: 10%;
           animation: floatOrb1 18s infinite ease-in-out;
@@ -406,7 +406,7 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
         }
 
         .orb-3 {
-          background: radial-gradient(circle, #ff007c 0%, rgba(255, 0, 124, 0) 70%);
+          background: radial-gradient(circle, var(--accent-purple) 0%, rgba(124, 60, 255, 0) 70%);
           top: 15%;
           left: 45%;
           width: 400px;
@@ -465,7 +465,7 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
           border-radius: var(--radius-full);
           font-size: 0.85rem;
           font-weight: 700;
-          border: 1px solid rgba(255, 115, 0, 0.25);
+          border: 1px solid rgba(29, 92, 255, 0.25);
         }
 
         .hero-title {
@@ -473,11 +473,11 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
           font-weight: 800;
           line-height: 1.2;
           letter-spacing: -0.03em;
-          color: #fff;
+          color: var(--text-primary);
         }
 
         .gradient-text-vibrant {
-          background: linear-gradient(135deg, #fff 10%, #ff7300 70%, #ff007c 100%);
+          background: linear-gradient(135deg, var(--text-primary) 10%, var(--primary) 70%, var(--accent-purple) 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
         }
@@ -496,7 +496,7 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
           align-items: center;
           padding: 6px 6px 6px 20px;
           border-radius: var(--radius-lg);
-          background: rgba(22, 24, 32, 0.6);
+          background: var(--bg-glass);
           border: 1px solid var(--border-color);
           box-shadow: var(--shadow-lg);
         }
@@ -537,7 +537,7 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
         .stat-box h3 {
           font-size: 2.25rem;
           font-weight: 800;
-          color: #fff;
+          color: var(--text-primary);
           margin-bottom: 4px;
         }
 
@@ -578,8 +578,8 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
           padding: 0;
           border-radius: var(--radius-md);
           overflow: hidden;
-          background: rgba(30, 32, 45, 0.75);
-          border: 1px solid rgba(255, 255, 255, 0.06);
+          background: var(--bg-glass);
+          border: 1px solid rgba(29, 92, 255, 0.08);
           backdrop-filter: blur(12px);
           -webkit-backdrop-filter: blur(12px);
           box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
@@ -606,7 +606,7 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
           transform: scale(1.05) translateY(-10px) rotate(0deg);
           z-index: 4;
           border-color: var(--primary);
-          box-shadow: 0 25px 50px rgba(255, 115, 0, 0.18);
+          box-shadow: 0 25px 50px rgba(29, 92, 255, 0.18);
         }
 
         .mock-image-container {
@@ -614,7 +614,7 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
           height: 115px;
           overflow: hidden;
           position: relative;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+          border-bottom: 1px solid rgba(148, 163, 184, 0.16);
         }
 
         .mock-image {
@@ -656,13 +656,13 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
         .mock-price {
           font-size: 0.95rem;
           font-weight: 800;
-          color: #fff;
+          color: var(--text-primary);
         }
 
         .mock-card h4 {
           font-size: 1rem;
           font-weight: 700;
-          color: #fff;
+          color: var(--text-primary);
           margin: 0;
           text-align: left;
         }
@@ -689,7 +689,7 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
           background: var(--primary-light);
           padding: 2px 6px;
           border-radius: 4px;
-          border: 1px solid rgba(255, 115, 0, 0.15);
+          border: 1px solid rgba(29, 92, 255, 0.15);
         }
 
         .vs-badge {
@@ -700,23 +700,23 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
           width: 48px;
           height: 48px;
           border-radius: 50%;
-          background: linear-gradient(135deg, #ff7300, #ff007c);
+          background: linear-gradient(135deg, var(--primary), var(--accent-purple));
           display: flex;
           align-items: center;
           justify-content: center;
           font-size: 0.95rem;
           font-weight: 800;
-          color: white;
-          border: 3px solid #0d0e12;
-          box-shadow: 0 0 20px rgba(255, 115, 0, 0.6);
+          color: #ffffff;
+          border: 3px solid var(--bg-primary);
+          box-shadow: 0 0 20px rgba(29, 92, 255, 0.6);
           z-index: 3;
           animation: pulseVS 2s infinite ease-in-out;
         }
 
         @keyframes pulseVS {
-          0% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 15px rgba(255, 115, 0, 0.6); }
-          50% { transform: translate(-50%, -50%) scale(1.1); box-shadow: 0 0 25px rgba(255, 115, 0, 0.8); }
-          100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 15px rgba(255, 115, 0, 0.6); }
+          0% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 15px rgba(29, 92, 255, 0.6); }
+          50% { transform: translate(-50%, -50%) scale(1.1); box-shadow: 0 0 25px rgba(29, 92, 255, 0.8); }
+          100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 15px rgba(29, 92, 255, 0.6); }
         }
 
         /* Supported Platforms Strip */
@@ -727,7 +727,7 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
           padding: 28px 32px;
           align-items: center;
           justify-content: center;
-          background: rgba(22, 24, 32, 0.3);
+          background: var(--bg-glass);
           border: 1px solid var(--border-color);
           border-radius: var(--radius-lg);
           cursor: pointer;
@@ -763,14 +763,14 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
         }
 
         .logo-item:hover {
-          color: #fff;
+          color: var(--text-primary);
           transform: translateY(-2px) scale(1.05);
         }
 
         .logo-item.prov-udemy:hover { text-shadow: 0 0 12px rgba(164, 53, 240, 0.6); }
         .logo-item.prov-coursera:hover { text-shadow: 0 0 12px rgba(0, 86, 210, 0.6); }
         .logo-item.prov-gl:hover { text-shadow: 0 0 12px rgba(0, 186, 124, 0.6); }
-        .logo-item.prov-simplilearn:hover { text-shadow: 0 0 12px rgba(255, 115, 0, 0.6); }
+        .logo-item.prov-simplilearn:hover { text-shadow: 0 0 12px rgba(29, 92, 255, 0.6); }
         .logo-item.prov-pw:hover { text-shadow: 0 0 12px rgba(0, 200, 255, 0.6); }
         .logo-item.prov-swayam:hover { text-shadow: 0 0 12px rgba(255, 215, 0, 0.6); }
 
@@ -794,7 +794,7 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
 
         .feature-card {
           padding: 32px;
-          background: rgba(22, 24, 32, 0.4);
+          background: var(--bg-glass);
           border: 1px solid var(--border-color);
           border-radius: var(--radius-lg);
           display: flex;
@@ -824,7 +824,7 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
         .feature-card:hover {
           transform: translateY(-6px);
           border-color: var(--primary);
-          box-shadow: 0 12px 30px rgba(255, 115, 0, 0.08);
+          box-shadow: 0 12px 30px rgba(29, 92, 255, 0.08);
         }
 
         .feature-icon-wrapper {
@@ -836,13 +836,13 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
           align-items: center;
           justify-content: center;
           color: var(--primary);
-          border: 1px solid rgba(255, 115, 0, 0.2);
+          border: 1px solid rgba(29, 92, 255, 0.2);
         }
 
         .feature-card h3 {
           font-size: 1.25rem;
           font-weight: 700;
-          color: #fff;
+          color: var(--text-primary);
         }
 
         .feature-card p {
@@ -854,7 +854,7 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
         /* Interest Selection Styling */
         .interests-section {
           padding: 48px;
-          background: rgba(22, 24, 32, 0.4);
+          background: var(--bg-glass);
           border: 1px solid var(--border-color);
           border-radius: var(--radius-lg);
           max-width: 1300px;
@@ -872,7 +872,7 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
         .section-header h2 {
           font-size: 1.75rem;
           font-weight: 700;
-          color: #fff;
+          color: var(--text-primary);
         }
 
         .section-subtitle {
@@ -893,7 +893,7 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
           align-items: center;
           gap: 12px;
           padding: 16px 20px;
-          background: rgba(0, 0, 0, 0.2);
+          background: rgba(255, 255, 255, 0.72);
           border-radius: var(--radius-md);
           cursor: pointer;
           text-align: left;
@@ -904,17 +904,17 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
         }
 
         .interest-badge-btn:hover {
-          background: rgba(255, 115, 0, 0.03);
-          border-color: rgba(255, 115, 0, 0.25);
-          color: #fff;
+          background: rgba(29, 92, 255, 0.03);
+          border-color: rgba(29, 92, 255, 0.25);
+          color: var(--text-primary);
           transform: scale(1.02);
         }
 
         .interest-badge-btn.selected {
           background: var(--primary-light);
           border-color: var(--primary);
-          color: #fff;
-          box-shadow: 0 0 20px rgba(255, 115, 0, 0.15);
+          color: var(--text-primary);
+          box-shadow: 0 0 20px rgba(29, 92, 255, 0.15);
         }
 
         .interest-icon-box {
@@ -926,7 +926,7 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
         }
 
         .interest-badge-btn.selected .interest-icon-box {
-          color: #fff;
+          color: var(--text-primary);
         }
 
         .checkbox-indicator {
@@ -938,7 +938,7 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
-          background: rgba(0, 0, 0, 0.3);
+          background: rgba(255, 255, 255, 0.78);
           transition: all var(--transition-fast);
         }
 

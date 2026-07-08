@@ -84,7 +84,7 @@ export default function ComparePage({ compareList, onRemove, onClear }) {
           }
           .empty-message-container h2 {
             font-size: 1.5rem;
-            color: #fff;
+            color: var(--text-primary);
             font-weight: 700;
           }
           .empty-message-container p {
@@ -155,7 +155,7 @@ export default function ComparePage({ compareList, onRemove, onClear }) {
                 return (
                   <td key={course.id} className="course-col font-medium">
                     <span className="price-val">
-                      {course.price === 0 ? "FREE" : `₹${course.price.toLocaleString("en-IN")}`}
+                      {course.price === 0 ? "FREE" : `â‚¹${course.price.toLocaleString("en-IN")}`}
                     </span>
                     {isCheapest && (
                       <span className="highlight-badge cheapest-badge">Best Price</span>
@@ -291,7 +291,7 @@ export default function ComparePage({ compareList, onRemove, onClear }) {
         .header-title-row h1 {
           font-size: 2.25rem;
           font-weight: 800;
-          color: #fff;
+          color: var(--text-primary);
           margin-bottom: 4px;
         }
 
@@ -307,7 +307,7 @@ export default function ComparePage({ compareList, onRemove, onClear }) {
         /* Matrix Table Styling */
         .matrix-wrapper {
           overflow-x: auto;
-          background: rgba(22, 24, 32, 0.4);
+          background: var(--bg-glass);
           padding: 8px;
         }
 
@@ -332,7 +332,7 @@ export default function ComparePage({ compareList, onRemove, onClear }) {
         .feature-col {
           width: 180px;
           color: var(--text-secondary);
-          background: rgba(0, 0, 0, 0.15);
+          background: rgba(15, 23, 42, 0.04);
           position: sticky;
           left: 0;
           z-index: 10;
@@ -340,7 +340,7 @@ export default function ComparePage({ compareList, onRemove, onClear }) {
 
         .font-bold {
           font-weight: 700;
-          color: #fff;
+          color: var(--text-primary);
         }
 
         .font-medium {
@@ -380,14 +380,14 @@ export default function ComparePage({ compareList, onRemove, onClear }) {
         .course-table-title {
           font-size: 1rem;
           font-weight: 700;
-          color: #fff;
+          color: var(--text-primary);
           line-height: 1.4;
         }
 
         .price-val {
           font-size: 1.25rem;
           font-weight: 800;
-          color: #fff;
+          color: var(--text-primary);
           margin-right: 10px;
         }
 
@@ -408,9 +408,9 @@ export default function ComparePage({ compareList, onRemove, onClear }) {
         }
 
         .rated-badge {
-          background: rgba(255, 115, 0, 0.15);
+          background: rgba(29, 92, 255, 0.15);
           color: var(--primary);
-          border: 1px solid rgba(255, 115, 0, 0.3);
+          border: 1px solid rgba(29, 92, 255, 0.3);
         }
 
         .rating-row {
@@ -422,7 +422,7 @@ export default function ComparePage({ compareList, onRemove, onClear }) {
 
         .bold-rating {
           font-weight: 700;
-          color: #fff;
+          color: var(--text-primary);
         }
 
         .reviews-count {
@@ -496,9 +496,9 @@ export default function ComparePage({ compareList, onRemove, onClear }) {
         }
 
         .prov-simplilearn {
-          background: rgba(255, 115, 0, 0.15);
-          color: #ff7300;
-          border: 1px solid rgba(255, 115, 0, 0.3);
+          background: rgba(29, 92, 255, 0.15);
+          color: var(--primary);
+          border: 1px solid rgba(29, 92, 255, 0.3);
         }
 
         .prov-swayam {
@@ -568,9 +568,9 @@ export default function ComparePage({ compareList, onRemove, onClear }) {
         }
 
         .prov-generic {
-          background: rgba(255, 255, 255, 0.08);
+          background: rgba(29, 92, 255, 0.1);
           color: var(--text-secondary);
-          border: 1px solid rgba(255, 255, 255, 0.15);
+          border: 1px solid rgba(29, 92, 255, 0.18);
         }
       `}} />
     </div>

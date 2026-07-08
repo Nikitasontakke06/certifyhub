@@ -67,7 +67,7 @@ export default function AboutPage() {
         .about-header h1 {
           font-size: 2.25rem;
           font-weight: 800;
-          color: #fff;
+          color: var(--text-primary);
           margin-bottom: 8px;
         }
 
@@ -86,7 +86,7 @@ export default function AboutPage() {
         .about-hero {
           grid-column: 1 / -1;
           padding: 40px;
-          background: rgba(22, 24, 32, 0.4);
+          background: var(--bg-glass);
           display: flex;
           flex-direction: column;
           gap: 20px;
@@ -95,7 +95,7 @@ export default function AboutPage() {
         .about-hero h2 {
           font-size: 1.75rem;
           font-weight: 700;
-          color: #fff;
+          color: var(--text-primary);
         }
 
         .about-hero p {
@@ -117,7 +117,7 @@ export default function AboutPage() {
 
         .feature-item {
           padding: 28px;
-          background: rgba(22, 24, 32, 0.5);
+          background: var(--bg-glass);
           display: flex;
           flex-direction: column;
           gap: 16px;
@@ -126,7 +126,7 @@ export default function AboutPage() {
         .feature-item h3 {
           font-size: 1.2rem;
           font-weight: 700;
-          color: #fff;
+          color: var(--text-primary);
         }
 
         .feature-item p {
@@ -138,7 +138,7 @@ export default function AboutPage() {
         /* Contact Card */
         .contact-card {
           padding: 40px;
-          background: rgba(22, 24, 32, 0.6);
+          background: var(--bg-glass);
           display: flex;
           flex-direction: column;
           align-items: center;
@@ -150,7 +150,7 @@ export default function AboutPage() {
         .contact-card h2 {
           font-size: 1.5rem;
           font-weight: 700;
-          color: #fff;
+          color: var(--text-primary);
         }
 
         .contact-card p {

@@ -65,9 +65,9 @@ export default function CompareQueue({ compareList, onRemove, onClear }) {
           align-items: center;
           justify-content: space-between;
           padding: 16px 24px;
-          background: rgba(22, 24, 32, 0.9);
+          background: var(--bg-glass);
           border: 1px solid var(--primary-glow);
-          box-shadow: 0 -10px 40px rgba(255, 115, 0, 0.15), var(--shadow-glass);
+          box-shadow: 0 -10px 40px rgba(29, 92, 255, 0.15), var(--shadow-glass);
         }
 
         .queue-info {
@@ -79,7 +79,7 @@ export default function CompareQueue({ compareList, onRemove, onClear }) {
 
         .queue-count {
           background: var(--primary);
-          color: white;
+          color: #ffffff;
           width: 24px;
           height: 24px;
           display: inline-flex;
@@ -94,7 +94,7 @@ export default function CompareQueue({ compareList, onRemove, onClear }) {
         .queue-label {
           font-size: 0.9rem;
           font-weight: 600;
-          color: #fff;
+          color: var(--text-primary);
         }
 
         .queue-helper {
@@ -123,7 +123,7 @@ export default function CompareQueue({ compareList, onRemove, onClear }) {
           align-items: center;
           gap: 8px;
           padding: 6px 12px;
-          background: rgba(0, 0, 0, 0.3);
+          background: rgba(255, 255, 255, 0.78);
           border-radius: var(--radius-sm);
           min-width: 150px;
           max-width: 200px;

@@ -273,7 +273,7 @@ export default function ProfilePage({ user, onLoadComparison }) {
                           className={`domain-badge-checkbox glass-panel ${isSelected ? "selected" : ""}`}
                         >
                           <span className="indicator">
-                            {isSelected && <Check size={12} color="white" />}
+                            {isSelected && <Check size={12} color="#ffffff" />}
                           </span>
                           <span className="icon-span">{domain.icon}</span>
                           <span>{domain.label}</span>
@@ -302,7 +302,7 @@ export default function ProfilePage({ user, onLoadComparison }) {
 
                   <div className="form-group-section">
                     <label className="section-label">
-                      Budget Range Limit (INR): <span className="highlight-text">₹{budgetLimit.toLocaleString("en-IN")}</span>
+                      Budget Range Limit (INR): <span className="highlight-text">â‚¹{budgetLimit.toLocaleString("en-IN")}</span>
                     </label>
                     <div className="budget-slider-box">
                       <input
@@ -315,8 +315,8 @@ export default function ProfilePage({ user, onLoadComparison }) {
                         className="budget-range-slider"
                       />
                       <div className="slider-limits">
-                        <span>₹0 (Free)</span>
-                        <span>₹60,000+</span>
+                        <span>â‚¹0 (Free)</span>
+                        <span>â‚¹60,000+</span>
                       </div>
                     </div>
                   </div>
@@ -531,7 +531,7 @@ export default function ProfilePage({ user, onLoadComparison }) {
         .profile-header h1 {
           font-size: 2.25rem;
           font-weight: 800;
-          color: #fff;
+          color: var(--text-primary);
           margin-bottom: 8px;
         }
 
@@ -572,7 +572,7 @@ export default function ProfilePage({ user, onLoadComparison }) {
         /* Avatar Card */
         .profile-card {
           padding: 24px;
-          background: rgba(22, 24, 32, 0.5);
+          background: var(--bg-glass);
           display: flex;
           flex-direction: column;
           gap: 24px;
@@ -592,8 +592,8 @@ export default function ProfilePage({ user, onLoadComparison }) {
           width: 80px;
           height: 80px;
           border-radius: 50%;
-          background: rgba(255, 115, 0, 0.08);
-          border: 1px solid rgba(255, 115, 0, 0.2);
+          background: rgba(29, 92, 255, 0.08);
+          border: 1px solid rgba(29, 92, 255, 0.2);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -602,7 +602,7 @@ export default function ProfilePage({ user, onLoadComparison }) {
         .profile-avatar-wrapper h3 {
           font-size: 1.15rem;
           font-weight: 700;
-          color: #fff;
+          color: var(--text-primary);
         }
 
         .profile-badge {
@@ -638,7 +638,7 @@ export default function ProfilePage({ user, onLoadComparison }) {
 
         .info-item span {
           font-size: 0.9rem;
-          color: #fff;
+          color: var(--text-primary);
           font-weight: 500;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -668,27 +668,27 @@ export default function ProfilePage({ user, onLoadComparison }) {
         }
 
         .tab-btn:hover {
-          color: #fff;
-          background: rgba(255, 255, 255, 0.05);
+          color: var(--text-primary);
+          background: rgba(29, 92, 255, 0.06);
         }
 
         .tab-btn.active {
           color: var(--primary);
-          background: rgba(255, 115, 0, 0.08);
-          border: 1px solid rgba(255, 115, 0, 0.25);
+          background: rgba(29, 92, 255, 0.08);
+          border: 1px solid rgba(29, 92, 255, 0.25);
         }
 
         /* Right Panel tabs content */
         .profile-content-tab {
           padding: 32px;
-          background: rgba(22, 24, 32, 0.5);
+          background: var(--bg-glass);
           min-height: 500px;
         }
 
         .tab-content h2 {
           font-size: 1.5rem;
           font-weight: 800;
-          color: #fff;
+          color: var(--text-primary);
           margin-bottom: 6px;
         }
 
@@ -708,7 +708,7 @@ export default function ProfilePage({ user, onLoadComparison }) {
         .section-label {
           font-size: 0.95rem;
           font-weight: 700;
-          color: #fff;
+          color: var(--text-primary);
           border-left: 3px solid var(--primary);
           padding-left: 10px;
           margin-bottom: 4px;
@@ -737,13 +737,13 @@ export default function ProfilePage({ user, onLoadComparison }) {
         }
 
         .domain-badge-checkbox:hover {
-          background: rgba(255, 255, 255, 0.05);
-          color: #fff;
+          background: rgba(29, 92, 255, 0.06);
+          color: var(--text-primary);
         }
 
         .domain-badge-checkbox.selected {
           border-color: var(--primary);
-          background: rgba(255, 115, 0, 0.08);
+          background: rgba(29, 92, 255, 0.08);
           color: var(--primary);
         }
 
@@ -788,10 +788,10 @@ export default function ProfilePage({ user, onLoadComparison }) {
           width: 4px;
         }
         .platforms-checkbox-grid::-webkit-scrollbar-track {
-          background: rgba(0, 0, 0, 0.1);
+          background: rgba(15, 23, 42, 0.04);
         }
         .platforms-checkbox-grid::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.1);
+          background: rgba(29, 92, 255, 0.12);
           border-radius: 2px;
         }
         .platforms-checkbox-grid::-webkit-scrollbar-thumb:hover {
@@ -811,8 +811,8 @@ export default function ProfilePage({ user, onLoadComparison }) {
         }
 
         .platform-checkbox-label:hover {
-          color: #fff;
-          background: rgba(255, 255, 255, 0.05);
+          color: var(--text-primary);
+          background: rgba(29, 92, 255, 0.06);
         }
 
         .hidden-checkbox {
@@ -835,7 +835,7 @@ export default function ProfilePage({ user, onLoadComparison }) {
         .platform-checkbox-label input:checked + .custom-checkbox-indicator {
           background: var(--primary);
           border-color: var(--primary);
-          color: #fff;
+          color: var(--text-primary);
         }
 
         /* Budget Slider styling */
@@ -850,7 +850,7 @@ export default function ProfilePage({ user, onLoadComparison }) {
           width: 100%;
           height: 6px;
           border-radius: var(--radius-full);
-          background: rgba(255, 255, 255, 0.1);
+          background: rgba(29, 92, 255, 0.12);
           outline: none;
         }
 
@@ -862,7 +862,7 @@ export default function ProfilePage({ user, onLoadComparison }) {
           border-radius: 50%;
           background: var(--primary);
           cursor: pointer;
-          box-shadow: 0 0 10px rgba(255, 115, 0, 0.5);
+          box-shadow: 0 0 10px rgba(29, 92, 255, 0.5);
           transition: transform var(--transition-fast);
         }
 
@@ -892,12 +892,12 @@ export default function ProfilePage({ user, onLoadComparison }) {
 
         .form-select, .form-input {
           width: 100%;
-          background: rgba(0, 0, 0, 0.2);
+          background: rgba(255, 255, 255, 0.72);
           border: 1px solid var(--border-color);
           border-radius: var(--radius-md);
           padding: 10px 14px;
           font-size: 0.88rem;
-          color: #fff;
+          color: var(--text-primary);
           outline: none;
           transition: border-color var(--transition-fast);
         }
@@ -908,7 +908,7 @@ export default function ProfilePage({ user, onLoadComparison }) {
 
         .form-select option {
           background: var(--bg-secondary);
-          color: #fff;
+          color: var(--text-primary);
         }
 
         .password-input-wrapper {
@@ -929,7 +929,7 @@ export default function ProfilePage({ user, onLoadComparison }) {
         }
 
         .password-toggle-btn:hover {
-          color: #fff;
+          color: var(--text-primary);
         }
 
         .border-top-divider {
@@ -961,7 +961,7 @@ export default function ProfilePage({ user, onLoadComparison }) {
         .toggle-info h4 {
           font-size: 0.95rem;
           font-weight: 700;
-          color: #fff;
+          color: var(--text-primary);
           margin-bottom: 2px;
         }
 
@@ -974,7 +974,7 @@ export default function ProfilePage({ user, onLoadComparison }) {
           width: 36px;
           height: 18px;
           -webkit-appearance: none;
-          background: rgba(255, 255, 255, 0.15);
+          background: rgba(29, 92, 255, 0.18);
           border-radius: var(--radius-full);
           position: relative;
           outline: none;
@@ -1036,7 +1036,7 @@ export default function ProfilePage({ user, onLoadComparison }) {
 
         .refresh-history-btn:hover {
           color: var(--primary);
-          background: rgba(255, 255, 255, 0.05);
+          background: rgba(29, 92, 255, 0.06);
         }
 
         .history-loader {
@@ -1065,7 +1065,7 @@ export default function ProfilePage({ user, onLoadComparison }) {
         }
 
         .history-item-card:hover {
-          background: rgba(255, 255, 255, 0.04);
+          background: rgba(148, 163, 184, 0.16);
         }
 
         .history-item-meta {
@@ -1091,8 +1091,8 @@ export default function ProfilePage({ user, onLoadComparison }) {
           font-size: 0.75rem;
           font-weight: 700;
           padding: 3px 10px;
-          background: rgba(255, 255, 255, 0.05);
-          color: #fff;
+          background: rgba(29, 92, 255, 0.06);
+          color: var(--text-primary);
           border: 1px solid var(--border-color);
           border-radius: var(--radius-sm);
         }
@@ -1113,7 +1113,7 @@ export default function ProfilePage({ user, onLoadComparison }) {
 
         .no-history-state h3 {
           font-size: 1.15rem;
-          color: #fff;
+          color: var(--text-primary);
           margin-top: 4px;
         }
 
@@ -1143,7 +1143,7 @@ export default function ProfilePage({ user, onLoadComparison }) {
         }
 
         .orb-1 {
-          background: radial-gradient(circle, #ff6a00 0%, rgba(255, 106, 0, 0) 70%);
+          background: radial-gradient(circle, var(--primary) 0%, rgba(29, 92, 255, 0) 70%);
           top: -10%;
           left: -10%;
         }

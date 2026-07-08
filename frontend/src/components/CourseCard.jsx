@@ -31,7 +31,7 @@ export default function CourseCard({ course, isCompared, onToggleCompare }) {
           {course.provider}
         </span>
         <span className="price-tag">
-          {course.price === 0 ? "FREE" : `₹${course.price.toLocaleString("en-IN")}`}
+          {course.price === 0 ? "FREE" : `â‚¹${course.price.toLocaleString("en-IN")}`}
         </span>
       </div>
 
@@ -79,7 +79,7 @@ export default function CourseCard({ course, isCompared, onToggleCompare }) {
           padding: 24px;
           height: 100%;
           min-height: 280px;
-          background: rgba(22, 24, 32, 0.6);
+          background: var(--bg-glass);
         }
 
         .card-header {
@@ -123,9 +123,9 @@ export default function CourseCard({ course, isCompared, onToggleCompare }) {
         }
 
         .prov-simplilearn {
-          background: rgba(255, 115, 0, 0.15);
-          color: #ff7300;
-          border: 1px solid rgba(255, 115, 0, 0.3);
+          background: rgba(29, 92, 255, 0.15);
+          color: var(--primary);
+          border: 1px solid rgba(29, 92, 255, 0.3);
         }
 
         .prov-swayam {
@@ -195,15 +195,15 @@ export default function CourseCard({ course, isCompared, onToggleCompare }) {
         }
 
         .prov-generic {
-          background: rgba(255, 255, 255, 0.08);
+          background: rgba(29, 92, 255, 0.1);
           color: var(--text-secondary);
-          border: 1px solid rgba(255, 255, 255, 0.15);
+          border: 1px solid rgba(29, 92, 255, 0.18);
         }
 
         .price-tag {
           font-weight: 800;
           font-size: 1.05rem;
-          color: #fff;
+          color: var(--text-primary);
         }
 
         .course-title {
@@ -211,7 +211,7 @@ export default function CourseCard({ course, isCompared, onToggleCompare }) {
           font-weight: 700;
           line-height: 1.4;
           margin-bottom: 10px;
-          color: #fff;
+          color: var(--text-primary);
           display: -webkit-box;
           -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
@@ -289,7 +289,7 @@ export default function CourseCard({ course, isCompared, onToggleCompare }) {
         }
 
         .compare-btn.compared:hover {
-          background: rgba(255, 115, 0, 0.25);
+          background: rgba(29, 92, 255, 0.25);
         }
       `}} />
     </div>
