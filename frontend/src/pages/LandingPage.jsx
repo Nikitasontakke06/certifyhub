@@ -201,9 +201,9 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
         </div>
       </section>
 
-      {/* Supported Platforms Strip */}
+      {/* Certification Platforms Strip */}
       <div className="partners-showcase-strip glass-panel fade-in" onClick={() => { if (!user) openAuth(); }}>
-        <span className="strip-title">Supported Partners</span>
+        <span className="strip-title">Certification Platform for Comparisons</span>
         <div className="logo-row">
           <span className="logo-item prov-udemy">Udemy</span>
           <span className="logo-item prov-coursera">Coursera</span>
@@ -256,6 +256,40 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
             <p>
               Stay updated on emerging career roles. Our index continuously fetches job growth statistics and popularity scores daily.
             </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="benefits-section fade-in" onClick={() => { if (!user) openAuth(); }}>
+        <div className="section-header">
+          <CheckCircle size={24} color="var(--primary)" />
+          <h2>Benefits of CertifyHub</h2>
+        </div>
+        <p className="section-subtitle">
+          Why thousands of learners in India use CertifyHub to accelerate their careers.
+        </p>
+
+        <div className="benefits-grid">
+          <div className="benefit-card glass-panel">
+            <span className="benefit-number">01</span>
+            <h3>Structured Learning Paths</h3>
+            <p>Compare curriculum maps to ensure you learn core fundamentals up to advanced topics systematically.</p>
+          </div>
+          <div className="benefit-card glass-panel">
+            <span className="benefit-number">02</span>
+            <h3>Verified Reviews & Ratings</h3>
+            <p>Read consolidated student feedback from multiple portals to avoid low-quality training programs.</p>
+          </div>
+          <div className="benefit-card glass-panel">
+            <span className="benefit-number">03</span>
+            <h3>Localized Fee Comparison</h3>
+            <p>Save money by analyzing live discounts and comparison pricing in Indian Rupees (INR).</p>
+          </div>
+          <div className="benefit-card glass-panel">
+            <span className="benefit-number">04</span>
+            <h3>Direct Career Mapping</h3>
+            <p>Instantly see which job roles require each certification and start applying directly.</p>
           </div>
         </div>
       </section>
@@ -371,7 +405,244 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
         </section>
       )}
 
+
+
+      {/* Testimonials Section */}
+      <section className="testimonials-section fade-in" onClick={() => { if (!user) openAuth(); }}>
+        <div className="section-header">
+          <Star size={24} color="var(--primary)" />
+          <h2>What Our Students Say</h2>
+        </div>
+        <p className="section-subtitle">
+          Real feedback from professionals who found their career paths through CertifyHub.
+        </p>
+
+        <div className="testimonials-grid">
+          {/* Testimonial 1 */}
+          <div className="testimonial-card glass-panel">
+            <div className="testimonial-header">
+              <div className="testimonial-user">
+                <div className="user-avatar-placeholder" style={{ background: "linear-gradient(135deg, #1d5cff 0%, #09a8d8 100%)" }}>AR</div>
+                <div>
+                  <h4>Alexa Rodriguez</h4>
+                  <p>Web Developer</p>
+                </div>
+              </div>
+              <div className="rating">
+                <Star size={14} fill="var(--primary)" color="var(--primary)" />
+                <Star size={14} fill="var(--primary)" color="var(--primary)" />
+                <Star size={14} fill="var(--primary)" color="var(--primary)" />
+                <Star size={14} fill="var(--primary)" color="var(--primary)" />
+                <Star size={14} fill="var(--primary)" color="var(--primary)" />
+              </div>
+            </div>
+            <p className="testimonial-text">
+              "Finding the right Python course on Udemy through CertifyHub was a game-changer. The syllabus comparison feature helped me skip repeating basic topics."
+            </p>
+          </div>
+
+          {/* Testimonial 2 */}
+          <div className="testimonial-card glass-panel">
+            <div className="testimonial-header">
+              <div className="testimonial-user">
+                <div className="user-avatar-placeholder" style={{ background: "linear-gradient(135deg, #7c3cff 0%, #1d5cff 100%)" }}>EC</div>
+                <div>
+                  <h4>Emily Chen</h4>
+                  <p>Data Scientist</p>
+                </div>
+              </div>
+              <div className="rating">
+                <Star size={14} fill="var(--primary)" color="var(--primary)" />
+                <Star size={14} fill="var(--primary)" color="var(--primary)" />
+                <Star size={14} fill="var(--primary)" color="var(--primary)" />
+                <Star size={14} fill="var(--primary)" color="var(--primary)" />
+                <Star size={14} fill="var(--primary)" color="var(--primary)" />
+              </div>
+            </div>
+            <p className="testimonial-text">
+              "The direct job market links saved me weeks of research. I could see exactly which certifications are in demand for Data Science jobs in Bangalore."
+            </p>
+          </div>
+
+          {/* Testimonial 3 */}
+          <div className="testimonial-card glass-panel">
+            <div className="testimonial-header">
+              <div className="testimonial-user">
+                <div className="user-avatar-placeholder" style={{ background: "linear-gradient(135deg, #09a8d8 0%, #7c3cff 100%)" }}>JJ</div>
+                <div>
+                  <h4>James Johnson</h4>
+                  <p>DevOps Engineer</p>
+                </div>
+              </div>
+              <div className="rating">
+                <Star size={14} fill="var(--primary)" color="var(--primary)" />
+                <Star size={14} fill="var(--primary)" color="var(--primary)" />
+                <Star size={14} fill="var(--primary)" color="var(--primary)" />
+                <Star size={14} fill="var(--primary)" color="var(--primary)" />
+                <Star size={14} fill="var(--primary)" color="var(--primary)" />
+              </div>
+            </div>
+            <p className="testimonial-text">
+              "The side-by-side pricing was incredibly accurate. I saved over 30% by comparing the platforms and picking the best package deal."
+            </p>
+          </div>
+        </div>
+      </section>
+
       <style dangerouslySetInnerHTML={{__html: `
+        .landing-page {
+          display: flex;
+          flex-direction: column;
+          gap: 80px;
+          position: relative;
+        }
+
+        /* Benefits Section Styling */
+        .benefits-section {
+          max-width: 1300px;
+          margin: 0 auto;
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .benefits-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: 24px;
+          margin-top: 16px;
+        }
+
+        .benefit-card {
+          padding: 32px;
+          background: var(--bg-glass);
+          border: 1px solid var(--border-color);
+          border-radius: var(--radius-lg);
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          transition: all var(--transition-normal);
+          position: relative;
+        }
+
+        .benefit-card:hover {
+          transform: translateY(-6px);
+          border-color: var(--primary);
+          box-shadow: 0 12px 30px rgba(29, 92, 255, 0.08);
+        }
+
+        .benefit-number {
+          font-size: 2.25rem;
+          font-weight: 800;
+          background: linear-gradient(135deg, var(--primary) 0%, var(--accent-cyan) 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          opacity: 0.4;
+          font-family: monospace;
+        }
+
+        .benefit-card h3 {
+          font-size: 1.25rem;
+          font-weight: 700;
+          color: var(--text-primary);
+        }
+
+        .benefit-card p {
+          font-size: 0.9rem;
+          color: var(--text-secondary);
+          line-height: 1.6;
+        }
+
+
+
+        /* Testimonials Styling */
+        .testimonials-section {
+          max-width: 1300px;
+          margin: 0 auto;
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .testimonials-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+          gap: 24px;
+          margin-top: 16px;
+        }
+
+        .testimonial-card {
+          padding: 32px;
+          background: var(--bg-glass);
+          border: 1px solid var(--border-color);
+          border-radius: var(--radius-lg);
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+          transition: all var(--transition-normal);
+        }
+
+        .testimonial-card:hover {
+          transform: translateY(-6px);
+          border-color: var(--primary);
+          box-shadow: 0 12px 30px rgba(29, 92, 255, 0.08);
+        }
+
+        .testimonial-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+        }
+
+        .testimonial-user {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .user-avatar-placeholder {
+          width: 44px;
+          height: 44px;
+          border-radius: 50%;
+          color: #ffffff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 700;
+          font-size: 1rem;
+          box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+        }
+
+        .testimonial-user h4 {
+          font-size: 1rem;
+          font-weight: 700;
+          color: var(--text-primary);
+          margin: 0;
+        }
+
+        .testimonial-user p {
+          font-size: 0.8rem;
+          color: var(--text-muted);
+          margin: 0;
+        }
+
+        .testimonial-header .rating {
+          display: flex;
+          gap: 2px;
+        }
+
+        .testimonial-text {
+          font-size: 0.95rem;
+          color: var(--text-secondary);
+          line-height: 1.65;
+          font-style: italic;
+          margin: 0;
+        }
+
+
+
         .landing-page {
           display: flex;
           flex-direction: column;

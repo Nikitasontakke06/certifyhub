@@ -22,8 +22,8 @@ export default function Navbar({ user, onLogout, openAuth }) {
   };
 
   return (
-    <nav className="navbar-container">
-      <div className="navbar-content glass-panel">
+    <nav className="navbar-container glass-panel">
+      <div className="navbar-content">
         {/* Logo */}
         <Link to="/" className="navbar-logo">
           <img src="/logo.png" alt="CH" className="logo-img" />
@@ -164,7 +164,12 @@ export default function Navbar({ user, onLogout, openAuth }) {
           left: 0;
           width: 100%;
           z-index: 1000;
-          padding: 16px 24px;
+          padding: 0;
+          border-radius: 0 !important;
+          border-top: none !important;
+          border-left: none !important;
+          border-right: none !important;
+          background: rgba(255, 255, 255, 0.9) !important;
         }
 
         .navbar-content {
@@ -174,9 +179,7 @@ export default function Navbar({ user, onLogout, openAuth }) {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 12px 24px;
-          border-radius: var(--radius-md);
-          background: rgba(255, 255, 255, 0.9);
+          padding: 14px 24px;
         }
 
         .navbar-logo {
