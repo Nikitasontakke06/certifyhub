@@ -66,7 +66,10 @@ export default function App() {
         setUser(JSON.parse(savedUser));
       } catch (e) {
         localStorage.removeItem("current_user");
+        setIsAuthOpen(true);
       }
+    } else {
+      setIsAuthOpen(true);
     }
   }, []);
 
