@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import "./db.js"; // Connects to MongoDB and seeds data
-import { User, Course, Job, JobTrendHistory, UserPreference, ComparisonHistory, Institute, InstituteReview, UserInquiry, SavedInstitute } from "./models.js";
+import { User, Course, Job, JobTrendHistory, UserPreference, ComparisonHistory, Institute, InstituteReview, UserInquiry, SavedInstitute, LoginHistory } from "./models.js";
 import "./scheduler.js"; // Starts cron schedule runner
 
 dotenv.config();
@@ -71,6 +71,14 @@ app.post("/api/auth/signup", async (req, res) => {
     const newUser = new User({ email, password });
     await newUser.save();
     
+    // Save login history log
+    const loginLog = new LoginHistory({
+      userEmail: newUser.email.toLowerCase(),
+      ipAddress: req.ip || req.headers["x-forwarded-for"] || "",
+      userAgent: req.headers["user-agent"] || ""
+    });
+    await loginLog.save();
+
     res.status(201).json({ email: newUser.email });
   } catch (err) {
     console.error("Signup error:", err);
@@ -90,6 +98,14 @@ app.post("/api/auth/login", async (req, res) => {
     // Find matching user in MongoDB
     const user = await User.findOne({ email, password });
     if (user) {
+      // Save login history log
+      const loginLog = new LoginHistory({
+        userEmail: user.email.toLowerCase(),
+        ipAddress: req.ip || req.headers["x-forwarded-for"] || "",
+        userAgent: req.headers["user-agent"] || ""
+      });
+      await loginLog.save();
+
       res.json({ email: user.email });
     } else {
       res.status(401).json({ error: "Invalid email or password." });

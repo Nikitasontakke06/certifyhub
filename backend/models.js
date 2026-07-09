@@ -277,3 +277,13 @@ export const Institute = mongoose.model("Institute", instituteSchema);
 export const InstituteReview = mongoose.model("InstituteReview", instituteReviewSchema);
 export const UserInquiry = mongoose.model("UserInquiry", userInquirySchema);
 export const SavedInstitute = mongoose.model("SavedInstitute", savedInstituteSchema);
+
+// 12. Login History Schema
+const loginHistorySchema = new mongoose.Schema({
+  userEmail: { type: String, required: true },
+  loginTime: { type: Date, default: Date.now },
+  ipAddress: { type: String, default: "" },
+  userAgent: { type: String, default: "" }
+});
+
+export const LoginHistory = mongoose.model("LoginHistory", loginHistorySchema);
