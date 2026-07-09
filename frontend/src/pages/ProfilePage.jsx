@@ -30,6 +30,12 @@ export default function ProfilePage({ user, onLoadComparison }) {
   const [historyList, setHistoryList] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
 
+  // Offline features state
+  const [savedInstitutesList, setSavedInstitutesList] = useState([]);
+  const [savedCoursesList, setSavedCoursesList] = useState([]);
+  const [bookingsList, setBookingsList] = useState([]);
+  const [loadingOffline, setLoadingOffline] = useState(false);
+
   // Domains/Categories list
   const domainsList = [
     { id: "programming", label: "Programming", icon: <Code size={16} /> },
@@ -56,13 +62,56 @@ export default function ProfilePage({ user, onLoadComparison }) {
     }
   }, [user, navigate]);
 
-  // Load preferences and history
+  // Load preferences, history, and offline data
   useEffect(() => {
     if (user && user.email) {
       fetchPreferences();
       fetchHistory();
+      fetchOfflineBookmarksAndBookings();
     }
   }, [user]);
+
+  const fetchOfflineBookmarksAndBookings = async () => {
+    if (!user) return;
+    setLoadingOffline(true);
+    try {
+      // 1. Fetch saved bookmarks
+      const savedRes = await fetch(`/api/saved-institutes?email=${encodeURIComponent(user.email)}`);
+      if (savedRes.ok) {
+        const savedData = await savedRes.json();
+        // Fetch all institutes to match details
+        const instsRes = await fetch("/api/institutes");
+        if (instsRes.ok) {
+          const allInsts = await instsRes.json();
+          // Filter saved institutes
+          const matchedInsts = allInsts.filter(inst => savedData.savedInstitutes.includes(inst.id));
+          setSavedInstitutesList(matchedInsts);
+
+          // Filter saved courses
+          const matchedCourses = [];
+          allInsts.forEach(inst => {
+            inst.courses.forEach(c => {
+              if (savedData.savedInstituteCourses.includes(c.id)) {
+                matchedCourses.push({ ...c, instituteName: inst.name, instituteId: inst.id });
+              }
+            });
+          });
+          setSavedCoursesList(matchedCourses);
+        }
+      }
+
+      // 2. Fetch inquiries / bookings
+      const bookingsRes = await fetch(`/api/inquiries?email=${encodeURIComponent(user.email)}`);
+      if (bookingsRes.ok) {
+        const bookingsData = await bookingsRes.json();
+        setBookingsList(bookingsData);
+      }
+    } catch (err) {
+      console.error("Error loading offline profile data:", err);
+    } finally {
+      setLoadingOffline(false);
+    }
+  };
 
   const showMessage = (type, text) => {
     setMessage({ type, text });
@@ -247,6 +296,20 @@ export default function ProfilePage({ user, onLoadComparison }) {
             >
               <History size={16} />
               <span>Comparison History</span>
+            </button>
+            <button 
+              onClick={() => setActiveTab("savedOffline")} 
+              className={`tab-btn glass-panel ${activeTab === "savedOffline" ? "active" : ""}`}
+            >
+              <Save size={16} />
+              <span>Saved Offline Classes</span>
+            </button>
+            <button 
+              onClick={() => setActiveTab("bookings")} 
+              className={`tab-btn glass-panel ${activeTab === "bookings" ? "active" : ""}`}
+            >
+              <History size={16} />
+              <span>Demo Bookings</span>
             </button>
           </div>
         </aside>
@@ -512,6 +575,167 @@ export default function ProfilePage({ user, onLoadComparison }) {
                   <p>Add 2 or 3 courses to the comparison engine and view their comparison matrix to see them log here.</p>
                   <button onClick={() => navigate("/courses")} className="btn-primary explore-btn">
                     Explore Courses
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+          {activeTab === "savedOffline" && (
+            <div className="tab-content fade-in">
+              <h2>Saved Offline Coaching & Classes</h2>
+              <p className="tab-subtitle">Manage your bookmarked coaching institutes and classroom courses.</p>
+
+              {loadingOffline ? (
+                <div className="history-loader">
+                  <div className="loading-spinner"></div>
+                  <p>Loading bookmarks...</p>
+                </div>
+              ) : (
+                <div className="offline-bookmarks-wrapper">
+                  
+                  {/* Saved Institutes */}
+                  <div className="bookmark-section">
+                    <h3>Saved Institutes ({savedInstitutesList.length})</h3>
+                    {savedInstitutesList.length > 0 ? (
+                      <div className="saved-institutes-grid">
+                        {savedInstitutesList.map(inst => (
+                          <div key={inst.id} className="saved-inst-card glass-panel fade-in">
+                            <div className="saved-card-header">
+                              <img src={inst.logo} alt={inst.name} className="saved-logo" />
+                              <div>
+                                <h4>{inst.name}</h4>
+                                <span>📍 {inst.city}</span>
+                              </div>
+                            </div>
+                            <div className="saved-card-footer">
+                              <span className="saved-rating">⭐ {inst.rating}</span>
+                              <div className="saved-actions">
+                                <button 
+                                  onClick={() => navigate(`/institute/${inst.id}`)} 
+                                  className="btn-secondary btn-sm"
+                                >
+                                  Profile
+                                </button>
+                                <button 
+                                  onClick={async () => {
+                                    const res = await fetch("/api/saved-institutes/toggle", {
+                                      method: "POST",
+                                      headers: { "Content-Type": "application/json" },
+                                      body: JSON.stringify({ email: user.email, instituteId: inst.id })
+                                    });
+                                    if (res.ok) fetchOfflineBookmarksAndBookings();
+                                  }} 
+                                  className="btn-danger-outline btn-sm"
+                                >
+                                  Remove
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="no-bookmarks-tip">No saved coaching institutes yet.</p>
+                    )}
+                  </div>
+
+                  {/* Saved Courses */}
+                  <div className="bookmark-section" style={{ marginTop: "32px" }}>
+                    <h3>Saved Offline Courses ({savedCoursesList.length})</h3>
+                    {savedCoursesList.length > 0 ? (
+                      <div className="saved-courses-list">
+                        {savedCoursesList.map(c => (
+                          <div key={c.id} className="saved-course-card glass-panel fade-in">
+                            <div className="saved-course-details">
+                              <h4>{c.title}</h4>
+                              <span className="inst-link">Offered by: <Link to={`/institute/${c.instituteId}`}>{c.instituteName}</Link></span>
+                              <div className="saved-course-meta">
+                                <span className="meta-badge">{c.mode}</span>
+                                <span>⌛ {c.duration}</span>
+                                <span>💵 ₹{c.fees.toLocaleString("en-IN")}</span>
+                              </div>
+                            </div>
+                            <button 
+                              onClick={async () => {
+                                const res = await fetch("/api/saved-institutes/toggle", {
+                                  method: "POST",
+                                  headers: { "Content-Type": "application/json" },
+                                  body: JSON.stringify({ email: user.email, courseId: c.id })
+                                });
+                                if (res.ok) fetchOfflineBookmarksAndBookings();
+                              }} 
+                              className="btn-danger-outline btn-sm"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="no-bookmarks-tip">No saved offline classes yet.</p>
+                    )}
+                  </div>
+
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeTab === "bookings" && (
+            <div className="tab-content fade-in">
+              <div className="history-tab-header">
+                <div>
+                  <h2>Demo & Callback Bookings</h2>
+                  <p className="tab-subtitle">Track your callback requests, demo classes bookings, and scheduled visits.</p>
+                </div>
+                <button onClick={fetchOfflineBookmarksAndBookings} className="refresh-history-btn" title="Refresh bookings">
+                  <RefreshCw size={16} />
+                </button>
+              </div>
+
+              {loadingOffline ? (
+                <div className="history-loader">
+                  <div className="loading-spinner"></div>
+                  <p>Syncing booking logs...</p>
+                </div>
+              ) : bookingsList.length > 0 ? (
+                <div className="bookings-table-wrapper">
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>Institute</th>
+                        <th>Target Course</th>
+                        <th>Request Type</th>
+                        <th>Status</th>
+                        <th>Scheduled Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bookingsList.map(b => (
+                        <tr key={b._id}>
+                          <td><strong>{b.instituteName}</strong></td>
+                          <td>{b.courseName || "General Inquiry"}</td>
+                          <td><span className={`inq-badge-type ${b.type}`}>{b.type}</span></td>
+                          <td><span className={`status-tag ${b.status.toLowerCase()}`}>{b.status}</span></td>
+                          <td>
+                            {new Date(b.date).toLocaleDateString("en-IN", {
+                              day: "2-digit",
+                              month: "short",
+                              year: "numeric"
+                            })}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="no-history-state glass-panel fade-in">
+                  <History size={36} color="var(--text-muted)" />
+                  <h3>No bookings requested yet</h3>
+                  <p>Inquire or book a free demo session from the course offering list inside an institute's profile page.</p>
+                  <button onClick={() => navigate("/offline-classes")} className="btn-primary explore-btn">
+                    Browse Offline Coaching
                   </button>
                 </div>
               )}
@@ -1129,6 +1353,207 @@ export default function ProfilePage({ user, onLoadComparison }) {
           font-size: 0.85rem;
           padding: 8px 20px;
         }
+
+        /* Offline Bookmarks and Bookings Styles */
+        .offline-bookmarks-wrapper {
+          display: flex;
+          flex-direction: column;
+          gap: 28px;
+        }
+
+        .bookmark-section h3 {
+          font-size: 0.95rem;
+          font-weight: 800;
+          color: var(--text-primary);
+          margin-bottom: 16px;
+        }
+
+        .saved-institutes-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 16px;
+        }
+
+        @media (max-width: 600px) {
+          .saved-institutes-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .saved-inst-card {
+          padding: 16px;
+          background: rgba(255, 255, 255, 0.4);
+          border: 1px solid var(--border-color);
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .saved-card-header {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .saved-logo {
+          width: 38px;
+          height: 38px;
+          border-radius: var(--radius-sm);
+          border: 1px solid var(--border-color);
+          object-fit: cover;
+          background: #FFFFFF;
+        }
+
+        .saved-card-header h4 {
+          font-size: 0.85rem;
+          font-weight: 800;
+          color: var(--text-primary);
+          margin: 0;
+          line-height: 1.3;
+        }
+
+        .saved-card-header span {
+          font-size: 0.72rem;
+          color: var(--text-secondary);
+        }
+
+        .saved-card-footer {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-top: auto;
+          border-top: 1px solid var(--border-color);
+          padding-top: 10px;
+        }
+
+        .saved-rating {
+          font-size: 0.78rem;
+          font-weight: 700;
+        }
+
+        .saved-actions {
+          display: flex;
+          gap: 6px;
+        }
+
+        .btn-danger-outline {
+          background: transparent;
+          border: 1px solid var(--error);
+          color: var(--error);
+          padding: 4px 10px;
+          border-radius: var(--radius-sm);
+          font-size: 0.72rem;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all var(--transition-fast);
+        }
+
+        .btn-danger-outline:hover {
+          background: var(--error);
+          color: #FFFFFF;
+        }
+
+        .btn-sm {
+          padding: 4px 10px;
+          font-size: 0.72rem;
+        }
+
+        .no-bookmarks-tip {
+          font-size: 0.82rem;
+          color: var(--text-muted);
+          background: var(--bg-secondary);
+          padding: 12px;
+          border-radius: var(--radius-sm);
+          text-align: center;
+        }
+
+        .saved-courses-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .saved-course-card {
+          padding: 16px 20px;
+          background: rgba(255, 255, 255, 0.4);
+          border: 1px solid var(--border-color);
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          gap: 16px;
+        }
+
+        .saved-course-details {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .saved-course-details h4 {
+          font-size: 0.88rem;
+          font-weight: 800;
+          color: var(--text-primary);
+          margin: 0;
+        }
+
+        .inst-link {
+          font-size: 0.72rem;
+          color: var(--text-secondary);
+        }
+
+        .inst-link a {
+          color: var(--primary);
+          font-weight: 700;
+        }
+
+        .saved-course-meta {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-top: 4px;
+          font-size: 0.75rem;
+          color: var(--text-secondary);
+          font-weight: 600;
+        }
+
+        .meta-badge {
+          background: rgba(29, 92, 255, 0.1);
+          color: var(--primary);
+          padding: 2px 6px;
+          border-radius: var(--radius-sm);
+          font-size: 0.65rem;
+          font-weight: 800;
+        }
+
+        .bookings-table-wrapper {
+          overflow-x: auto;
+          border: 1px solid var(--border-color);
+          border-radius: var(--radius-md);
+        }
+
+        .inq-badge-type {
+          font-size: 0.7rem;
+          font-weight: 800;
+          text-transform: uppercase;
+          padding: 3px 8px;
+          border-radius: var(--radius-sm);
+        }
+
+        .inq-badge-type.callback { background: rgba(29, 92, 255, 0.1); color: var(--primary); }
+        .inq-badge-type.demo { background: rgba(144, 85, 255, 0.1); color: var(--accent-purple); }
+        .inq-badge-type.visit { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+        .inq-badge-type.inquiry { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+
+        .status-tag {
+          font-size: 0.75rem;
+          font-weight: 700;
+          padding: 4px 10px;
+          border-radius: var(--radius-full);
+        }
+
+        .status-tag.pending { background: rgba(245, 158, 11, 0.1); color: #f59e0b; }
+        .status-tag.contacted { background: rgba(29, 92, 255, 0.1); color: var(--primary); }
+        .status-tag.completed { background: rgba(16, 185, 129, 0.1); color: #10b981; }
 
         /* Glowing Orbs */
         .glowing-orb {

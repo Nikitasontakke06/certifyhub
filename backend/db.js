@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import { Course, Job } from "./models.js";
-import { SEED_COURSES, SEED_JOBS } from "./seedData.js";
+import { Course, Job, Institute, InstituteReview } from "./models.js";
+import { SEED_COURSES, SEED_JOBS, SEED_INSTITUTES, SEED_REVIEWS } from "./seedData.js";
 
 dotenv.config();
 
@@ -18,6 +18,8 @@ mongoose.connect(MONGODB_URI)
         console.log("USD pricing detected. Resetting database to INR...");
         await Course.deleteMany({});
         await Job.deleteMany({});
+        await Institute.deleteMany({});
+        await InstituteReview.deleteMany({});
       }
     } catch (err) {
       console.warn("Pricing format check warning:", err.message);
@@ -51,6 +53,36 @@ mongoose.connect(MONGODB_URI)
       }
     } catch (err) {
       console.error("Error seeding jobs:", err.message);
+    }
+
+    // Seed Institutes if empty or count differs
+    try {
+      const instCount = await Institute.countDocuments();
+      if (instCount !== SEED_INSTITUTES.length) {
+        console.log("Database out of sync. Re-seeding institutes collection...");
+        await Institute.deleteMany({});
+        await Institute.insertMany(SEED_INSTITUTES);
+        console.log("Database seeded: Institutes collection populated.");
+      } else {
+        console.log("Institutes collection already seeded and up-to-date.");
+      }
+    } catch (err) {
+      console.error("Error seeding institutes:", err.message);
+    }
+
+    // Seed Reviews if empty
+    try {
+      const reviewCount = await InstituteReview.countDocuments();
+      if (reviewCount === 0) {
+        console.log("Database reviews empty. Seeding reviews collection...");
+        await InstituteReview.deleteMany({});
+        await InstituteReview.insertMany(SEED_REVIEWS);
+        console.log("Database seeded: Reviews collection populated.");
+      } else {
+        console.log("Reviews collection already seeded and up-to-date.");
+      }
+    } catch (err) {
+      console.error("Error seeding reviews:", err.message);
     }
   })
   .catch(err => {

@@ -14,6 +14,10 @@ import ComparePage from "./pages/ComparePage";
 import JobsPage from "./pages/JobsPage";
 import AboutPage from "./pages/AboutPage";
 import ProfilePage from "./pages/ProfilePage";
+import OfflineClassesPage from "./pages/OfflineClassesPage";
+import InstituteDetailPage from "./pages/InstituteDetailPage";
+import OfflineComparePage from "./pages/OfflineComparePage";
+import OfflineAdminPage from "./pages/OfflineAdminPage";
 
 // ProtectedRoute component helper
 function ProtectedRoute({ user, openAuth, children }) {
@@ -35,8 +39,24 @@ export default function App() {
   const [courses, setCourses] = useState([]);
   const [jobs, setJobs] = useState([]);
   const [compareList, setCompareList] = useState([]);
+  const [offlineCompareList, setOfflineCompareList] = useState([]);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+
+  const handleToggleOfflineCompare = (institute) => {
+    setOfflineCompareList(prev => {
+      const exists = prev.some(item => item.id === institute.id);
+      if (exists) {
+        return prev.filter(item => item.id !== institute.id);
+      } else {
+        if (prev.length >= 3) {
+          alert("You can compare up to 3 coaching institutes at a time.");
+          return prev;
+        }
+        return [...prev, institute];
+      }
+    });
+  };
 
   // Load user session on mount
   useEffect(() => {
@@ -195,6 +215,55 @@ export default function App() {
                   <ProfilePage 
                     user={user}
                     onLoadComparison={handleLoadComparison}
+                  />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/offline-classes" 
+              element={
+                <ProtectedRoute user={user} openAuth={() => setIsAuthOpen(true)}>
+                  <OfflineClassesPage 
+                    user={user}
+                    openAuth={() => setIsAuthOpen(true)}
+                    compareList={offlineCompareList}
+                    onToggleCompare={handleToggleOfflineCompare}
+                  />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/institute/:id" 
+              element={
+                <ProtectedRoute user={user} openAuth={() => setIsAuthOpen(true)}>
+                  <InstituteDetailPage 
+                    user={user}
+                    openAuth={() => setIsAuthOpen(true)}
+                    compareList={offlineCompareList}
+                    onToggleCompare={handleToggleOfflineCompare}
+                  />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/offline-compare" 
+              element={
+                <ProtectedRoute user={user} openAuth={() => setIsAuthOpen(true)}>
+                  <OfflineComparePage 
+                    compareList={offlineCompareList}
+                    onToggleCompare={handleToggleOfflineCompare}
+                    openAuth={() => setIsAuthOpen(true)}
+                  />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/offline-admin" 
+              element={
+                <ProtectedRoute user={user} openAuth={() => setIsAuthOpen(true)}>
+                  <OfflineAdminPage 
+                    user={user}
+                    openAuth={() => setIsAuthOpen(true)}
                   />
                 </ProtectedRoute>
               } 

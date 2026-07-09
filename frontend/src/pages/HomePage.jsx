@@ -32,6 +32,7 @@ export default function HomePage({
   
   // Dynamic user preferences state
   const [userPrefs, setUserPrefs] = useState(null);
+  const [offlineRecs, setOfflineRecs] = useState([]);
 
   // Fetch preferences from API on mount
   useEffect(() => {
@@ -44,6 +45,26 @@ export default function HomePage({
         .catch(err => console.error("Error loading preferences:", err));
     }
   }, [user]);
+
+  // Fetch offline recommendations based on preferences
+  useEffect(() => {
+    fetch("/api/institutes")
+      .then(res => res.ok ? res.json() : [])
+      .then(data => {
+        if (userPrefs && userPrefs.preferredDomains && userPrefs.preferredDomains.length > 0) {
+          const filtered = data.filter(inst => 
+            inst.categories.some(cat => userPrefs.preferredDomains.includes(cat))
+          );
+          if (filtered.length > 0) {
+            setOfflineRecs(filtered.slice(0, 3));
+            return;
+          }
+        }
+        const sorted = [...data].sort((a, b) => b.rating - a.rating);
+        setOfflineRecs(sorted.slice(0, 3));
+      })
+      .catch(err => console.error("Error loading offline recommendations:", err));
+  }, [userPrefs]);
 
   // Derive mock metrics for compared and searched counts
   const enhancedCourses = courses.map(course => {
@@ -382,6 +403,48 @@ export default function HomePage({
                 </div>
               </section>
 
+            </div>
+
+            {/* Recommended Offline Classes Section */}
+            <div className="home-offline-recommendations-section glass-panel fade-in">
+              <div className="section-header">
+                <div>
+                  <span className="home-eyebrow">Offline Class Discovery</span>
+                  <h2>Recommended Coaching Centers Near You</h2>
+                </div>
+                <button onClick={() => navigate("/offline-classes")} className="btn-secondary">
+                  <span>Browse All Offline Classes</span>
+                  <ArrowRight size={14} />
+                </button>
+              </div>
+
+              <div className="recommendations-grid">
+                {offlineRecs.length > 0 ? (
+                  offlineRecs.map(inst => (
+                    <div 
+                      key={inst.id} 
+                      className="rec-inst-card glass-panel"
+                      onClick={() => navigate(`/institute/${inst.id}`)}
+                    >
+                      <div className="rec-card-image">
+                        <img src={inst.coverImage} alt={inst.name} />
+                        <div className="rec-badge">⭐ {inst.rating}</div>
+                      </div>
+                      <div className="rec-card-body">
+                        <img src={inst.logo} alt={inst.name} className="rec-logo" />
+                        <div className="rec-text">
+                          <h3>{inst.name}</h3>
+                          <span>📍 {inst.city}</span>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rec-empty-state">
+                    <p>No offline recommendations matching preferences found. Browse all offline classes to discover centers.</p>
+                  </div>
+                )}
+              </div>
             </div>
 
           </main>
@@ -966,6 +1029,119 @@ export default function HomePage({
           .metric-grid {
             grid-template-columns: 1fr;
           }
+        }
+
+        /* Recommended offline section */
+        .home-offline-recommendations-section {
+          margin-top: 36px;
+          padding: 28px;
+        }
+
+        .section-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          border-bottom: 1px solid var(--border-color);
+          padding-bottom: 14px;
+          margin-bottom: 24px;
+        }
+
+        .section-header h2 {
+          font-size: 1.25rem;
+          font-weight: 800;
+          color: var(--text-primary);
+          margin: 0;
+        }
+
+        .recommendations-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 24px;
+        }
+
+        @media (max-width: 768px) {
+          .recommendations-grid {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .rec-inst-card {
+          overflow: hidden;
+          background: var(--bg-glass);
+          border: 1px solid var(--border-color);
+          border-radius: var(--radius-md);
+          cursor: pointer;
+          transition: all var(--transition-normal);
+          display: flex;
+          flex-direction: column;
+        }
+
+        .rec-inst-card:hover {
+          transform: translateY(-4px);
+          border-color: rgba(29, 92, 255, 0.25);
+          box-shadow: var(--shadow-md);
+        }
+
+        .rec-card-image {
+          height: 120px;
+          position: relative;
+          width: 100%;
+        }
+
+        .rec-card-image img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .rec-badge {
+          position: absolute;
+          top: 10px;
+          left: 10px;
+          background: rgba(15, 23, 42, 0.85);
+          color: #FFFFFF;
+          font-size: 0.7rem;
+          font-weight: 800;
+          padding: 3px 6px;
+          border-radius: var(--radius-sm);
+        }
+
+        .rec-card-body {
+          padding: 16px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .rec-logo {
+          width: 38px;
+          height: 38px;
+          border-radius: var(--radius-sm);
+          border: 1px solid var(--border-color);
+          object-fit: cover;
+          background: #FFFFFF;
+        }
+
+        .rec-text h3 {
+          font-size: 0.85rem;
+          font-weight: 800;
+          color: var(--text-primary);
+          margin: 0;
+          line-height: 1.3;
+        }
+
+        .rec-text span {
+          font-size: 0.72rem;
+          color: var(--text-secondary);
+          font-weight: 600;
+        }
+
+        .rec-empty-state {
+          grid-column: span 3;
+          text-align: center;
+          padding: 30px 0;
+          color: var(--text-muted);
+          font-size: 0.85rem;
         }
       `}} />
     </div>
