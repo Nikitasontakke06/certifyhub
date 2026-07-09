@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, ChevronDown, User, LogOut, BookOpen, Briefcase, Info } from "lucide-react";
 
@@ -8,6 +8,20 @@ export default function Navbar({ user, onLogout, openAuth }) {
   const [trendingsDropdown, setTrendingsDropdown] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const navigate = useNavigate();
+
+  // Close profile dropdown on click outside
+  useEffect(() => {
+    if (!profileDropdownOpen) return;
+    const handleOutsideClick = (e) => {
+      if (!e.target.closest(".user-profile-menu-container")) {
+        setProfileDropdownOpen(false);
+      }
+    };
+    document.addEventListener("click", handleOutsideClick);
+    return () => {
+      document.removeEventListener("click", handleOutsideClick);
+    };
+  }, [profileDropdownOpen]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -111,10 +125,7 @@ export default function Navbar({ user, onLogout, openAuth }) {
         {/* User Auth Info */}
         <div className="navbar-user">
           {user ? (
-            <div 
-              className="user-profile-menu-container"
-              onMouseLeave={() => setProfileDropdownOpen(false)}
-            >
+            <div className="user-profile-menu-container">
               <button 
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)} 
                 className="user-profile-btn glass-panel"
