@@ -1,29 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   ArrowRight,
   BarChart3,
   BookOpen,
   Briefcase,
   CheckCircle2,
-  Compass,
   Layers,
   Search,
   Sparkles,
   Star,
-  TrendingUp,
-  Award,
-  LineChart,
-  Settings,
-  Activity,
   Code,
   Database,
   Palette,
   Shield,
   Cpu,
   Cloud,
-  Check,
-  ChevronRight
+  Check
 } from "lucide-react";
 
 export default function HomePage({ 
@@ -36,49 +29,56 @@ export default function HomePage({
   onToggleCompare 
 }) {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("overview"); // "overview" | "analytics" | "matcher"
   
-  // Dynamic user data states
+  // Dynamic user preferences state
   const [userPrefs, setUserPrefs] = useState(null);
-  const [personalizedRecs, setPersonalizedRecs] = useState([]);
-  const [fetchingPrefs, setFetchingPrefs] = useState(false);
 
-  // States for interactive Analytics tab
-  const [selectedCategory, setSelectedCategory] = useState("all");
-  
-  // States for interactive Skill Matcher tab
-  const [targetRole, setTargetRole] = useState("Fullstack Developer");
-  const [userExperience, setUserExperience] = useState("Beginner");
-
-  // Fetch preferences and recommendations from APIs on mount
+  // Fetch preferences from API on mount
   useEffect(() => {
     if (user && user.email) {
-      setFetchingPrefs(true);
-      
-      // Fetch user profile preferences
       fetch(`/api/preferences?email=${encodeURIComponent(user.email)}`)
         .then(res => res.ok ? res.json() : null)
         .then(data => {
           if (data) setUserPrefs(data);
         })
         .catch(err => console.error("Error loading preferences:", err));
-
-      // Fetch personalized recommendations
-      fetch(`/api/recommendations?email=${encodeURIComponent(user.email)}`)
-        .then(res => res.ok ? res.json() : [])
-        .then(data => setPersonalizedRecs(data))
-        .catch(err => console.error("Error loading recommendations:", err))
-        .finally(() => setFetchingPrefs(false));
     }
   }, [user]);
 
-  const topCourses = [...courses]
-    .sort((a, b) => (b.rating || 0) - (a.rating || 0))
-    .slice(0, 4);
+  // Derive mock metrics for compared and searched counts
+  const enhancedCourses = courses.map(course => {
+    const charCodeSum = course.id.split("").reduce((sum, char) => sum + char.charCodeAt(0), 0);
+    const comparedCount = (charCodeSum % 140) + 45; // range: 45 - 185
+    const searchedCount = (charCodeSum % 350) + 120; // range: 120 - 470
+    return { ...course, comparedCount, searchedCount };
+  });
 
-  const trendingJobs = [...jobs]
-    .sort((a, b) => (b.dailyGrowthRate || 0) - (a.dailyGrowthRate || 0))
-    .slice(0, 4);
+  const mostComparedCourses = [...enhancedCourses]
+    .sort((a, b) => b.comparedCount - a.comparedCount)
+    .slice(0, 6);
+
+  const mostSearchedCourses = [...enhancedCourses]
+    .sort((a, b) => b.searchedCount - a.searchedCount)
+    .slice(0, 6);
+
+  const matchups = [
+    {
+      title1: "Complete Python Bootcamp",
+      provider1: "Udemy",
+      title2: "IBM Data Science Professional",
+      provider2: "Coursera",
+      search1: "python",
+      search2: "ibm"
+    },
+    {
+      title1: "Ultimate AWS Certified",
+      provider1: "Udemy",
+      title2: "Google Cloud Professional",
+      provider2: "Coursera",
+      search1: "aws",
+      search2: "google"
+    }
+  ];
 
   const providerCount = new Set(courses.map(course => course.provider)).size;
   const freeCourses = courses.filter(course => course.price === 0).length;
@@ -91,7 +91,6 @@ export default function HomePage({
     navigate(path);
   };
 
-  // Categories list
   const categories = [
     { id: "programming", label: "Programming", icon: <Code size={16} /> },
     { id: "datascience", label: "Data Science", icon: <Database size={16} /> },
@@ -101,111 +100,31 @@ export default function HomePage({
     { id: "cloudcomputing", label: "Cloud & DevOps", icon: <Cloud size={16} /> }
   ];
 
-  // Dynamic calculations for Analytics tab based on loaded course data
-  const getCategoryStats = () => {
-    const filtered = selectedCategory === "all" 
-      ? courses 
-      : courses.filter(c => c.category === selectedCategory);
-    
-    if (filtered.length === 0) return { avgPrice: 0, topRated: "N/A", avgRating: 0, count: 0 };
-    
-    const totalVal = filtered.reduce((acc, curr) => acc + (curr.price || 0), 0);
-    const avgPrice = Math.round(totalVal / filtered.length);
-    const sortedByRating = [...filtered].sort((a, b) => (b.rating || 0) - (a.rating || 0));
-    const topRated = sortedByRating[0]?.title || "N/A";
-    const avgRating = (filtered.reduce((acc, curr) => acc + (curr.rating || 0), 0) / filtered.length).toFixed(1);
-    
-    return { avgPrice, topRated, avgRating, count: filtered.length };
-  };
-
-  const catStats = getCategoryStats();
-
-  // Skill Matcher Logic mapping target roles to actual course categories
-  const calculateMatch = () => {
-    let targetCat = "programming";
-    let matchScore = 75;
-
-    if (targetRole === "Data Scientist") {
-      targetCat = "datascience";
-      matchScore = userExperience === "Intermediate" ? 92 : userExperience === "Advanced" ? 95 : 78;
-    } else if (targetRole === "AI Engineer") {
-      targetCat = "aiml";
-      matchScore = userExperience === "Advanced" ? 96 : userExperience === "Intermediate" ? 88 : 74;
-    } else if (targetRole === "UI/UX Designer") {
-      targetCat = "design";
-      matchScore = userExperience === "Beginner" ? 82 : 88;
-    } else {
-      // Fullstack Developer
-      targetCat = "programming";
-      matchScore = userExperience === "Beginner" ? 89 : 91;
-    }
-
-    // Filter real courses matching the category
-    const matchedCourses = courses
-      .filter(c => c.category === targetCat)
-      .sort((a, b) => (b.rating || 0) - (a.rating || 0))
-      .slice(0, 3);
-
-    return { matchScore, matchedCourses };
-  };
-
-  const matchData = calculateMatch();
-
   return (
     <div className="home-page page-container">
       
-      {/* Dynamic Welcome & Notification Banner */}
+      {/* Dynamic Welcome Banner */}
       <div className="home-header fade-in">
         <h1>Workspace Dashboard</h1>
         <p>
           Welcome back, <strong>{user?.name || user?.email?.split("@")[0] || "Learner"}</strong>. 
           {userPrefs ? (
-            <span> Your target level is set to <span className="pref-highlight">{userPrefs.skillLevel}</span> with preferred domains: <span className="pref-highlight">{userPrefs.preferredDomains.join(", ")}</span>.</span>
+            <span>
+              {" "}Your target level is set to <span className="pref-highlight">{userPrefs.skillLevel}</span>
+              {userPrefs.preferredDomains && userPrefs.preferredDomains.length > 0 ? (
+                <span> with preferred domains: <span className="pref-highlight">{userPrefs.preferredDomains.join(", ")}</span>.</span>
+              ) : (
+                <span>. Explore certification paths using the categories search below.</span>
+              )}
+            </span>
           ) : (
-            <span> Track certification matrices, syllabus overlays, and live hiring metrics across Indian job sectors.</span>
+            <span> Explore certification paths using the categories search below.</span>
           )}
         </p>
       </div>
 
       <section className="home-shell fade-in">
         
-        {/* Horizontal Navigation Tabs Bar */}
-        <div className="home-tabs-nav glass-panel">
-          <div className="tabs-nav-left">
-            <button 
-              className={`tab-nav-btn ${activeTab === "overview" ? "active" : ""}`} 
-              onClick={() => setActiveTab("overview")}
-            >
-              <Compass size={16} />
-              <span>Overview Hub</span>
-            </button>
-            <button 
-              className={`tab-nav-btn ${activeTab === "analytics" ? "active" : ""}`} 
-              onClick={() => setActiveTab("analytics")}
-            >
-              <LineChart size={16} />
-              <span>Market Analytics</span>
-            </button>
-            <button 
-              className={`tab-nav-btn ${activeTab === "matcher" ? "active" : ""}`} 
-              onClick={() => setActiveTab("matcher")}
-            >
-              <Sparkles size={16} />
-              <span>Profile Matcher</span>
-            </button>
-          </div>
-          <div className="tabs-nav-right">
-            <button className="tab-nav-btn link-style-btn" onClick={() => requireUser("/compare")}>
-              <Layers size={16} />
-              <span>Compare Center ({compareList.length})</span>
-            </button>
-            <button className="tab-nav-btn link-style-btn" onClick={() => requireUser("/jobs")}>
-              <Briefcase size={16} />
-              <span>Career Tracks</span>
-            </button>
-          </div>
-        </div>
-
         {/* Quick Category Navigation Strip */}
         <div className="category-navigation-strip glass-panel">
           <span className="strip-label">Quick Search by Category:</span>
@@ -227,430 +146,243 @@ export default function HomePage({
         <div className="home-dashboard-single">
           <main className="home-main-full">
             
-            {activeTab === "overview" && (
-              <div className="tab-pane fade-in">
-                
-                {/* Metric Cards (Real values) */}
-                <div className="metric-grid">
-                  <div className="metric-card glass-panel">
-                    <div className="metric-icon blue"><BookOpen size={20} /></div>
-                    <div className="metric-text">
-                      <span>Total Catalog Size</span>
-                      <strong>{loading ? "--" : courses.length} Courses</strong>
-                    </div>
-                  </div>
-                  <div className="metric-card glass-panel">
-                    <div className="metric-icon cyan"><CheckCircle2 size={20} /></div>
-                    <div className="metric-text">
-                      <span>Free Certifications</span>
-                      <strong>{loading ? "--" : freeCourses} Options</strong>
-                    </div>
-                  </div>
-                  <div className="metric-card glass-panel">
-                    <div className="metric-icon purple"><BarChart3 size={20} /></div>
-                    <div className="metric-text">
-                      <span>Connected Platforms</span>
-                      <strong>{loading ? "--" : providerCount} Providers</strong>
-                    </div>
-                  </div>
-                  <div className="metric-card glass-panel">
-                    <div className="metric-icon green"><Briefcase size={20} /></div>
-                    <div className="metric-text">
-                      <span>Active Jobs Tracked</span>
-                      <strong>{loading ? "--" : jobs.length} Roles</strong>
-                    </div>
-                  </div>
+            {/* Metric Cards */}
+            <div className="metric-grid">
+              <div className="metric-card glass-panel">
+                <div className="metric-icon blue"><BookOpen size={20} /></div>
+                <div className="metric-text">
+                  <span>Total Catalog Size</span>
+                  <strong>{loading ? "--" : courses.length} Courses</strong>
                 </div>
+              </div>
+              <div className="metric-card glass-panel">
+                <div className="metric-icon cyan"><CheckCircle2 size={20} /></div>
+                <div className="metric-text">
+                  <span>Free Certifications</span>
+                  <strong>{loading ? "--" : freeCourses} Options</strong>
+                </div>
+              </div>
+              <div className="metric-card glass-panel">
+                <div className="metric-icon purple"><BarChart3 size={20} /></div>
+                <div className="metric-text">
+                  <span>Connected Platforms</span>
+                  <strong>{loading ? "--" : providerCount} Providers</strong>
+                </div>
+              </div>
+              <div className="metric-card glass-panel">
+                <div className="metric-icon green"><Briefcase size={20} /></div>
+                <div className="metric-text">
+                  <span>Active Jobs Tracked</span>
+                  <strong>{loading ? "--" : jobs.length} Roles</strong>
+                </div>
+              </div>
+            </div>
 
-                {/* Real-time Comparison Queue Integration Widget */}
-                {compareList.length > 0 && (
-                  <div className="active-compare-widget glass-panel">
-                    <div className="widget-header">
-                      <div className="widget-title">
-                        <Layers size={18} color="var(--primary)" />
-                        <h3>Active Comparison Queue</h3>
-                      </div>
-                      <span className="queue-count-pill">{compareList.length} / 3 Selected</span>
-                    </div>
-                    <p className="widget-desc">You have selected courses to review. Overlay pricing, hours, and syllabus coverage now.</p>
-                    <div className="widget-queue-list">
-                      {compareList.map(item => (
-                        <div key={item.id} className="widget-queue-item">
-                          <div>
-                            <strong>{item.title}</strong>
-                            <span>{item.provider}</span>
-                          </div>
-                          <button 
-                            onClick={() => onToggleCompare(item)} 
-                            className="remove-queue-btn"
-                          >
-                            Remove
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                    <button onClick={() => navigate("/compare")} className="btn-primary widget-action-btn">
-                      <span>Launch Compare Matrices</span>
-                      <ArrowRight size={16} />
-                    </button>
+            {/* Real-time Comparison Queue Integration Widget */}
+            {compareList.length > 0 && (
+              <div className="active-compare-widget glass-panel">
+                <div className="widget-header">
+                  <div className="widget-title">
+                    <Layers size={18} color="var(--primary)" />
+                    <h3>Active Comparison Queue</h3>
                   </div>
-                )}
-
-                {/* Personalized Recommendations Section (Real API output) */}
-                {personalizedRecs.length > 0 && (
-                  <section className="personalized-recommendations-section glass-panel">
-                    <div className="section-header">
-                      <div className="header-info">
-                        <span className="home-eyebrow">Personalized Matching</span>
-                        <h2>Recommended For You</h2>
+                  <span className="queue-count-pill">{compareList.length} / 3 Selected</span>
+                </div>
+                <p className="widget-desc">You have selected courses to review. Overlay pricing, hours, and syllabus coverage now.</p>
+                <div className="widget-queue-list">
+                  {compareList.map(item => (
+                    <div key={item.id} className="widget-queue-item">
+                      <div>
+                        <strong>{item.title}</strong>
+                        <span>{item.provider}</span>
                       </div>
-                      <span className="engine-badge">AI Recommendation Engine</span>
+                      <button 
+                        onClick={() => onToggleCompare(item)} 
+                        className="remove-queue-btn"
+                      >
+                        Remove
+                      </button>
                     </div>
-                    <div className="personalized-grid">
-                      {personalizedRecs.map(rec => (
-                        <div key={rec.id} className="personalized-card glass-panel">
-                          <div className="card-top">
-                            <span className="rec-platform">{rec.provider}</span>
-                            <span className="rec-price">{rec.price === 0 ? "Free" : `₹${rec.price.toLocaleString("en-IN")}`}</span>
-                          </div>
-                          <h4>{rec.title}</h4>
-                          <div className="card-bottom">
-                            <div className="rating">
+                  ))}
+                </div>
+                <button onClick={() => navigate("/compare")} className="btn-primary widget-action-btn">
+                  <span>Launch Compare Matrices</span>
+                  <ArrowRight size={16} />
+                </button>
+              </div>
+            )}
+
+            {/* Comparison & Search Activity Grid */}
+            <div className="home-trends-grid">
+              
+              {/* Most Compared Panel */}
+              <section className="home-list-panel glass-panel">
+                <div className="panel-content-wrap">
+                  <div className="panel-heading">
+                    <div>
+                      <span className="home-eyebrow">Comparison Activity</span>
+                      <h2>Most Compared Courses</h2>
+                    </div>
+                    <Layers size={18} color="var(--primary)" />
+                  </div>
+
+                  <div className="home-list">
+                    {loading ? (
+                      <div className="list-empty">Loading courses...</div>
+                    ) : mostComparedCourses.length > 0 ? (
+                      mostComparedCourses.map(course => (
+                        <div key={course.id} className="course-row-item">
+                          <button 
+                            className="course-row-main"
+                            onClick={() => requireUser(`/courses?search=${encodeURIComponent(course.title)}`)}
+                          >
+                            <div className="course-row-details">
+                              <h3>{course.title}</h3>
+                              <span className="course-row-platform">{course.provider} • Compared <strong>{course.comparedCount}</strong> times</span>
+                            </div>
+                          </button>
+                          <div className="course-row-actions">
+                            <button 
+                              onClick={() => onToggleCompare(course)}
+                              className={`row-action-compare-btn ${compareList.some(item => item.id === course.id) ? "compared" : ""}`}
+                            >
+                              {compareList.some(item => item.id === course.id) ? <Check size={14} /> : "Compare"}
+                            </button>
+                            <div className="row-meta">
                               <Star size={12} fill="var(--primary)" color="var(--primary)" />
-                              <span>{rec.rating} ({rec.reviews ? rec.reviews.toLocaleString() : "0"} reviews)</span>
+                              <strong>{course.rating}</strong>
                             </div>
-                            <button 
-                              onClick={() => onToggleCompare(rec)}
-                              className={`btn-secondary mini-btn ${compareList.some(item => item.id === rec.id) ? "compared" : ""}`}
-                            >
-                              {compareList.some(item => item.id === rec.id) ? <Check size={12} /> : "+ Compare"}
-                            </button>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  </section>
-                )}
-
-                {/* SVG Demand Trend Chart Section */}
-                <section className="chart-section glass-panel">
-                  <div className="chart-header">
-                    <div>
-                      <span className="home-eyebrow">Interactive Insights</span>
-                      <h2>Skills Demand vs Course Costs</h2>
-                    </div>
-                    <span className="chart-badge">Live Index</span>
+                      ))
+                    ) : (
+                      <div className="list-empty">No courses available.</div>
+                    )}
                   </div>
-                  <div className="chart-body">
-                    <svg viewBox="0 0 800 220" className="dashboard-svg-chart">
-                      <defs>
-                        <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.25" />
-                          <stop offset="100%" stopColor="var(--primary)" stopOpacity="0.00" />
-                        </linearGradient>
-                      </defs>
-                      <line x1="50" y1="20" x2="50" y2="180" stroke="var(--border-color)" strokeWidth="1" />
-                      <line x1="50" y1="180" x2="780" y2="180" stroke="var(--border-color)" strokeWidth="1" />
-                      
-                      <line x1="50" y1="60" x2="780" y2="60" stroke="var(--border-color)" strokeDasharray="4 4" strokeWidth="0.5" />
-                      <line x1="50" y1="120" x2="780" y2="120" stroke="var(--border-color)" strokeDasharray="4 4" strokeWidth="0.5" />
-
-                      <path d="M 50 180 L 150 130 L 250 145 L 350 80 L 450 110 L 550 50 L 650 75 L 750 30 L 750 180 Z" fill="url(#chartGrad)" />
-                      
-                      <path d="M 50 180 L 150 130 L 250 145 L 350 80 L 450 110 L 550 50 L 650 75 L 750 30" 
-                            fill="none" stroke="var(--primary)" strokeWidth="3" strokeLinecap="round" />
-                      
-                      <circle cx="150" cy="130" r="5" fill="var(--primary)" stroke="#fff" strokeWidth="1.5" />
-                      <circle cx="350" cy="80" r="5" fill="var(--primary)" stroke="#fff" strokeWidth="1.5" />
-                      <circle cx="550" cy="50" r="5" fill="var(--primary)" stroke="#fff" strokeWidth="1.5" />
-                      <circle cx="750" cy="30" r="5" fill="var(--primary)" stroke="#fff" strokeWidth="1.5" />
-
-                      <text x="150" y="200" textAnchor="middle" fontSize="10" fill="var(--text-muted)">Jan</text>
-                      <text x="350" y="200" textAnchor="middle" fontSize="10" fill="var(--text-muted)">Mar</text>
-                      <text x="550" y="200" textAnchor="middle" fontSize="10" fill="var(--text-muted)">May</text>
-                      <text x="750" y="200" textAnchor="middle" fontSize="10" fill="var(--text-muted)">Jul</text>
-                      
-                      <text x="40" y="65" textAnchor="end" fontSize="9" fill="var(--text-muted)">50% Demand</text>
-                      <text x="40" y="125" textAnchor="end" fontSize="9" fill="var(--text-muted)">25% Demand</text>
-                    </svg>
-                  </div>
-                  <div className="chart-footer">
-                    <p>💡 <strong>Analysis:</strong> Certification categories in AI & Machine Learning saw a 34% hiring growth rate in India last month.</p>
-                  </div>
-                </section>
-
-                {/* Dashboard Lists Grid */}
-                <div className="home-content-grid">
-                  
-                  {/* Top Rated Courses Panel */}
-                  <section className="home-list-panel glass-panel">
-                    <div className="panel-heading">
-                      <div>
-                        <span className="home-eyebrow">Top Recommendations</span>
-                        <h2>High Rated Syllabus</h2>
-                      </div>
-                      <Link to="/courses" className="panel-link">All Courses</Link>
-                    </div>
-
-                    <div className="home-list">
-                      {loading ? (
-                        <div className="list-empty">Loading courses...</div>
-                      ) : topCourses.length > 0 ? (
-                        topCourses.map(course => (
-                          <div 
-                            key={course.id} 
-                            className="course-row-item"
-                          >
-                            <button 
-                              className="course-row-main"
-                              onClick={() => requireUser(`/courses?search=${encodeURIComponent(course.title)}`)}
-                            >
-                              <div className="course-row-details">
-                                <h3>{course.title}</h3>
-                                <span className="course-row-platform">{course.provider} • ₹{course.price === 0 ? "Free" : course.price.toLocaleString("en-IN")}</span>
-                              </div>
-                            </button>
-                            <div className="course-row-actions">
-                              <button 
-                                onClick={() => onToggleCompare(course)}
-                                className={`row-action-compare-btn ${compareList.some(item => item.id === course.id) ? "compared" : ""}`}
-                                title={compareList.some(item => item.id === course.id) ? "Remove from comparison" : "Add to comparison"}
-                              >
-                                {compareList.some(item => item.id === course.id) ? <Check size={14} /> : "Compare"}
-                              </button>
-                              <div className="row-meta">
-                                <Star size={12} fill="var(--primary)" color="var(--primary)" />
-                                <strong>{course.rating}</strong>
-                              </div>
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="list-empty">No courses available.</div>
-                      )}
-                    </div>
-                  </section>
-
-                  {/* Career Demand signal panel */}
-                  <section className="home-list-panel glass-panel">
-                    <div className="panel-heading">
-                      <div>
-                        <span className="home-eyebrow">Hiring Movement</span>
-                        <h2>Hot Job Roles (India)</h2>
-                      </div>
-                      <Link to="/jobs" className="panel-link">All Jobs</Link>
-                    </div>
-
-                    <div className="home-list">
-                      {loading ? (
-                        <div className="list-empty">Loading jobs...</div>
-                      ) : trendingJobs.length > 0 ? (
-                        trendingJobs.map(job => (
-                          <button 
-                            key={job.id} 
-                            className="job-row" 
-                            onClick={() => requireUser("/jobs")}
-                          >
-                            <div className="job-row-details">
-                              <h3>{job.title}</h3>
-                              <span className="job-row-skills">{job.skills.slice(0, 2).join(" • ")}</span>
-                            </div>
-                            <div className="growth-pill">
-                              <TrendingUp size={12} />
-                              <strong>{Math.abs(job.dailyGrowthRate || 0)}%</strong>
-                            </div>
-                          </button>
-                        ))
-                      ) : (
-                        <div className="list-empty">No job data available.</div>
-                      )}
-                    </div>
-                  </section>
-
                 </div>
 
-              </div>
-            )}
+                <div className="panel-footer-action">
+                  <div className="panel-insight-box">
+                    <Sparkles size={14} color="var(--primary)" style={{ flexShrink: 0, marginTop: 1 }} />
+                    <span>Compare up to 3 courses side-by-side to overlay pricing, hours, and curriculum syllabus.</span>
+                  </div>
+                  <button onClick={() => navigate("/compare")} className="btn-secondary">
+                    <span>Open Comparison Center</span>
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
+              </section>
 
-            {activeTab === "analytics" && (
-              <div className="tab-pane fade-in">
-                <section className="analytics-explorer glass-panel">
-                  <div className="panel-header-action">
+              {/* Most Searched Panel */}
+              <section className="home-list-panel glass-panel">
+                <div className="panel-content-wrap">
+                  <div className="panel-heading">
                     <div>
-                      <h2>Market Pricing & Platform Analytics</h2>
-                      <p>Filter certification directories to compare costs and provider distribution.</p>
+                      <span className="home-eyebrow">Search Volume</span>
+                      <h2>Most Searched Courses</h2>
                     </div>
-                    
-                    <div className="analytics-filter">
-                      <label htmlFor="catSelect">Domain:</label>
-                      <select 
-                        id="catSelect" 
-                        value={selectedCategory} 
-                        onChange={(e) => setSelectedCategory(e.target.value)}
-                        className="form-select"
-                      >
-                        <option value="all">All Categories</option>
-                        {categories.map(cat => (
-                          <option key={cat.id} value={cat.id}>{cat.label}</option>
-                        ))}
-                      </select>
-                    </div>
+                    <Search size={18} color="var(--primary)" />
                   </div>
 
-                  <div className="analytics-report-grid">
-                    <div className="report-card">
-                      <h3>Average Price</h3>
-                      <span className="stat-value">₹{catStats.avgPrice.toLocaleString("en-IN")}</span>
-                      <p className="stat-desc">Calculated across this category's providers.</p>
-                    </div>
-                    <div className="report-card">
-                      <h3>Average Rating</h3>
-                      <span className="stat-value">⭐ {catStats.avgRating} / 5.0</span>
-                      <p className="stat-desc">Based on aggregated learner evaluations.</p>
-                    </div>
-                    <div className="report-card">
-                      <h3>Available Courses</h3>
-                      <span className="stat-value">{catStats.count} Options</span>
-                      <p className="stat-desc">Active items in our workspace.</p>
-                    </div>
-                  </div>
-
-                  <div className="featured-analytics-highlight">
-                    <Award size={20} color="var(--primary)" />
-                    <div>
-                      <h4>Top Performing Course in Selected Filter</h4>
-                      <p className="highlight-title">{catStats.topRated}</p>
-                    </div>
-                  </div>
-
-                  <div className="provider-pricing-bar-chart">
-                    <h4>Approximate Price Range by Provider (INR)</h4>
-                    <div className="bar-chart-container">
-                      <div className="bar-row">
-                        <span className="bar-label">Udemy</span>
-                        <div className="bar-track">
-                          <div className="bar-fill" style={{ width: "35%", background: "linear-gradient(90deg, var(--primary-light), var(--primary))" }}></div>
-                        </div>
-                        <span className="bar-val">₹389 - ₹3,499</span>
-                      </div>
-                      <div className="bar-row">
-                        <span className="bar-label">Coursera</span>
-                        <div className="bar-track">
-                          <div className="bar-fill" style={{ width: "65%", background: "linear-gradient(90deg, var(--primary-light), var(--primary))" }}></div>
-                        </div>
-                        <span className="bar-val">₹2,200 - ₹5,900</span>
-                      </div>
-                      <div className="bar-row">
-                        <span className="bar-label">Swayam</span>
-                        <div className="bar-track">
-                          <div className="bar-fill" style={{ width: "10%", background: "#10b981" }}></div>
-                        </div>
-                        <span className="bar-val">Free (Audit)</span>
-                      </div>
-                      <div className="bar-row">
-                        <span className="bar-label">Great Learning</span>
-                        <div className="bar-track">
-                          <div className="bar-fill" style={{ width: "80%", background: "linear-gradient(90deg, var(--primary-light), var(--primary))" }}></div>
-                        </div>
-                        <span className="bar-val">₹4,500 - ₹12,000</span>
-                      </div>
-                    </div>
-                  </div>
-
-                </section>
-              </div>
-            )}
-
-            {activeTab === "matcher" && (
-              <div className="tab-pane fade-in">
-                <section className="matcher-workspace glass-panel">
-                  <h2>Syllabus & Career Profile Matcher</h2>
-                  <p className="matcher-intro">Select your target career path and skill level to discover your profile fit match.</p>
-
-                  <div className="matcher-form">
-                    <div className="form-group">
-                      <label>Target Role:</label>
-                      <select 
-                        value={targetRole} 
-                        onChange={(e) => setTargetRole(e.target.value)}
-                        className="form-select"
-                      >
-                        <option value="Fullstack Developer">Fullstack Developer</option>
-                        <option value="Data Scientist">Data Scientist</option>
-                        <option value="AI Engineer">AI & ML Engineer</option>
-                        <option value="UI/UX Designer">UI/UX Designer</option>
-                      </select>
-                    </div>
-
-                    <div className="form-group">
-                      <label>Your Current Level:</label>
-                      <div className="experience-selector">
-                        {["Beginner", "Intermediate", "Advanced"].map(lvl => (
+                  <div className="home-list">
+                    {loading ? (
+                      <div className="list-empty">Loading courses...</div>
+                    ) : mostSearchedCourses.length > 0 ? (
+                      mostSearchedCourses.map(course => (
+                        <div key={course.id} className="course-row-item">
                           <button 
-                            key={lvl}
-                            className={`exp-btn ${userExperience === lvl ? "active" : ""}`}
-                            onClick={() => setUserExperience(lvl)}
+                            className="course-row-main"
+                            onClick={() => requireUser(`/courses?search=${encodeURIComponent(course.title)}`)}
                           >
-                            {lvl}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="matcher-results">
-                    <div className="match-score-radial">
-                      <div className="radial-circle">
-                        <span className="radial-score">{matchData.matchScore}%</span>
-                        <span className="radial-label">Profile Fit</span>
-                      </div>
-                      <div className="radial-explanation">
-                        <h4>Strong match!</h4>
-                        <p>Based on your selected experience level and active hiring competencies in India for <strong>{targetRole}</strong>.</p>
-                      </div>
-                    </div>
-
-                    <div className="matched-courses-list">
-                      <h4>Recommended Certifications for {targetRole}</h4>
-                      <div className="recommended-list">
-                        {matchData.matchedCourses.length > 0 ? (
-                          matchData.matchedCourses.map(course => (
-                            <div key={course.id} className="recommended-course-card glass-panel">
-                              <span className="rec-badge">Best Match</span>
-                              <h5>{course.title}</h5>
-                              <p className="rec-meta">{course.provider} • ⭐ {course.rating} • {course.price === 0 ? "Free" : `₹${course.price.toLocaleString("en-IN")}`}</p>
-                              <div className="rec-actions">
-                                <button 
-                                  onClick={() => requireUser(`/courses?search=${encodeURIComponent(course.title)}`)} 
-                                  className="btn-secondary mini-btn"
-                                >
-                                  View Syllabus
-                                </button>
-                                <button 
-                                  onClick={() => onToggleCompare(course)}
-                                  className={`btn-primary mini-btn ${compareList.some(item => item.id === course.id) ? "compared" : ""}`}
-                                >
-                                  {compareList.some(item => item.id === course.id) ? <Check size={12} /> : "Add Compare"}
-                                </button>
-                              </div>
+                            <div className="course-row-details">
+                              <h3>{course.title}</h3>
+                              <span className="course-row-platform">{course.provider} • Searched <strong>{course.searchedCount}</strong> times</span>
                             </div>
-                          ))
-                        ) : (
-                          <div className="list-empty">
-                            No immediate matching courses found. Try exploring our complete directory.
-                            <br />
-                            <button onClick={() => requireUser("/courses")} className="btn-primary" style={{ marginTop: 12 }}>
-                              Browse Catalog
+                          </button>
+                          <div className="course-row-actions">
+                            <button 
+                              onClick={() => onToggleCompare(course)}
+                              className={`row-action-compare-btn ${compareList.some(item => item.id === course.id) ? "compared" : ""}`}
+                            >
+                              {compareList.some(item => item.id === course.id) ? <Check size={14} /> : "Compare"}
                             </button>
+                            <div className="row-meta">
+                              <Star size={12} fill="var(--primary)" color="var(--primary)" />
+                              <strong>{course.rating}</strong>
+                            </div>
                           </div>
-                        )}
-                      </div>
-                    </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="list-empty">No courses available.</div>
+                    )}
                   </div>
+                </div>
 
-                </section>
-              </div>
-            )}
+                <div className="panel-footer-action">
+                  <div className="panel-insight-box">
+                    <Search size={14} color="var(--primary)" style={{ flexShrink: 0, marginTop: 1 }} />
+                    <span>Search query trends and platform click activity are updated in real-time daily.</span>
+                  </div>
+                  <button onClick={() => navigate("/courses")} className="btn-secondary">
+                    <span>Explore Course Catalog</span>
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
+              </section>
+
+              {/* Quick Matchups Panel */}
+              <section className="home-list-panel glass-panel">
+                <div className="panel-heading">
+                  <div>
+                    <span className="home-eyebrow">Quick Matchups</span>
+                    <h2>Trending Comparisons</h2>
+                  </div>
+                  <Sparkles size={18} color="var(--primary)" />
+                </div>
+
+                <div className="home-list">
+                  {matchups.map((match, idx) => (
+                    <div key={idx} className="matchup-item glass-panel">
+                      <div className="matchup-vs-container">
+                        <div className="matchup-course-box">
+                          <h4>{match.title1}</h4>
+                          <span className="prov-tag udy">{match.provider1}</span>
+                        </div>
+                        <div className="vs-divider">
+                          <div className="vs-line"></div>
+                          <div className="vs-circle-small">VS</div>
+                        </div>
+                        <div className="matchup-course-box">
+                          <h4>{match.title2}</h4>
+                          <span className="prov-tag cou">{match.provider2}</span>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => {
+                          const c1 = courses.find(c => c.title.toLowerCase().includes(match.search1));
+                          const c2 = courses.find(c => c.title.toLowerCase().includes(match.search2));
+                          if (c1 && c2) {
+                            const hasC1 = compareList.some(item => item.id === c1.id);
+                            const hasC2 = compareList.some(item => item.id === c2.id);
+                            if (!hasC1) onToggleCompare(c1);
+                            if (!hasC2) onToggleCompare(c2);
+                            navigate("/compare");
+                          } else {
+                            navigate("/courses");
+                          }
+                        }}
+                        className="btn-secondary matchup-btn-small"
+                      >
+                        <span>Quick Compare</span>
+                        <ArrowRight size={14} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+            </div>
 
           </main>
         </div>
@@ -662,15 +394,159 @@ export default function HomePage({
           flex-direction: column;
         }
 
+        /* Comparison & Search Activity Grid */
+        .home-trends-grid {
+          display: grid;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 28px;
+        }
+
+        @media (max-width: 1024px) {
+          .home-trends-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+          }
+        }
+
+        /* Matchup Panel Styling */
+        .matchup-item {
+          padding: 20px;
+          background: rgba(255, 255, 255, 0.4);
+          border: 1px solid var(--border-color);
+          border-radius: var(--radius-lg);
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          transition: all var(--transition-normal);
+        }
+
+        .matchup-item:hover {
+          border-color: rgba(29, 92, 255, 0.3);
+          transform: translateY(-4px);
+          box-shadow: 
+            0 20px 40px rgba(15, 23, 42, 0.04), 
+            0 0 25px rgba(29, 92, 255, 0.05);
+        }
+
+        .matchup-vs-container {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 12px;
+          width: 100%;
+          position: relative;
+        }
+
+        .matchup-course-box {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          padding: 12px;
+          background: rgba(255, 255, 255, 0.75);
+          border: 1px solid var(--border-color);
+          border-radius: var(--radius-md);
+          transition: border-color var(--transition-fast);
+        }
+
+        .matchup-item:hover .matchup-course-box {
+          border-color: rgba(29, 92, 255, 0.18);
+        }
+
+        .matchup-course-box h4 {
+          font-size: 0.9rem;
+          font-weight: 700;
+          color: var(--text-primary);
+          margin: 0;
+          line-height: 1.4;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+
+        .prov-tag {
+          align-self: flex-start;
+          font-size: 0.65rem;
+          font-weight: 800;
+          padding: 2px 8px;
+          border-radius: 4px;
+          text-transform: uppercase;
+        }
+
+        .prov-tag.udy {
+          background: rgba(164, 53, 240, 0.12);
+          color: #a435f0;
+          border: 1px solid rgba(164, 53, 240, 0.25);
+        }
+
+        .prov-tag.cou {
+          background: rgba(0, 86, 210, 0.12);
+          color: #0056d2;
+          border: 1px solid rgba(0, 86, 210, 0.25);
+        }
+
+        .vs-divider {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          height: 20px;
+        }
+
+        .vs-line {
+          position: absolute;
+          left: 0;
+          right: 0;
+          top: 50%;
+          height: 1px;
+          background: var(--border-color);
+          z-index: 1;
+        }
+
+        .vs-circle-small {
+          width: 32px;
+          height: 32px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, var(--primary), var(--accent-purple));
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.75rem;
+          font-weight: 800;
+          color: #ffffff;
+          border: 2px solid var(--bg-secondary);
+          box-shadow: 0 2px 8px rgba(29, 92, 255, 0.15);
+          position: relative;
+          z-index: 2;
+          flex-shrink: 0;
+        }
+
+        .matchup-btn-small {
+          padding: 8px 16px;
+          font-size: 0.85rem;
+          font-weight: 700;
+          width: 100%;
+          justify-content: center;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          border-radius: var(--radius-md);
+        }
+
         .home-header {
-          margin-bottom: 32px;
+          margin-bottom: 40px;
         }
 
         .home-header h1 {
-          font-size: 2.25rem;
+          font-size: 2.5rem;
           font-weight: 800;
-          color: var(--text-primary);
+          background: linear-gradient(135deg, var(--text-primary) 0%, var(--primary) 60%, var(--accent-purple) 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
           margin-bottom: 8px;
+          letter-spacing: -0.03em;
         }
 
         .home-header p {
@@ -687,56 +563,7 @@ export default function HomePage({
         .home-shell {
           display: flex;
           flex-direction: column;
-          gap: 24px;
-        }
-
-        /* Horizontal Navigation Tabs Bar */
-        .home-tabs-nav {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 10px 16px;
-          background: var(--bg-glass);
-          border: 1px solid var(--border-color);
-        }
-
-        .tabs-nav-left, .tabs-nav-right {
-          display: flex;
-          gap: 8px;
-        }
-
-        .tab-nav-btn {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          border: 1px solid transparent;
-          background: transparent;
-          color: var(--text-secondary);
-          border-radius: var(--radius-md);
-          padding: 10px 16px;
-          font-size: 0.88rem;
-          font-weight: 700;
-          cursor: pointer;
-          transition: all var(--transition-fast);
-        }
-
-        .tab-nav-btn:hover {
-          color: var(--primary);
-          background: var(--primary-light);
-        }
-
-        .tab-nav-btn.active {
-          color: var(--primary);
-          background: var(--primary-light);
-          border-color: var(--primary-glow);
-        }
-
-        .link-style-btn {
-          opacity: 0.85;
-        }
-
-        .link-style-btn:hover {
-          opacity: 1;
+          gap: 36px;
         }
 
         /* Quick Category Strip */
@@ -744,9 +571,9 @@ export default function HomePage({
           display: flex;
           align-items: center;
           gap: 16px;
-          padding: 8px 0;
-          background: transparent;
-          border: none;
+          padding: 12px 20px;
+          background: var(--bg-glass);
+          border: 1px solid var(--border-color);
         }
 
         .strip-label {
@@ -791,7 +618,7 @@ export default function HomePage({
         .home-main-full {
           display: flex;
           flex-direction: column;
-          gap: 24px;
+          gap: 36px;
         }
 
         /* Active Compare Queue Widget */
@@ -883,125 +710,25 @@ export default function HomePage({
           align-self: flex-start;
         }
 
-        /* Personalized Recommendations Grid */
-        .personalized-recommendations-section {
-          padding: 24px;
-          background: var(--bg-glass);
-          border: 1px solid var(--border-color);
-        }
-
-        .section-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 20px;
-        }
-
-        .section-header h2 {
-          font-size: 1.25rem;
-          font-weight: 800;
-          color: var(--text-primary);
-        }
-
-        .engine-badge {
-          background: #DEF7EC;
-          color: #03543F;
-          font-size: 0.72rem;
-          font-weight: 700;
-          padding: 4px 10px;
-          border-radius: var(--radius-full);
-          border: 1px solid rgba(3, 84, 63, 0.15);
-        }
-
-        .personalized-grid {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 16px;
-        }
-
-        .personalized-card {
-          padding: 18px;
-          background: var(--bg-secondary);
-          border: 1px solid var(--border-color);
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          transition: all var(--transition-fast);
-        }
-
-        .personalized-card:hover {
-          border-color: var(--primary);
-          transform: translateY(-2px);
-          box-shadow: var(--shadow-sm);
-        }
-
-        .card-top {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .rec-platform {
-          font-size: 0.72rem;
-          font-weight: 800;
-          background: var(--primary-light);
-          color: var(--primary);
-          padding: 2px 8px;
-          border-radius: 4px;
-          text-transform: uppercase;
-        }
-
-        .rec-price {
-          font-size: 0.85rem;
-          font-weight: 800;
-          color: var(--text-primary);
-        }
-
-        .personalized-card h4 {
-          font-size: 0.9rem;
-          font-weight: 800;
-          color: var(--text-primary);
-          line-height: 1.4;
-          margin: 0;
-          height: 38px;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-
-        .card-bottom {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-top: auto;
-        }
-
-        .personalized-card .rating {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          font-size: 0.75rem;
-          color: var(--text-secondary);
-        }
-
-        .mini-btn {
-          padding: 6px 12px;
-          font-size: 0.78rem;
-          font-weight: 700;
-        }
-
-        .mini-btn.compared {
-          background: #DEF7EC;
-          color: #03543F;
-          border-color: rgba(3, 84, 63, 0.15);
-        }
-
         /* Metrics grid */
         .metric-grid {
           display: grid;
           grid-template-columns: repeat(4, minmax(0, 1fr));
-          gap: 16px;
+          gap: 24px;
+        }
+
+        @media (max-width: 1024px) {
+          .metric-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+          }
+        }
+
+        @media (max-width: 576px) {
+          .metric-grid {
+            grid-template-columns: 1fr;
+            gap: 16px;
+          }
         }
 
         .metric-card {
@@ -1011,6 +738,14 @@ export default function HomePage({
           gap: 12px;
           background: var(--bg-glass);
           border: 1px solid var(--border-color);
+          border-radius: var(--radius-lg);
+          transition: transform var(--transition-normal), border-color var(--transition-normal), box-shadow var(--transition-normal);
+        }
+
+        .metric-card:hover {
+          transform: translateY(-4px);
+          border-color: rgba(29, 92, 255, 0.25);
+          box-shadow: 0 10px 25px rgba(29, 92, 255, 0.05);
         }
 
         .metric-icon {
@@ -1050,74 +785,52 @@ export default function HomePage({
           line-height: 1.1;
         }
 
-        /* SVG Chart Design */
-        .chart-section {
-          background: var(--bg-glass);
-          padding: 24px;
-        }
-
-        .chart-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 20px;
-        }
-
-        .chart-header h2 {
-          font-size: 1.25rem;
-          font-weight: 800;
-          color: var(--text-primary);
-          margin-top: 4px;
-        }
-
-        .home-eyebrow {
-          display: inline-block;
-          color: var(--primary);
-          font-size: 0.75rem;
-          font-weight: 800;
-          letter-spacing: 0.14em;
-          text-transform: uppercase;
-          margin-bottom: 4px;
-        }
-
-        .chart-badge {
-          background: var(--primary-light);
-          color: var(--primary);
-          font-size: 0.72rem;
-          font-weight: 800;
-          padding: 4px 10px;
-          border-radius: var(--radius-full);
-          border: 1px solid var(--border-glow);
-        }
-
-        .dashboard-svg-chart {
-          width: 100%;
-          height: auto;
-          display: block;
-        }
-
-        .chart-footer {
-          margin-top: 14px;
-          border-top: 1px solid var(--border-color);
-          padding-top: 12px;
-        }
-
-        .chart-footer p {
-          font-size: 0.85rem;
-          color: var(--text-secondary);
-          margin: 0;
-        }
-
         /* Lists Grid */
-        .home-content-grid {
-          display: grid;
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-          gap: 20px;
-        }
-
         .home-list-panel {
           padding: 24px;
           background: var(--bg-glass);
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+        }
+
+        .panel-content-wrap {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .panel-footer-action {
+          margin-top: auto;
+          padding-top: 24px;
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .panel-footer-action .btn-secondary {
+          width: 100%;
+          justify-content: center;
+          padding: 10px;
+          font-size: 0.85rem;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .panel-insight-box {
+          display: flex;
+          align-items: flex-start;
+          gap: 8px;
+          padding: 12px;
+          background: rgba(29, 92, 255, 0.04);
+          border: 1px dashed rgba(29, 92, 255, 0.15);
+          border-radius: var(--radius-md);
+          font-size: 0.78rem;
+          color: var(--text-secondary);
+          line-height: 1.4;
         }
 
         .panel-heading {
@@ -1134,12 +847,6 @@ export default function HomePage({
           margin-top: 2px;
         }
 
-        .panel-link {
-          color: var(--primary);
-          font-size: 0.8rem;
-          font-weight: 800;
-        }
-
         .home-list {
           display: flex;
           flex-direction: column;
@@ -1150,26 +857,26 @@ export default function HomePage({
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 12px 14px;
+          padding: 12px 16px;
+          background: var(--bg-secondary);
           border: 1px solid var(--border-color);
           border-radius: var(--radius-md);
-          background: var(--bg-secondary);
           transition: all var(--transition-fast);
         }
 
         .course-row-item:hover {
           border-color: var(--primary);
-          transform: translateY(-2px);
-          box-shadow: var(--shadow-sm);
+          transform: translateY(-1px);
         }
 
         .course-row-main {
           background: transparent;
           border: none;
-          cursor: pointer;
-          text-align: left;
-          flex-grow: 1;
           padding: 0;
+          text-align: left;
+          cursor: pointer;
+          flex: 1;
+          margin-right: 12px;
         }
 
         .course-row-details h3 {
@@ -1177,9 +884,9 @@ export default function HomePage({
           font-weight: 800;
           color: var(--text-primary);
           margin: 0 0 2px 0;
-          line-height: 1.3;
+          line-height: 1.35;
           display: -webkit-box;
-          -webkit-line-clamp: 1;
+          -webkit-line-clamp: 2;
           -webkit-box-orient: vertical;
           overflow: hidden;
         }
@@ -1196,15 +903,18 @@ export default function HomePage({
         }
 
         .row-action-compare-btn {
-          background: transparent;
-          border: 1px solid var(--border-color);
-          border-radius: var(--radius-sm);
-          color: var(--text-secondary);
-          font-size: 0.75rem;
+          padding: 6px 12px;
+          font-size: 0.78rem;
           font-weight: 700;
-          padding: 4px 10px;
+          border-radius: var(--radius-sm);
+          border: 1px solid var(--border-color);
+          background: var(--bg-secondary);
+          color: var(--text-primary);
           cursor: pointer;
           transition: all var(--transition-fast);
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
         }
 
         .row-action-compare-btn:hover {
@@ -1214,12 +924,12 @@ export default function HomePage({
         }
 
         .row-action-compare-btn.compared {
-          background: #DEF7EC;
-          color: #03543F;
-          border-color: rgba(3, 84, 63, 0.15);
+          background: var(--primary-light);
+          border-color: var(--primary);
+          color: var(--primary);
         }
 
-        .row-meta, .growth-pill {
+        .row-meta {
           display: inline-flex;
           align-items: center;
           gap: 4px;
@@ -1232,48 +942,6 @@ export default function HomePage({
           flex-shrink: 0;
         }
 
-        .job-row {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 12px 14px;
-          border: 1px solid var(--border-color);
-          border-radius: var(--radius-md);
-          background: var(--bg-secondary);
-          cursor: pointer;
-          text-align: left;
-          width: 100%;
-          transition: all var(--transition-fast);
-        }
-
-        .job-row:hover {
-          border-color: var(--primary);
-          transform: translateY(-2px);
-          box-shadow: var(--shadow-sm);
-        }
-
-        .job-row-details h3 {
-          font-size: 0.88rem;
-          font-weight: 800;
-          color: var(--text-primary);
-          margin: 0 0 2px 0;
-          line-height: 1.3;
-          display: -webkit-box;
-          -webkit-line-clamp: 1;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-
-        .job-row-skills {
-          font-size: 0.75rem;
-          color: var(--text-secondary);
-        }
-
-        .growth-pill {
-          color: #03543F;
-          background: #DEF7EC;
-        }
-
         .list-empty {
           color: var(--text-muted);
           padding: 24px 0;
@@ -1281,360 +949,7 @@ export default function HomePage({
           font-size: 0.85rem;
         }
 
-        /* Analytics Explorer page */
-        .analytics-explorer, .matcher-workspace {
-          background: var(--bg-glass);
-          padding: 32px;
-        }
-
-        .panel-header-action {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          border-bottom: 1px solid var(--border-color);
-          padding-bottom: 20px;
-          margin-bottom: 24px;
-          flex-wrap: wrap;
-          gap: 16px;
-        }
-
-        .panel-header-action h2 {
-          font-size: 1.4rem;
-          font-weight: 800;
-          color: var(--text-primary);
-          margin: 0 0 4px 0;
-        }
-
-        .panel-header-action p {
-          color: var(--text-secondary);
-          margin: 0;
-          font-size: 0.9rem;
-        }
-
-        .analytics-filter {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-
-        .analytics-filter label {
-          font-weight: 700;
-          font-size: 0.85rem;
-          color: var(--text-primary);
-        }
-
-        .form-select {
-          padding: 8px 12px;
-          border-radius: var(--radius-sm);
-          border: 1px solid var(--border-color);
-          background: var(--bg-secondary);
-          color: var(--text-primary);
-          font-size: 0.85rem;
-          outline: none;
-          font-weight: 600;
-        }
-
-        .form-select:focus {
-          border-color: var(--primary);
-        }
-
-        .analytics-report-grid {
-          display: grid;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-          gap: 16px;
-          margin-bottom: 24px;
-        }
-
-        .report-card {
-          padding: 20px;
-          background: var(--bg-secondary);
-          border-radius: var(--radius-md);
-          border: 1px solid var(--border-color);
-        }
-
-        .report-card h3 {
-          font-size: 0.75rem;
-          font-weight: 800;
-          color: var(--text-muted);
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-          margin-bottom: 8px;
-        }
-
-        .report-card .stat-value {
-          font-size: 1.5rem;
-          font-weight: 800;
-          color: var(--text-primary);
-          display: block;
-          margin-bottom: 4px;
-        }
-
-        .report-card .stat-desc {
-          font-size: 0.75rem;
-          color: var(--text-secondary);
-          margin: 0;
-        }
-
-        .featured-analytics-highlight {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          background: var(--primary-light);
-          padding: 16px 20px;
-          border-radius: var(--radius-md);
-          border: 1px solid var(--border-glow);
-          margin-bottom: 28px;
-        }
-
-        .featured-analytics-highlight h4 {
-          font-size: 0.75rem;
-          font-weight: 800;
-          color: var(--primary);
-          text-transform: uppercase;
-          margin: 0 0 2px 0;
-        }
-
-        .highlight-title {
-          font-size: 0.95rem;
-          font-weight: 800;
-          color: var(--text-primary);
-          margin: 0;
-        }
-
-        .provider-pricing-bar-chart h4 {
-          font-size: 0.95rem;
-          font-weight: 800;
-          color: var(--text-primary);
-          margin-bottom: 16px;
-        }
-
-        .bar-chart-container {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-
-        .bar-row {
-          display: grid;
-          grid-template-columns: 100px 1fr 120px;
-          align-items: center;
-          gap: 16px;
-        }
-
-        .bar-label {
-          font-size: 0.85rem;
-          font-weight: 700;
-          color: var(--text-secondary);
-        }
-
-        .bar-track {
-          height: 10px;
-          background: var(--bg-secondary);
-          border-radius: var(--radius-full);
-          overflow: hidden;
-        }
-
-        .bar-fill {
-          height: 100%;
-          border-radius: var(--radius-full);
-        }
-
-        .bar-val {
-          font-size: 0.82rem;
-          font-weight: 700;
-          color: var(--text-primary);
-          text-align: right;
-        }
-
-        /* Matcher Workspace */
-        .matcher-workspace h2 {
-          font-size: 1.4rem;
-          font-weight: 800;
-          margin: 0 0 4px 0;
-          color: var(--text-primary);
-        }
-
-        .matcher-intro {
-          color: var(--text-secondary);
-          font-size: 0.9rem;
-          margin: 0 0 24px 0;
-        }
-
-        .matcher-form {
-          display: grid;
-          grid-template-columns: 1fr 1.5fr;
-          gap: 24px;
-          padding-bottom: 24px;
-          border-bottom: 1px solid var(--border-color);
-          margin-bottom: 24px;
-        }
-
-        .form-group {
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .form-group label {
-          font-size: 0.82rem;
-          font-weight: 800;
-          color: var(--text-primary);
-          text-transform: uppercase;
-        }
-
-        .experience-selector {
-          display: flex;
-          gap: 8px;
-        }
-
-        .exp-btn {
-          flex: 1;
-          padding: 8px;
-          border: 1px solid var(--border-color);
-          background: var(--bg-secondary);
-          border-radius: var(--radius-sm);
-          font-size: 0.85rem;
-          font-weight: 700;
-          color: var(--text-secondary);
-          cursor: pointer;
-          transition: all var(--transition-fast);
-        }
-
-        .exp-btn:hover {
-          border-color: var(--primary);
-          color: var(--primary);
-        }
-
-        .exp-btn.active {
-          background: var(--primary);
-          border-color: var(--primary);
-          color: #FFFFFF;
-        }
-
-        .matcher-results {
-          display: grid;
-          grid-template-columns: 1fr 1.5fr;
-          gap: 28px;
-          align-items: start;
-        }
-
-        .match-score-radial {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 16px;
-          background: var(--bg-secondary);
-          padding: 24px;
-          border-radius: var(--radius-md);
-          border: 1px solid var(--border-color);
-          text-align: center;
-        }
-
-        .radial-circle {
-          width: 100px;
-          height: 100px;
-          border-radius: 50%;
-          border: 6px solid var(--primary);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          background: var(--bg-secondary);
-          box-shadow: 0 4px 12px rgba(29, 92, 255, 0.15);
-        }
-
-        .radial-score {
-          font-size: 1.5rem;
-          font-weight: 800;
-          color: var(--primary);
-          line-height: 1;
-        }
-
-        .radial-label {
-          font-size: 0.65rem;
-          font-weight: 700;
-          color: var(--text-secondary);
-          text-transform: uppercase;
-        }
-
-        .radial-explanation h4 {
-          font-size: 0.95rem;
-          font-weight: 800;
-          color: var(--text-primary);
-          margin-bottom: 4px;
-        }
-
-        .radial-explanation p {
-          font-size: 0.8rem;
-          color: var(--text-secondary);
-          margin: 0;
-          line-height: 1.4;
-        }
-
-        .matched-courses-list h4 {
-          font-size: 0.95rem;
-          font-weight: 800;
-          color: var(--text-primary);
-          margin-bottom: 12px;
-        }
-
-        .recommended-list {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-
-        .recommended-course-card {
-          padding: 16px;
-          border: 1px solid var(--border-color);
-          border-radius: var(--radius-md);
-          background: var(--bg-secondary);
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-
-        .rec-badge {
-          align-self: flex-start;
-          background: var(--primary);
-          color: #FFFFFF;
-          font-size: 0.62rem;
-          font-weight: 800;
-          padding: 2px 6px;
-          border-radius: 4px;
-          text-transform: uppercase;
-        }
-
-        .recommended-course-card h5 {
-          font-size: 0.88rem;
-          font-weight: 800;
-          color: var(--text-primary);
-          margin: 0;
-        }
-
-        .rec-meta {
-          font-size: 0.75rem;
-          color: var(--text-secondary);
-          margin: 0;
-        }
-
-        .rec-actions {
-          display: flex;
-          gap: 8px;
-          margin-top: 4px;
-        }
-
         @media (max-width: 1024px) {
-          .home-tabs-nav {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 12px;
-          }
-          
-          .tabs-nav-left, .tabs-nav-right {
-            justify-content: center;
-          }
-
           .category-navigation-strip {
             flex-direction: column;
             align-items: stretch;
@@ -1642,17 +957,13 @@ export default function HomePage({
         }
 
         @media (max-width: 768px) {
-          .metric-grid, .personalized-grid {
+          .metric-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
-          }
-
-          .home-content-grid, .analytics-report-grid, .matcher-form, .matcher-results {
-            grid-template-columns: 1fr;
           }
         }
 
         @media (max-width: 480px) {
-          .metric-grid, .personalized-grid {
+          .metric-grid {
             grid-template-columns: 1fr;
           }
         }

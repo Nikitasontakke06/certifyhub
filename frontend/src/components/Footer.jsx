@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 
 export default function Footer() {
   return (
-    <footer className="footer-container">
-      <div className="footer-content glass-panel">
+    <footer className="footer-container glass-panel">
+      <div className="footer-content">
         <div className="footer-grid">
           <div className="footer-brand">
             <h3>Certify<span>Hub</span></h3>
@@ -32,16 +32,19 @@ export default function Footer() {
 
       <style dangerouslySetInnerHTML={{__html: `
         .footer-container {
-          padding: 0 24px 24px;
+          padding: 0;
           margin-top: auto;
+          border-radius: 0 !important;
+          border-bottom: none !important;
+          border-left: none !important;
+          border-right: none !important;
         }
 
         .footer-content {
+          width: 100%;
           max-width: 1280px;
           margin: 0 auto;
           padding: 40px 40px 20px;
-          border-radius: var(--radius-md);
-          background: var(--bg-glass);
         }
 
         .footer-grid {
