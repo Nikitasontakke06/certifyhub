@@ -477,7 +477,7 @@ export default function HomePage({
         /* Matchup Panel Styling */
         .matchup-item {
           padding: 20px;
-          background: rgba(255, 255, 255, 0.4);
+          background: var(--bg-glass);
           border: 1px solid var(--border-color);
           border-radius: var(--radius-lg);
           display: flex;
@@ -509,10 +509,10 @@ export default function HomePage({
           flex-direction: column;
           gap: 6px;
           padding: 12px;
-          background: rgba(255, 255, 255, 0.75);
+          background: var(--bg-secondary);
           border: 1px solid var(--border-color);
           border-radius: var(--radius-md);
-          transition: border-color var(--transition-fast);
+          transition: border-color var(--transition-fast), background-color var(--transition-normal);
         }
 
         .matchup-item:hover .matchup-course-box {

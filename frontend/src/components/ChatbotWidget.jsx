@@ -52,6 +52,15 @@ export default function ChatbotWidget() {
   const getBotResponse = (query) => {
     const text = query.toLowerCase();
 
+    if (text.includes("eligible") || text.includes("eligibility") || text.includes("criteria") || text.includes("prerequisite") || text.includes("require") || text.includes("admission") || text.includes("qualify")) {
+      return "**Eligibility Guidelines for Certifications:**\n\n• **Beginner Courses** (e.g. Python Bootcamp, basic web design): No prerequisite. Anyone interested in coding can start immediately!\n• **Advanced Online Certifications** (e.g. AWS Solutions Architect, IBM Data Science): Recommended to have foundational programming (Python/SQL) and basic IT familiarity.\n• **Offline Coaching Academies**: Open to all students, graduates, or professionals. They support customized batches for different backgrounds.\n\nYou can click **Compare** on courses to inspect prerequisites side-by-side!";
+    }
+    if (text.includes("career path") || text.includes("roadmap") || text.includes("how to become") || text.includes("learning path") || text.includes("steps for") || text.includes("career road")) {
+      return "**Recommended Career Roadmaps:**\n\n• **Full Stack Web Developer:** HTML/CSS → JavaScript (ES6) → Frontend Framework (React/Vue) → Backend (Node.js/Express) → Database (MongoDB/SQL).\n• **Data Scientist / AI Engineer:** Python Programming → Statistics & Algebra → SQL Data Wrangling → ML Libraries (Scikit-Learn) → Deep Learning & Neural Networks (TensorFlow).\n• **Cloud/DevOps Engineer:** Computer Networking → Linux CLI Basics → Cloud Provider (AWS/Azure) → Containerization (Docker) → Orchestration (Kubernetes) → CI/CD Pipelines.\n\nVisit our **Trending Careers** page under the main menu to see salaries (in LPA) and skill demand trend graphs!";
+    }
+    if (text.includes("local") || text.includes("academy") || text.includes("academies") || text.includes("coaching") || text.includes("offline") || text.includes("classroom") || text.includes("pune") || text.includes("bengaluru") || text.includes("gurugram") || text.includes("center") || text.includes("centers")) {
+      return "**Our Local Coaching Academy Partners:**\n\n• **Elite Academy of IT & Data Science** (Viman Nagar, Pune): Classroom training for MERN Web Development and Data Science with physical lab setups.\n• **Apex Civil Services & Govt Coaching** (Pune): Expert physical classroom coaching for UPSC, banking, and government exams.\n• **TechVantage DevOps & Cyber Security Academy** (Bengaluru): Advanced offline hands-on labs in Cloud Computing and Cybersecurity.\n• **DesignEdge Studio Academy** (Gurugram): Physical studio training in UI/UX Design and Product Prototyping.\n\nAll centers provide face-to-face mentorship and placement support. You can view all centers and compare details by selecting **Offline Coaching** under the Courses menu or visiting `/offline-classes`!";
+    }
     if (text.includes("python") || text.includes("javascript") || text.includes("programming") || text.includes("web") || text.includes("coding") || text.includes("developer")) {
       return "For Programming & Web Development, Udemy's **Complete Python Bootcamp** and PW Skills' **Full Stack Web Development** are excellent options. You can use our sidebar filters to narrow down platforms!";
     }
@@ -77,7 +86,32 @@ export default function ChatbotWidget() {
       return "Hello! How can I assist you with your learning path today? Try asking me about 'Python', 'Compare courses', or 'LPA salaries'.";
     }
 
-    return "I'm here to help! You can ask me about particular topics like 'Python courses', 'Swayam certifications', 'How to compare', or 'Trending careers' to get started.";
+    return "I'm here to help! You can ask me about particular topics like 'eligibility criteria', 'career roadmaps', 'local coaching centers', or 'Trending careers' to get started.";
+  };
+
+  const formatMessageText = (text) => {
+    const parts = text.split("\n");
+    return parts.map((part, index) => {
+      const boldPattern = /\*\*(.*?)\*\*/g;
+      const subParts = [];
+      let lastIndex = 0;
+      let match;
+      while ((match = boldPattern.exec(part)) !== null) {
+        if (match.index > lastIndex) {
+          subParts.push(part.substring(lastIndex, match.index));
+        }
+        subParts.push(<strong key={match.index}>{match[1]}</strong>);
+        lastIndex = boldPattern.lastIndex;
+      }
+      if (lastIndex < part.length) {
+        subParts.push(part.substring(lastIndex));
+      }
+      return (
+        <span key={index} style={{ display: "block", marginBottom: index === parts.length - 1 ? 0 : 6 }}>
+          {subParts.length > 0 ? subParts : part}
+        </span>
+      );
+    });
   };
 
   return (
@@ -118,7 +152,7 @@ export default function ChatbotWidget() {
             {messages.map(msg => (
               <div key={msg.id} className={`message-row ${msg.isBot ? "bot" : "user"}`}>
                 <div className="message-bubble">
-                  <p>{msg.text}</p>
+                  <div className="msg-text-content">{formatMessageText(msg.text)}</div>
                   <span className="msg-time">{msg.time}</span>
                 </div>
               </div>
@@ -327,7 +361,7 @@ export default function ChatbotWidget() {
         .msg-time {
           display: block;
           font-size: 0.7rem;
-          color: rgba(255, 255, 255, 0.5);
+          color: rgba(255, 255, 255, 0.72);
           text-align: right;
           margin-top: 4px;
         }

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, ChevronDown, User, LogOut, BookOpen, Briefcase, Info } from "lucide-react";
+import { Search, ChevronDown, User, LogOut, BookOpen, Briefcase, Info, Sun, Moon } from "lucide-react";
 
-export default function Navbar({ user, onLogout, openAuth }) {
+export default function Navbar({ user, onLogout, openAuth, theme, toggleTheme }) {
   const [searchVal, setSearchVal] = useState("");
   const [coursesDropdown, setCoursesDropdown] = useState(false);
   const [trendingsDropdown, setTrendingsDropdown] = useState(false);
@@ -47,7 +47,7 @@ export default function Navbar({ user, onLogout, openAuth }) {
         {/* Menu Items */}
         <ul className="navbar-menu">
           <li>
-            <Link to="/" className="menu-link">
+            <Link to="/home" className="menu-link">
               <span>HOME</span>
             </Link>
           </li>
@@ -155,7 +155,19 @@ export default function Navbar({ user, onLogout, openAuth }) {
         </form>
 
         {/* User Auth Info */}
-        <div className="navbar-user">
+        <div className="navbar-user" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          {toggleTheme && (
+            <button 
+              type="button"
+              onClick={toggleTheme} 
+              className="theme-toggle-btn" 
+              title={theme === "light" ? "Switch to Dark Mode" : "Switch to Light Mode"}
+              aria-label="Toggle Theme"
+            >
+              {theme === "light" ? <Moon size={18} color="var(--text-secondary)" /> : <Sun size={18} color="var(--primary)" />}
+            </button>
+          )}
+          
           {user ? (
             <div className="user-profile-menu-container">
               <button 
@@ -214,7 +226,8 @@ export default function Navbar({ user, onLogout, openAuth }) {
           border-top: none !important;
           border-left: none !important;
           border-right: none !important;
-          background: rgba(255, 255, 255, 0.9) !important;
+          background: var(--bg-glass) !important;
+          border-bottom: 1px solid var(--border-color) !important;
         }
 
         .navbar-content {
@@ -365,6 +378,27 @@ export default function Navbar({ user, onLogout, openAuth }) {
         .navbar-user {
           display: flex;
           align-items: center;
+          gap: 12px;
+        }
+
+        .theme-toggle-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: var(--bg-glass);
+          width: 38px;
+          height: 38px;
+          border-radius: var(--radius-full);
+          border: 1px solid var(--border-color);
+          cursor: pointer;
+          transition: all var(--transition-fast);
+          padding: 0;
+        }
+
+        .theme-toggle-btn:hover {
+          background: var(--primary-light);
+          border-color: var(--primary-glow);
+          transform: scale(1.05);
         }
 
         .user-profile-menu-container {
@@ -375,7 +409,7 @@ export default function Navbar({ user, onLogout, openAuth }) {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: rgba(255, 255, 255, 0.82);
+          background: var(--bg-glass);
           width: 38px;
           height: 38px;
           border-radius: var(--radius-full);
