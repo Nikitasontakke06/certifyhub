@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { getAuthHeaders } from "../utils/auth";
+import StateFeedback from "../components/StateFeedback";
 import { 
   User, Settings, History, Save, Lock, Bell, Eye, EyeOff,
   CheckCircle, Sliders, Shield, Database, Code, 
@@ -29,12 +31,14 @@ export default function ProfilePage({ user, onLoadComparison }) {
   // Tab 3: History State
   const [historyList, setHistoryList] = useState([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState(null);
 
   // Offline features state
   const [savedInstitutesList, setSavedInstitutesList] = useState([]);
   const [savedCoursesList, setSavedCoursesList] = useState([]);
   const [bookingsList, setBookingsList] = useState([]);
   const [loadingOffline, setLoadingOffline] = useState(false);
+  const [offlineError, setOfflineError] = useState(null);
 
   // Domains/Categories list
   const domainsList = [
@@ -74,9 +78,12 @@ export default function ProfilePage({ user, onLoadComparison }) {
   const fetchOfflineBookmarksAndBookings = async () => {
     if (!user) return;
     setLoadingOffline(true);
+    setOfflineError(null);
     try {
       // 1. Fetch saved bookmarks
-      const savedRes = await fetch(`/api/saved-institutes?email=${encodeURIComponent(user.email)}`);
+      const savedRes = await fetch("/api/saved-institutes", {
+        headers: getAuthHeaders()
+      });
       if (savedRes.ok) {
         const savedData = await savedRes.json();
         // Fetch all institutes to match details
@@ -97,17 +104,26 @@ export default function ProfilePage({ user, onLoadComparison }) {
             });
           });
           setSavedCoursesList(matchedCourses);
+        } else {
+          throw new Error("Failed to match catalog details");
         }
+      } else {
+        throw new Error("Failed to load saved classes list");
       }
 
       // 2. Fetch inquiries / bookings
-      const bookingsRes = await fetch(`/api/inquiries?email=${encodeURIComponent(user.email)}`);
+      const bookingsRes = await fetch("/api/inquiries", {
+        headers: getAuthHeaders()
+      });
       if (bookingsRes.ok) {
         const bookingsData = await bookingsRes.json();
         setBookingsList(bookingsData);
+      } else {
+        throw new Error("Failed to retrieve booking logs");
       }
     } catch (err) {
       console.error("Error loading offline profile data:", err);
+      setOfflineError("Unable to load offline data profiles. Connection to server failed.");
     } finally {
       setLoadingOffline(false);
     }
@@ -120,7 +136,9 @@ export default function ProfilePage({ user, onLoadComparison }) {
 
   const fetchPreferences = async () => {
     try {
-      const res = await fetch(`/api/preferences?email=${encodeURIComponent(user.email)}`);
+      const res = await fetch("/api/preferences", {
+        headers: getAuthHeaders()
+      });
       if (res.ok) {
         const data = await res.json();
         setPreferredDomains(data.preferredDomains || []);
@@ -137,14 +155,22 @@ export default function ProfilePage({ user, onLoadComparison }) {
   const fetchHistory = async () => {
     if (!user) return;
     setHistoryLoading(true);
+    setHistoryError(null);
     try {
-      const res = await fetch(`/api/comparison-history?email=${encodeURIComponent(user.email)}`);
+      const res = await fetch("/api/comparison-history", {
+        headers: getAuthHeaders()
+      });
       if (res.ok) {
         const data = await res.json();
-        setHistoryList(data);
+        setHistoryList(logData => {
+          return Array.isArray(data) ? data : [];
+        });
+      } else {
+        setHistoryError("Failed to fetch comparison records");
       }
     } catch (err) {
       console.error("Failed to fetch history", err);
+      setHistoryError("Unable to retrieve history records. Connection to server failed.");
     } finally {
       setHistoryLoading(false);
     }
@@ -172,9 +198,8 @@ export default function ProfilePage({ user, onLoadComparison }) {
     try {
       const res = await fetch("/api/preferences", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(true),
         body: JSON.stringify({
-          email: user.email,
           preferredDomains,
           skillLevel,
           budgetLimit,
@@ -205,9 +230,8 @@ export default function ProfilePage({ user, onLoadComparison }) {
     try {
       const res = await fetch("/api/auth/change-password", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(true),
         body: JSON.stringify({
-          email: user.email,
           currentPassword,
           newPassword
         })
@@ -533,10 +557,9 @@ export default function ProfilePage({ user, onLoadComparison }) {
               </div>
 
               {historyLoading ? (
-                <div className="history-loader">
-                  <div className="loading-spinner"></div>
-                  <p>Fetching comparison logs...</p>
-                </div>
+                <StateFeedback type="loading" title="Fetching comparison logs..." message="Loading your side-by-side matrices history." />
+              ) : historyError ? (
+                <StateFeedback type="error" title="History Failed to Load" message={historyError} onRetry={fetchHistory} />
               ) : historyList.length > 0 ? (
                 <div className="history-list-wrapper">
                   {historyList.map(log => (
@@ -569,14 +592,12 @@ export default function ProfilePage({ user, onLoadComparison }) {
                   ))}
                 </div>
               ) : (
-                <div className="no-history-state glass-panel fade-in">
-                  <History size={36} color="var(--text-muted)" />
-                  <h3>No comparisons logged yet</h3>
-                  <p>Add 2 or 3 courses to the comparison engine and view their comparison matrix to see them log here.</p>
-                  <button onClick={() => navigate("/courses")} className="btn-primary explore-btn">
-                    Explore Courses
-                  </button>
-                </div>
+                <StateFeedback 
+                  type="empty" 
+                  title="No Comparisons Logged Yet" 
+                  message="Add 2 or 3 courses to the comparison engine and view their comparison matrix to see them log here."
+                  actionButton={<button onClick={() => navigate("/courses")} className="btn-primary explore-btn">Explore Courses</button>}
+                />
               )}
             </div>
           )}
@@ -586,10 +607,9 @@ export default function ProfilePage({ user, onLoadComparison }) {
               <p className="tab-subtitle">Manage your bookmarked coaching institutes and classroom courses.</p>
 
               {loadingOffline ? (
-                <div className="history-loader">
-                  <div className="loading-spinner"></div>
-                  <p>Loading bookmarks...</p>
-                </div>
+                <StateFeedback type="loading" title="Loading bookmarks..." message="Retrieving your saved offline institutes and classroom configurations." />
+              ) : offlineError ? (
+                <StateFeedback type="error" title="Bookmarks Sync Failed" message={offlineError} onRetry={fetchOfflineBookmarksAndBookings} />
               ) : (
                 <div className="offline-bookmarks-wrapper">
                   
@@ -620,8 +640,8 @@ export default function ProfilePage({ user, onLoadComparison }) {
                                   onClick={async () => {
                                     const res = await fetch("/api/saved-institutes/toggle", {
                                       method: "POST",
-                                      headers: { "Content-Type": "application/json" },
-                                      body: JSON.stringify({ email: user.email, instituteId: inst.id })
+                                      headers: getAuthHeaders(true),
+                                      body: JSON.stringify({ instituteId: inst.id })
                                     });
                                     if (res.ok) fetchOfflineBookmarksAndBookings();
                                   }} 
@@ -659,8 +679,8 @@ export default function ProfilePage({ user, onLoadComparison }) {
                               onClick={async () => {
                                 const res = await fetch("/api/saved-institutes/toggle", {
                                   method: "POST",
-                                  headers: { "Content-Type": "application/json" },
-                                  body: JSON.stringify({ email: user.email, courseId: c.id })
+                                  headers: getAuthHeaders(true),
+                                  body: JSON.stringify({ courseId: c.id })
                                 });
                                 if (res.ok) fetchOfflineBookmarksAndBookings();
                               }} 
@@ -694,10 +714,9 @@ export default function ProfilePage({ user, onLoadComparison }) {
               </div>
 
               {loadingOffline ? (
-                <div className="history-loader">
-                  <div className="loading-spinner"></div>
-                  <p>Syncing booking logs...</p>
-                </div>
+                <StateFeedback type="loading" title="Syncing booking logs..." message="Retrieving callback requests and scheduled coaching visits." />
+              ) : offlineError ? (
+                <StateFeedback type="error" title="Bookings Sync Failed" message={offlineError} onRetry={fetchOfflineBookmarksAndBookings} />
               ) : bookingsList.length > 0 ? (
                 <div className="bookings-table-wrapper">
                   <table className="admin-table">
@@ -730,14 +749,12 @@ export default function ProfilePage({ user, onLoadComparison }) {
                   </table>
                 </div>
               ) : (
-                <div className="no-history-state glass-panel fade-in">
-                  <History size={36} color="var(--text-muted)" />
-                  <h3>No bookings requested yet</h3>
-                  <p>Inquire or book a free demo session from the course offering list inside an institute's profile page.</p>
-                  <button onClick={() => navigate("/offline-classes")} className="btn-primary explore-btn">
-                    Browse Offline Coaching
-                  </button>
-                </div>
+                <StateFeedback 
+                  type="empty" 
+                  title="No Bookings Requested Yet" 
+                  message="Inquire or book a free demo session from the course offering list inside an institute's profile page."
+                  actionButton={<button onClick={() => navigate("/offline-classes")} className="btn-primary explore-btn">Browse Offline Coaching</button>}
+                />
               )}
             </div>
           )}

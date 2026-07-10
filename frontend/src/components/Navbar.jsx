@@ -161,15 +161,17 @@ export default function Navbar({ user, onLogout, openAuth }) {
               <button 
                 onClick={() => setProfileDropdownOpen(!profileDropdownOpen)} 
                 className="user-profile-btn glass-panel"
-                title="Account Menu"
+                title={user.email}
               >
-                <User size={16} color="var(--primary)" />
-                <span className="user-email" title={user.email}>{user.email}</span>
-                <ChevronDown size={14} className={profileDropdownOpen ? "rotated" : ""} />
+                <User size={18} color="var(--primary)" />
               </button>
               
               {profileDropdownOpen && (
                 <div className="profile-dropdown-menu glass-panel fade-in">
+                  <div className="profile-dropdown-header" style={{ padding: "8px 12px", borderBottom: "1px solid var(--border-color)", marginBottom: "4px" }}>
+                    <span style={{ display: "block", fontSize: "0.75rem", color: "var(--text-secondary)" }}>Signed in as</span>
+                    <span style={{ display: "block", fontSize: "0.85rem", fontWeight: "600", color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }} title={user.email}>{user.email}</span>
+                  </div>
                   <Link 
                     to="/profile" 
                     className="dropdown-item"
@@ -372,208 +374,13 @@ export default function Navbar({ user, onLogout, openAuth }) {
         .user-profile-btn {
           display: flex;
           align-items: center;
-          gap: 10px;
-          background: rgba(255, 255, 255, 0.82);
-          padding: 8px 16px;
-          border-radius: var(--radius-md);
-          border: 1px solid var(--border-color);
-          color: var(--text-primary);
-          font-weight: 600;
-          cursor: pointer;
-          transition: all var(--transition-fast);
-        }
-
-        .user-profile-btn:hover {
-          background: rgba(29, 92, 255, 0.08);
-          border-color: rgba(29, 92, 255, 0.3);
-        }
-
-        .profile-dropdown-menu {
-          position: absolute;
-          top: 100%;
-          right: 0;
-          min-width: 180px;
-          padding: 8px;
-          margin-top: 8px;
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          z-index: 1000;
-          background: var(--bg-secondary);
-        }
-
-        .logout-dropdown-item {
-          width: 100%;
-          background: transparent;
-          border: none;
-          text-align: left;
-          cursor: pointer;
-        }
-
-        .logout-dropdown-item:hover {
-          background: rgba(239, 68, 68, 0.1) !important;
-          color: var(--error) !important;
-        }
-
-        .user-email {
-          font-size: 0.85rem;
-          color: var(--text-primary);
-          max-width: 120px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          font-weight: 500;
-        }
-
-          font-size: 1.4rem;
-          letter-spacing: -0.02em;
-        }
-
-        .logo-img {
-          height: 32px;
-          width: auto;
-          object-fit: contain;
-        }
-
-        .navbar-menu {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          list-style: none;
-          margin: 0;
-          padding: 0;
-        }
-
-        .menu-link {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          padding: 8px 16px;
-          font-size: 0.85rem;
-          font-weight: 600;
-          color: var(--text-secondary);
-          border-radius: var(--radius-sm);
-          transition: all var(--transition-fast);
-        }
-
-        .menu-link:hover, .menu-link:focus {
-          color: var(--text-primary);
-          background: rgba(29, 92, 255, 0.06);
-        }
-
-        .menu-item-dropdown {
-          position: relative;
-        }
-
-        .menu-item-dropdown .menu-link svg:last-child {
-          transition: transform var(--transition-fast);
-        }
-
-        .menu-item-dropdown:hover .menu-link svg:last-child {
-          transform: rotate(180deg);
-        }
-
-        .dropdown-menu {
-          position: absolute;
-          top: 100%;
-          left: 0;
-          min-width: 200px;
-          padding: 8px;
-          margin-top: 8px;
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          z-index: 100;
-          background: var(--bg-secondary);
-        }
-
-        .dropdown-menu::before {
-          content: "";
-          position: absolute;
-          top: -12px;
-          left: 0;
-          width: 100%;
-          height: 12px;
-          background: transparent;
-        }
-
-        .dropdown-item {
-          padding: 8px 12px;
-          font-size: 0.85rem;
-          color: var(--text-secondary);
-          border-radius: var(--radius-sm);
-          transition: all var(--transition-fast);
-        }
-
-        .dropdown-item:hover {
-          color: var(--text-primary);
-          background: var(--primary-light);
-          padding-left: 16px;
-        }
-
-        .navbar-search {
-          display: flex;
-          align-items: center;
-          background: rgba(255, 255, 255, 0.78);
-          border: 1px solid var(--border-color);
-          border-radius: var(--radius-full);
-          padding: 2px 4px 2px 14px;
-          width: 260px;
-          transition: all var(--transition-fast);
-        }
-
-        .navbar-search:focus-within {
-          border-color: var(--primary);
-          box-shadow: 0 0 0 3px var(--primary-light);
-          width: 300px;
-        }
-
-        .search-input {
-          background: transparent;
-          border: none;
-          color: var(--text-primary);
-          font-size: 0.85rem;
-          width: 100%;
-          outline: none;
-        }
-
-        .search-button {
-          background: transparent;
-          border: none;
-          color: var(--text-secondary);
-          cursor: pointer;
-          display: flex;
-          align-items: center;
           justify-content: center;
-          padding: 6px 10px;
-          border-radius: var(--radius-full);
-          transition: all var(--transition-fast);
-        }
-
-        .search-button:hover {
-          color: var(--primary);
-          background: rgba(29, 92, 255, 0.06);
-        }
-
-        .navbar-user {
-          display: flex;
-          align-items: center;
-        }
-
-        .user-profile-menu-container {
-          position: relative;
-        }
-
-        .user-profile-btn {
-          display: flex;
-          align-items: center;
-          gap: 10px;
           background: rgba(255, 255, 255, 0.82);
-          padding: 8px 16px;
-          border-radius: var(--radius-md);
+          width: 38px;
+          height: 38px;
+          border-radius: var(--radius-full);
           border: 1px solid var(--border-color);
           color: var(--text-primary);
-          font-weight: 600;
           cursor: pointer;
           transition: all var(--transition-fast);
         }
@@ -608,16 +415,6 @@ export default function Navbar({ user, onLogout, openAuth }) {
         .logout-dropdown-item:hover {
           background: rgba(239, 68, 68, 0.1) !important;
           color: var(--error) !important;
-        }
-
-        .user-email {
-          font-size: 0.85rem;
-          color: var(--text-primary);
-          max-width: 120px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
-          font-weight: 500;
         }
 
         .auth-trigger-btn {

@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { getAuthHeaders } from "../utils/auth";
+import StateFeedback from "../components/StateFeedback";
 import {
   Settings,
   Plus,
   Trash2,
   Edit,
   Mail,
-  User,
-  CheckCircle,
   Clock,
-  Briefcase,
   Layers,
-  MapPin,
-  X,
-  BookOpen
+  X
 } from "lucide-react";
 
 export default function OfflineAdminPage({ user, openAuth }) {
@@ -25,7 +22,7 @@ export default function OfflineAdminPage({ user, openAuth }) {
       openAuth();
       navigate("/");
     }
-  }, [user]);
+  }, [user, openAuth, navigate]);
 
   // Tabs: "institutes" | "inquiries"
   const [activeTab, setActiveTab] = useState("institutes");
@@ -34,6 +31,7 @@ export default function OfflineAdminPage({ user, openAuth }) {
   const [institutes, setInstitutes] = useState([]);
   const [inquiries, setInquiries] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Form State
   const [showForm, setShowForm] = useState(false);
@@ -69,7 +67,7 @@ export default function OfflineAdminPage({ user, openAuth }) {
   const [courseTimings, setCourseTimings] = useState("Morning (9 AM - 12 PM)");
   const [courseTrainer, setCourseTrainer] = useState("");
   const [courseCertification, setCourseCertification] = useState("Certified Developer");
-  const [courseEligibility, setCourseEligibility] = useState("Any Graduate");
+  const courseEligibility = "Any Graduate";
   const [coursePlacement, setCoursePlacement] = useState(true);
   const [courseSyllabusVal, setCourseSyllabusVal] = useState("");
   const [courseSyllabusList, setCourseSyllabusList] = useState([]);
@@ -82,33 +80,38 @@ export default function OfflineAdminPage({ user, openAuth }) {
   };
 
   const fetchInstitutes = async () => {
-    try {
-      const res = await fetch("/api/institutes");
-      if (res.ok) {
-        const data = await res.json();
-        setInstitutes(data);
-      }
-    } catch (err) {
-      console.error("Error loading institutes:", err);
+    const res = await fetch("/api/institutes");
+    if (res.ok) {
+      const data = await res.json();
+      setInstitutes(data);
+    } else {
+      throw new Error("Failed to load institutes");
     }
   };
 
   const fetchInquiries = async () => {
-    try {
-      const res = await fetch("/api/inquiries");
-      if (res.ok) {
-        const data = await res.json();
-        setInquiries(data);
-      }
-    } catch (err) {
-      console.error("Error loading inquiries:", err);
+    const res = await fetch("/api/inquiries", {
+      headers: getAuthHeaders()
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setInquiries(data);
+    } else {
+      throw new Error("Failed to load inquiries");
     }
   };
 
   const loadAllData = async () => {
     setLoading(true);
-    await Promise.all([fetchInstitutes(), fetchInquiries()]);
-    setLoading(false);
+    setError(null);
+    try {
+      await Promise.all([fetchInstitutes(), fetchInquiries()]);
+    } catch (err) {
+      console.error("Error loading admin data:", err);
+      setError("Unable to retrieve administration records. Please confirm the database status.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -165,7 +168,8 @@ export default function OfflineAdminPage({ user, openAuth }) {
     if (!window.confirm("Are you sure you want to delete this institute? This will delete all course configurations and user reviews.")) return;
     try {
       const res = await fetch(`/api/admin/institutes/${id}`, {
-        method: "DELETE"
+        method: "DELETE",
+        headers: getAuthHeaders()
       });
       if (res.ok) {
         triggerToast("success", "Institute deleted successfully!");
@@ -182,7 +186,7 @@ export default function OfflineAdminPage({ user, openAuth }) {
     try {
       const res = await fetch(`/api/inquiries/${inqId}/status`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(true),
         body: JSON.stringify({ status: newStatus })
       });
       if (res.ok) {
@@ -272,7 +276,7 @@ export default function OfflineAdminPage({ user, openAuth }) {
 
       const res = await fetch("/api/admin/institutes", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(true),
         body: JSON.stringify(payload)
       });
 
@@ -327,10 +331,9 @@ export default function OfflineAdminPage({ user, openAuth }) {
 
       {/* Main Workspace Display */}
       {loading ? (
-        <div className="admin-loading glass-panel">
-          <Clock className="animate-spin" size={40} color="var(--primary)" />
-          <p>Syncing panel configurations...</p>
-        </div>
+        <StateFeedback type="loading" title="Syncing admin dashboard..." message="Fetching registered institutes and student bookings." />
+      ) : error ? (
+        <StateFeedback type="error" title="Dashboard Sync Failed" message={error} onRetry={loadAllData} />
       ) : activeTab === "institutes" ? (
         
         <div className="institutes-admin-workspace fade-in">
@@ -391,9 +394,11 @@ export default function OfflineAdminPage({ user, openAuth }) {
                     </tbody>
                   </table>
                 ) : (
-                  <div className="empty-table-state">
-                    <p>No registered institutes. Click the button above to add the first coaching profile.</p>
-                  </div>
+                  <StateFeedback 
+                    type="empty" 
+                    title="No Institutes Registered" 
+                    message="Click the button above to register the first coaching profile and set course structures." 
+                  />
                 )}
               </div>
             </>
@@ -756,9 +761,11 @@ export default function OfflineAdminPage({ user, openAuth }) {
                 </tbody>
               </table>
             ) : (
-              <div className="empty-table-state">
-                <p>No student inquiries submitted yet.</p>
-              </div>
+              <StateFeedback 
+                type="empty" 
+                title="No Inquiries Yet" 
+                message="Student inquiries, callback requests, and demo bookings will appear here." 
+              />
             )}
           </div>
         </div>
