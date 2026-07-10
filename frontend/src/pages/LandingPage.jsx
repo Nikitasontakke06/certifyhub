@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { getAuthHeaders } from "../utils/auth";
 import { 
   Search, CheckCircle, ArrowRight, Award, Compass, BookOpen, 
   Database, TrendingUp, Briefcase, Star, Code, Cpu, Shield, 
@@ -21,7 +22,9 @@ export default function LandingPage({ user, openAuth, courses = [], loading, onT
   useEffect(() => {
     if (user && user.email) {
       setPersonalRecsLoading(true);
-      fetch(`/api/recommendations?email=${encodeURIComponent(user.email)}`)
+      fetch(`/api/recommendations?email=${encodeURIComponent(user.email)}`, {
+        headers: getAuthHeaders()
+      })
         .then(res => res.ok ? res.json() : [])
         .then(data => setPersonalizedRecs(data))
         .catch(err => console.error("Error loading recommendations:", err))

@@ -39,7 +39,7 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
       const data = await response.json();
 
       if (response.ok) {
-        const loggedUser = { email: data.email };
+        const loggedUser = { email: data.email, token: data.token };
         localStorage.setItem("current_user", JSON.stringify(loggedUser));
         onLoginSuccess(loggedUser);
         setSuccess(isLogin ? "Login successful!" : "Account created successfully!");
@@ -65,26 +65,46 @@ export default function AuthModal({ isOpen, onClose, onLoginSuccess }) {
     const left = window.screen.width / 2 - width / 2;
     const top = window.screen.height / 2 - height / 2;
 
-    const popup = window.open(
+    window.open(
       "/google-auth-mock.html",
       "GoogleSignIn",
       `width=${width},height=${height},left=${left},top=${top},status=no,resizable=no`
     );
 
-    const handleMessage = (event) => {
+    const handleMessage = async (event) => {
       if (event.origin !== window.location.origin) return;
 
       if (event.data && event.data.type === "GOOGLE_AUTH_SUCCESS") {
-        const loggedUser = { email: event.data.email };
-        localStorage.setItem("current_user", JSON.stringify(loggedUser));
-        onLoginSuccess(loggedUser);
-        setSuccess("Logged in with Google!");
+        const googleEmail = event.data.email;
         window.removeEventListener("message", handleMessage);
 
-        setTimeout(() => {
-          onClose();
-          resetForm();
-        }, 1000);
+        try {
+          // Exchange Google email for a backend JWT token
+          const res = await fetch("/api/auth/google-mock", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ email: googleEmail })
+          });
+          
+          const data = await res.json();
+          if (res.ok) {
+            const loggedUser = { email: data.email, token: data.token };
+            localStorage.setItem("current_user", JSON.stringify(loggedUser));
+            onLoginSuccess(loggedUser);
+            setSuccess("Logged in with Google!");
+            setTimeout(() => {
+              onClose();
+              resetForm();
+            }, 1000);
+          } else {
+            setError(data.error || "Failed to authenticate Google user on server.");
+          }
+        } catch (err) {
+          setError("Failed to connect to authentication server for Google sign-in.");
+          console.error(err);
+        }
       }
     };
 

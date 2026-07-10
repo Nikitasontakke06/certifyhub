@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
+import { getAuthHeaders } from "../utils/auth";
 import {
   MapPin,
   Star,
@@ -92,7 +93,9 @@ export default function InstituteDetailPage({ user, openAuth, onToggleCompare, c
   const fetchBookmarks = async () => {
     if (!user) return;
     try {
-      const res = await fetch(`/api/saved-institutes?email=${encodeURIComponent(user.email)}`);
+      const res = await fetch("/api/saved-institutes", {
+        headers: getAuthHeaders()
+      });
       if (res.ok) {
         const data = await res.json();
         setSavedInsts(data);
@@ -123,8 +126,8 @@ export default function InstituteDetailPage({ user, openAuth, onToggleCompare, c
     try {
       const res = await fetch("/api/saved-institutes/toggle", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: user.email, instituteId: instId })
+        headers: getAuthHeaders(true),
+        body: JSON.stringify({ instituteId: instId })
       });
       if (res.ok) {
         const updated = await res.json();
@@ -146,8 +149,8 @@ export default function InstituteDetailPage({ user, openAuth, onToggleCompare, c
     try {
       const res = await fetch("/api/saved-institutes/toggle", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: user.email, courseId })
+        headers: getAuthHeaders(true),
+        body: JSON.stringify({ courseId })
       });
       if (res.ok) {
         const updated = await res.json();
@@ -188,9 +191,8 @@ export default function InstituteDetailPage({ user, openAuth, onToggleCompare, c
     try {
       const res = await fetch(`/api/institutes/${id}/reviews`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(true),
         body: JSON.stringify({
-          userEmail: user.email,
           userName: user.name || user.email.split("@")[0],
           rating: ratingInput,
           text: reviewTextInput,
@@ -224,8 +226,7 @@ export default function InstituteDetailPage({ user, openAuth, onToggleCompare, c
     try {
       const res = await fetch(`/api/institutes/${id}/reviews/${reviewId}/like`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: user.email })
+        headers: getAuthHeaders(true)
       });
       if (res.ok) {
         fetchReviews();
@@ -245,9 +246,8 @@ export default function InstituteDetailPage({ user, openAuth, onToggleCompare, c
     try {
       const res = await fetch("/api/inquiries", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: getAuthHeaders(true),
         body: JSON.stringify({
-          userEmail: user.email,
           instituteId: id,
           instituteName: institute.name,
           courseId: selectedCourse ? selectedCourse.id : "",

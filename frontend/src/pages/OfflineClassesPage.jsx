@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { getAuthHeaders } from "../utils/auth";
+import StateFeedback from "../components/StateFeedback";
 import {
   Search as SearchIcon,
   MapPin,
@@ -7,19 +9,14 @@ import {
   Grid,
   List as ListIcon,
   Star,
-  Layers,
   Heart,
   ChevronRight,
   BookOpen,
-  Calendar,
-  Clock,
   Map,
-  Compass,
-  DollarSign,
-  Briefcase
+  Compass
 } from "lucide-react";
 
-export default function OfflineClassesPage({ user, openAuth, compareList = [], onToggleCompare }) {
+export default function OfflineClassesPage({ user, openAuth }) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const initialCategory = searchParams.get("category") || "all";
@@ -27,6 +24,7 @@ export default function OfflineClassesPage({ user, openAuth, compareList = [], o
   // State
   const [institutes, setInstitutes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [viewMode, setViewMode] = useState("grid"); // "grid" | "list"
   const [showMap, setShowMap] = useState(true);
   const [savedInsts, setSavedInsts] = useState({ savedInstitutes: [], savedInstituteCourses: [] });
@@ -44,8 +42,9 @@ export default function OfflineClassesPage({ user, openAuth, compareList = [], o
   const [selectedInstId, setSelectedInstId] = useState(null);
 
   // Fetch Institutes
-  const fetchInstitutes = async () => {
+  const fetchInstitutes = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       let query = `?category=${categoryFilter}`;
       if (searchVal) query += `&search=${encodeURIComponent(searchVal)}`;
@@ -59,19 +58,24 @@ export default function OfflineClassesPage({ user, openAuth, compareList = [], o
       if (res.ok) {
         const data = await res.json();
         setInstitutes(data);
+      } else {
+        setError("Failed to load coaching institutes from the server.");
       }
     } catch (err) {
       console.error("Error loading institutes:", err);
+      setError("Unable to connect to the backend server. Please check if it's online.");
     } finally {
       setLoading(false);
     }
-  };
+  }, [categoryFilter, searchVal, cityFilter, feeMax, minRating, weekendOnly, placementAssistance]);
 
   // Fetch Bookmarks
-  const fetchBookmarks = async () => {
+  const fetchBookmarks = useCallback(async () => {
     if (!user) return;
     try {
-      const res = await fetch(`/api/saved-institutes?email=${encodeURIComponent(user.email)}`);
+      const res = await fetch("/api/saved-institutes", {
+        headers: getAuthHeaders()
+      });
       if (res.ok) {
         const data = await res.json();
         setSavedInsts(data);
@@ -79,15 +83,15 @@ export default function OfflineClassesPage({ user, openAuth, compareList = [], o
     } catch (err) {
       console.error("Error loading bookmarks:", err);
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     fetchInstitutes();
-  }, [categoryFilter, cityFilter, feeMax, minRating, weekendOnly, placementAssistance]);
+  }, [fetchInstitutes]);
 
   useEffect(() => {
     fetchBookmarks();
-  }, [user]);
+  }, [fetchBookmarks]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -104,8 +108,8 @@ export default function OfflineClassesPage({ user, openAuth, compareList = [], o
     try {
       const res = await fetch("/api/saved-institutes/toggle", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: user.email, instituteId: instId })
+        headers: getAuthHeaders(true),
+        body: JSON.stringify({ instituteId: instId })
       });
       if (res.ok) {
         const updated = await res.json();
@@ -316,10 +320,9 @@ export default function OfflineClassesPage({ user, openAuth, compareList = [], o
             {/* Split A: Institutes List */}
             <div className={`institutes-list-panel ${viewMode === "list" ? "list-layout" : "grid-layout"}`}>
               {loading ? (
-                <div className="loading-state glass-panel">
-                  <Compass className="animate-spin" size={40} color="var(--primary)" />
-                  <p>Searching for nearby classes...</p>
-                </div>
+                <StateFeedback type="loading" title="Searching for nearby classes..." message="Finding classroom configurations and review counts near you." />
+              ) : error ? (
+                <StateFeedback type="error" title="Offline Classes Unavailable" message={error} onRetry={fetchInstitutes} />
               ) : institutes.length > 0 ? (
                 institutes.map(inst => (
                   <div 
@@ -389,12 +392,12 @@ export default function OfflineClassesPage({ user, openAuth, compareList = [], o
                   </div>
                 ))
               ) : (
-                <div className="empty-results-panel glass-panel">
-                  <Compass size={48} color="var(--text-muted)" />
-                  <h3>No Institutes Match Your Filters</h3>
-                  <p>Try broadening your location search, increasing the max budget, or clearing categories.</p>
-                  <button onClick={handleClearFilters} className="btn-primary">Reset All Filters</button>
-                </div>
+                <StateFeedback 
+                  type="empty" 
+                  title="No Institutes Match Your Filters" 
+                  message="Try broadening your location search, increasing the max budget, or clearing categories."
+                  actionButton={<button onClick={handleClearFilters} className="btn-primary">Reset All Filters</button>}
+                />
               )}
             </div>
 
@@ -432,7 +435,7 @@ export default function OfflineClassesPage({ user, openAuth, compareList = [], o
                     <line x1="100" y1="500" x2="700" y2="100" stroke="rgba(15,23,42,0.06)" strokeWidth="8" />
 
                     {/* Custom Geolocated Map Pins */}
-                    {institutes.map((inst, index) => {
+                    {institutes.map((inst) => {
                       let cx = 400;
                       let cy = 300;
 

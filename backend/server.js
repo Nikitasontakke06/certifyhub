@@ -1,8 +1,10 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import jwt from "jsonwebtoken";
 import "./db.js"; // Connects to MongoDB and seeds data
 import { User, Course, Job, JobTrendHistory, UserPreference, ComparisonHistory, Institute, InstituteReview, UserInquiry, SavedInstitute, LoginHistory } from "./models.js";
+import { protect } from "./auth.js";
 import "./scheduler.js"; // Starts cron schedule runner
 
 dotenv.config();
@@ -79,7 +81,14 @@ app.post("/api/auth/signup", async (req, res) => {
     });
     await loginLog.save();
 
-    res.status(201).json({ email: newUser.email });
+    // Generate JWT
+    const token = jwt.sign(
+      { email: newUser.email },
+      process.env.JWT_SECRET || "default_jwt_secret_key_9876",
+      { expiresIn: "7d" }
+    );
+
+    res.status(201).json({ email: newUser.email, token });
   } catch (err) {
     console.error("Signup error:", err);
     res.status(500).json({ error: "Database error during registration." });
@@ -95,9 +104,9 @@ app.post("/api/auth/login", async (req, res) => {
   }
 
   try {
-    // Find matching user in MongoDB
-    const user = await User.findOne({ email, password });
-    if (user) {
+    // Find matching user in MongoDB by email
+    const user = await User.findOne({ email });
+    if (user && (await user.comparePassword(password))) {
       // Save login history log
       const loginLog = new LoginHistory({
         userEmail: user.email.toLowerCase(),
@@ -106,7 +115,14 @@ app.post("/api/auth/login", async (req, res) => {
       });
       await loginLog.save();
 
-      res.json({ email: user.email });
+      // Generate JWT
+      const token = jwt.sign(
+        { email: user.email },
+        process.env.JWT_SECRET || "default_jwt_secret_key_9876",
+        { expiresIn: "7d" }
+      );
+
+      res.json({ email: user.email, token });
     } else {
       res.status(401).json({ error: "Invalid email or password." });
     }
@@ -116,12 +132,48 @@ app.post("/api/auth/login", async (req, res) => {
   }
 });
 
+// 4b. Endpoint: Mock Google Auth Endpoint to issue JWTs
+app.post("/api/auth/google-mock", async (req, res) => {
+  const { email } = req.body;
+  if (!email) return res.status(400).json({ error: "Email is required" });
+  try {
+    let user = await User.findOne({ email });
+    if (!user) {
+      // Create user with a random mock password
+      user = new User({
+        email,
+        password: "google_mock_password_" + Math.random().toString(36).substring(2)
+      });
+      await user.save();
+    }
+    
+    // Save login history log
+    const loginLog = new LoginHistory({
+      userEmail: user.email.toLowerCase(),
+      ipAddress: req.ip || req.headers["x-forwarded-for"] || "",
+      userAgent: req.headers["user-agent"] || ""
+    });
+    await loginLog.save();
+
+    // Generate JWT
+    const token = jwt.sign(
+      { email: user.email },
+      process.env.JWT_SECRET || "default_jwt_secret_key_9876",
+      { expiresIn: "7d" }
+    );
+
+    res.json({ email: user.email, token });
+  } catch (err) {
+    console.error("Google auth mock error:", err);
+    res.status(500).json({ error: "Database error during Google authentication." });
+  }
+});
+
 // --- Profile & Preferences Endpoints ---
 
-// 5. Get User Preferences
-app.get("/api/preferences", async (req, res) => {
-  const { email } = req.query;
-  if (!email) return res.status(400).json({ error: "Email is required" });
+// 5. Get User Preferences (Secured)
+app.get("/api/preferences", protect, async (req, res) => {
+  const email = req.user.email;
   try {
     let pref = await UserPreference.findOne({ userEmail: email.toLowerCase() });
     if (!pref) {
@@ -136,10 +188,10 @@ app.get("/api/preferences", async (req, res) => {
   }
 });
 
-// 6. Update User Preferences
-app.post("/api/preferences", async (req, res) => {
-  const { email, preferredDomains, skillLevel, budgetLimit, preferredPlatforms, emailNotifications, themePreference } = req.body;
-  if (!email) return res.status(400).json({ error: "Email is required" });
+// 6. Update User Preferences (Secured)
+app.post("/api/preferences", protect, async (req, res) => {
+  const email = req.user.email;
+  const { preferredDomains, skillLevel, budgetLimit, preferredPlatforms, emailNotifications, themePreference } = req.body;
   try {
     const pref = await UserPreference.findOneAndUpdate(
       { userEmail: email.toLowerCase() },
@@ -160,9 +212,20 @@ app.post("/api/preferences", async (req, res) => {
   }
 });
 
-// 7. Get Recommendations based on Preferences
+// 7. Get Recommendations based on Preferences (Optionally Secured)
 app.get("/api/recommendations", async (req, res) => {
-  const { email } = req.query;
+  let email = req.query.email;
+  
+  if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
+    try {
+      const token = req.headers.authorization.split(" ")[1];
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || "default_jwt_secret_key_9876");
+      email = decoded.email;
+    } catch (e) {
+      console.warn("[Recommendations] JWT verification ignored:", e.message);
+    }
+  }
+
   try {
     let domains = [];
     let level = "Beginner";
@@ -216,10 +279,9 @@ app.get("/api/recommendations", async (req, res) => {
   }
 });
 
-// 8. Fetch Comparison History
-app.get("/api/comparison-history", async (req, res) => {
-  const { email } = req.query;
-  if (!email) return res.status(400).json({ error: "Email is required" });
+// 8. Fetch Comparison History (Secured)
+app.get("/api/comparison-history", protect, async (req, res) => {
+  const email = req.user.email;
   try {
     const history = await ComparisonHistory.find({ userEmail: email.toLowerCase() })
       .populate("courses")
@@ -232,10 +294,11 @@ app.get("/api/comparison-history", async (req, res) => {
   }
 });
 
-// 9. Save Comparison History
-app.post("/api/comparison-history", async (req, res) => {
-  const { email, courseIds } = req.body;
-  if (!email || !courseIds || !Array.isArray(courseIds) || courseIds.length < 2) {
+// 9. Save Comparison History (Secured)
+app.post("/api/comparison-history", protect, async (req, res) => {
+  const email = req.user.email;
+  const { courseIds } = req.body;
+  if (!courseIds || !Array.isArray(courseIds) || courseIds.length < 2) {
     return res.status(400).json({ error: "Invalid parameters" });
   }
   try {
@@ -266,15 +329,16 @@ app.post("/api/comparison-history", async (req, res) => {
   }
 });
 
-// 10. Change Password
-app.post("/api/auth/change-password", async (req, res) => {
-  const { email, currentPassword, newPassword } = req.body;
-  if (!email || !currentPassword || !newPassword) {
+// 10. Change Password (Secured)
+app.post("/api/auth/change-password", protect, async (req, res) => {
+  const email = req.user.email;
+  const { currentPassword, newPassword } = req.body;
+  if (!currentPassword || !newPassword) {
     return res.status(400).json({ error: "All fields are required" });
   }
   try {
     const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user || user.password !== currentPassword) {
+    if (!user || !(await user.comparePassword(currentPassword))) {
       return res.status(401).json({ error: "Invalid current password" });
     }
     user.password = newPassword;
@@ -364,12 +428,13 @@ app.get("/api/institutes/:id/reviews", async (req, res) => {
   }
 });
 
-// 4. Submit review for an institute (and recalculate average rating)
-app.post("/api/institutes/:id/reviews", async (req, res) => {
-  const { userEmail, userName, rating, text, pros, cons } = req.body;
+// 4. Submit review for an institute (Secured)
+app.post("/api/institutes/:id/reviews", protect, async (req, res) => {
+  const userEmail = req.user.email;
+  const { userName, rating, text, pros, cons } = req.body;
   const instituteId = req.params.id;
 
-  if (!userEmail || !userName || !rating || !text) {
+  if (!userName || !rating || !text) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
@@ -402,10 +467,9 @@ app.post("/api/institutes/:id/reviews", async (req, res) => {
   }
 });
 
-// 5. Like a review (toggle helpful count)
-app.post("/api/institutes/:id/reviews/:reviewId/like", async (req, res) => {
-  const { email } = req.body;
-  if (!email) return res.status(400).json({ error: "Email is required" });
+// 5. Like a review (Secured)
+app.post("/api/institutes/:id/reviews/:reviewId/like", protect, async (req, res) => {
+  const email = req.user.email;
   try {
     const review = await InstituteReview.findById(req.params.reviewId);
     if (!review) return res.status(404).json({ error: "Review not found" });
@@ -429,10 +493,11 @@ app.post("/api/institutes/:id/reviews/:reviewId/like", async (req, res) => {
   }
 });
 
-// 6. Submit user inquiry / callback / demo bookings
-app.post("/api/inquiries", async (req, res) => {
-  const { userEmail, instituteId, instituteName, courseId, courseName, type, message } = req.body;
-  if (!userEmail || !instituteId || !instituteName || !type) {
+// 6. Submit user inquiry / callback / demo bookings (Secured)
+app.post("/api/inquiries", protect, async (req, res) => {
+  const userEmail = req.user.email;
+  const { instituteId, instituteName, courseId, courseName, type, message } = req.body;
+  if (!instituteId || !instituteName || !type) {
     return res.status(400).json({ error: "Missing required inquiry fields" });
   }
   try {
@@ -453,15 +518,11 @@ app.post("/api/inquiries", async (req, res) => {
   }
 });
 
-// 7. Get user inquiries (for Profile or Admin view)
-app.get("/api/inquiries", async (req, res) => {
-  const { email } = req.query;
+// 7. Get user inquiries (Secured)
+app.get("/api/inquiries", protect, async (req, res) => {
+  const email = req.user.email;
   try {
-    const query = {};
-    if (email) {
-      query.userEmail = email.toLowerCase();
-    }
-    const inquiries = await UserInquiry.find(query).sort({ date: -1 });
+    const inquiries = await UserInquiry.find({ userEmail: email.toLowerCase() }).sort({ date: -1 });
     res.json(inquiries);
   } catch (err) {
     console.error("Error fetching inquiries:", err);
@@ -469,8 +530,8 @@ app.get("/api/inquiries", async (req, res) => {
   }
 });
 
-// 8. Update inquiry status (admin control)
-app.post("/api/inquiries/:id/status", async (req, res) => {
+// 8. Update inquiry status (Secured Admin)
+app.post("/api/inquiries/:id/status", protect, async (req, res) => {
   const { status } = req.body;
   try {
     const inquiry = await UserInquiry.findByIdAndUpdate(
@@ -486,10 +547,9 @@ app.post("/api/inquiries/:id/status", async (req, res) => {
   }
 });
 
-// 9. Get saved offline institutes/courses bookmarks
-app.get("/api/saved-institutes", async (req, res) => {
-  const { email } = req.query;
-  if (!email) return res.status(400).json({ error: "Email is required" });
+// 9. Get saved offline institutes/courses bookmarks (Secured)
+app.get("/api/saved-institutes", protect, async (req, res) => {
+  const email = req.user.email;
   try {
     let saved = await SavedInstitute.findOne({ userEmail: email.toLowerCase() });
     if (!saved) {
@@ -503,10 +563,10 @@ app.get("/api/saved-institutes", async (req, res) => {
   }
 });
 
-// 10. Toggle bookmark (saved institutes or saved courses)
-app.post("/api/saved-institutes/toggle", async (req, res) => {
-  const { email, instituteId, courseId } = req.body;
-  if (!email) return res.status(400).json({ error: "Email is required" });
+// 10. Toggle bookmark (saved institutes or saved courses) (Secured)
+app.post("/api/saved-institutes/toggle", protect, async (req, res) => {
+  const email = req.user.email;
+  const { instituteId, courseId } = req.body;
   try {
     let saved = await SavedInstitute.findOne({ userEmail: email.toLowerCase() });
     if (!saved) {
@@ -539,8 +599,8 @@ app.post("/api/saved-institutes/toggle", async (req, res) => {
   }
 });
 
-// 11. Admin Add or Edit Institute
-app.post("/api/admin/institutes", async (req, res) => {
+// 11. Admin Add or Edit Institute (Secured Admin)
+app.post("/api/admin/institutes", protect, async (req, res) => {
   const { id, name, logo, coverImage, description, establishedYear, categories, phone, email, website, whatsapp, socials, address, landmarks, city, state, coordinates, infrastructure, practicalLabs, placementRecord, courses } = req.body;
   if (!name || !logo || !coverImage || !description || !phone || !email || !address || !city || !state) {
     return res.status(400).json({ error: "Missing required fields" });
@@ -593,8 +653,8 @@ app.post("/api/admin/institutes", async (req, res) => {
   }
 });
 
-// 12. Admin Delete Institute
-app.delete("/api/admin/institutes/:id", async (req, res) => {
+// 12. Admin Delete Institute (Secured Admin)
+app.delete("/api/admin/institutes/:id", protect, async (req, res) => {
   try {
     const deleted = await Institute.findOneAndDelete({ id: req.params.id });
     if (!deleted) return res.status(404).json({ error: "Institute not found" });

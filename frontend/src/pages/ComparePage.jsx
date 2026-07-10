@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { getAuthHeaders } from "../utils/auth";
 import { ArrowLeft, Star, ExternalLink, Trash2, Award, CheckCircle } from "lucide-react";
 
 export default function ComparePage({ compareList, onRemove, onClear }) {
@@ -33,9 +34,8 @@ export default function ComparePage({ compareList, onRemove, onClear }) {
         if (userObj && userObj.email) {
           fetch("/api/comparison-history", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: getAuthHeaders(true),
             body: JSON.stringify({
-              email: userObj.email,
               courseIds: compareList.map(c => c.id)
             })
           }).catch(err => console.error("Error logging comparison history:", err));

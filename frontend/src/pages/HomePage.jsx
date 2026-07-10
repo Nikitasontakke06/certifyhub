@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { getAuthHeaders } from "../utils/auth";
 import {
   ArrowRight,
   BarChart3,
@@ -37,7 +38,9 @@ export default function HomePage({
   // Fetch preferences from API on mount
   useEffect(() => {
     if (user && user.email) {
-      fetch(`/api/preferences?email=${encodeURIComponent(user.email)}`)
+      fetch("/api/preferences", {
+        headers: getAuthHeaders()
+      })
         .then(res => res.ok ? res.json() : null)
         .then(data => {
           if (data) setUserPrefs(data);
