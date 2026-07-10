@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import AuthModal from "./components/AuthModal";
@@ -35,6 +35,7 @@ function ProtectedRoute({ user, openAuth, children }) {
 }
 
 export default function App() {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [courses, setCourses] = useState([]);
   const [jobs, setJobs] = useState([]);
@@ -42,6 +43,18 @@ export default function App() {
   const [offlineCompareList, setOfflineCompareList] = useState([]);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem("certifyhub_theme") || "light";
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("certifyhub_theme", theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => (prev === "light" ? "dark" : "light"));
+  };
 
   const handleToggleOfflineCompare = (institute) => {
     setOfflineCompareList(prev => {
@@ -108,6 +121,7 @@ export default function App() {
   const handleLogout = () => {
     localStorage.removeItem("current_user");
     setUser(null);
+    navigate("/");
   };
 
   const handleToggleCompare = (course) => {
@@ -139,13 +153,15 @@ export default function App() {
   };
 
   return (
-    <Router>
+    <>
       <div className="app-layout">
-        <Navbar 
-          user={user} 
-          onLogout={handleLogout} 
-          openAuth={() => setIsAuthOpen(true)} 
-        />
+      <Navbar 
+        user={user} 
+        onLogout={handleLogout} 
+        openAuth={() => setIsAuthOpen(true)} 
+        theme={theme}
+        toggleTheme={toggleTheme}
+      />
         
         <main className="app-main-content">
           <Routes>
@@ -172,6 +188,20 @@ export default function App() {
                     compareList={compareList} 
                   />
                 )
+              } 
+            />
+            <Route 
+              path="/home" 
+              element={
+                <ProtectedRoute user={user} openAuth={() => setIsAuthOpen(true)}>
+                  <HomePage
+                    user={user}
+                    openAuth={() => setIsAuthOpen(true)}
+                    courses={courses}
+                    jobs={jobs}
+                    loading={loading}
+                  />
+                </ProtectedRoute>
               } 
             />
             <Route 
@@ -306,6 +336,6 @@ export default function App() {
           flex-direction: column;
         }
       `}} />
-    </Router>
+    </>
   );
 }

@@ -51,6 +51,41 @@
   box-sizing: border-box;
 }
 
+[data-theme="dark"] {
+  color-scheme: dark;
+  
+  /* Dark CRM-inspired Color Palette */
+  --bg-primary: #0b0f19;
+  --bg-secondary: #131b2e;
+  --bg-tertiary: #1e293b;
+  --bg-glass: rgba(19, 27, 46, 0.8);
+  --bg-glass-hover: rgba(19, 27, 46, 0.95);
+  
+  --primary: #3b82f6;
+  --primary-hover: #60a5fa;
+  --primary-light: rgba(59, 130, 246, 0.18);
+  --primary-glow: rgba(59, 130, 246, 0.35);
+  --accent-cyan: #22d3ee;
+  --accent-purple: #c084fc;
+  
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #64748b;
+  
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-color-hover: rgba(59, 130, 246, 0.4);
+  --border-glow: rgba(59, 130, 246, 0.2);
+  
+  --success: #34d399;
+  --error: #f87171;
+  --info: #60a5fa;
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.6);
+  --shadow-glass: 0 10px 30px rgba(0, 0, 0, 0.45);
+}
+
 *, *::before, *::after {
   box-sizing: inherit;
   margin: 0;
@@ -58,15 +93,16 @@
 }
 
 body {
-  background-color: #f6f8fc;
+  background-color: var(--bg-primary);
   background-image: 
-    radial-gradient(at 0% 0%, rgba(29, 92, 255, 0.06) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(124, 60, 255, 0.05) 0px, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(9, 168, 216, 0.05) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, var(--primary-light) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(124, 60, 255, 0.03) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(9, 168, 216, 0.03) 0px, transparent 50%);
   color: var(--text-primary);
   min-height: 100vh;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
+  transition: background-color var(--transition-normal), color var(--transition-normal);
 }
 
 a {
@@ -107,23 +143,20 @@ button, input, select, textarea {
 
 /* Glassmorphism Styles */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.74);
+  background: var(--bg-glass);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  box-shadow: 
-    0 4px 30px rgba(15, 23, 42, 0.03),
-    inset 0 1px 1px rgba(255, 255, 255, 0.8);
-  transition: border-color var(--transition-normal), box-shadow var(--transition-normal), transform var(--transition-normal);
+  box-shadow: var(--shadow-glass);
+  transition: border-color var(--transition-normal), box-shadow var(--transition-normal), transform var(--transition-normal), background-color var(--transition-normal);
 }
 
 .glass-panel-hover:hover {
-  border-color: rgba(29, 92, 255, 0.3);
+  border-color: var(--border-color-hover);
   box-shadow: 
-    0 20px 40px rgba(15, 23, 42, 0.05),
-    0 0 25px rgba(29, 92, 255, 0.06),
-    inset 0 1px 1px rgba(255, 255, 255, 0.9);
+    0 20px 40px rgba(0, 0, 0, 0.15),
+    0 0 25px var(--border-glow);
   transform: translateY(-4px);
 }
 
@@ -155,7 +188,7 @@ button, input, select, textarea {
 }
 
 .btn-secondary {
-  background: rgba(255, 255, 255, 0.72);
+  background: var(--bg-glass);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
   padding: 10px 22px;
@@ -166,7 +199,7 @@ button, input, select, textarea {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  transition: transform var(--transition-normal), background var(--transition-normal), border-color var(--transition-normal);
+  transition: transform var(--transition-normal), background var(--transition-normal), border-color var(--transition-normal), color var(--transition-normal);
 }
 
 .btn-secondary:hover {
@@ -191,13 +224,13 @@ button, input, select, textarea {
 }
 
 .form-input {
-  background: rgba(255, 255, 255, 0.88);
+  background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   padding: 12px 16px;
   color: var(--text-primary);
   font-size: 0.95rem;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
 }
 
 .form-input:focus {
