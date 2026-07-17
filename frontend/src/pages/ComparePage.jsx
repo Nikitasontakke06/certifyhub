@@ -1,9 +1,55 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { getAuthHeaders } from "../utils/auth";
-import { ArrowLeft, Star, ExternalLink, Trash2, Award, CheckCircle } from "lucide-react";
+import { ArrowLeft, Star, ExternalLink, Trash2, Award, CheckCircle, FileText, Upload, Sparkles, LoaderCircle } from "lucide-react";
 
 export default function ComparePage({ compareList, onRemove, onClear }) {
+  const [syllabusA, setSyllabusA] = React.useState("");
+  const [syllabusB, setSyllabusB] = React.useState("");
+  const [pdfA, setPdfA] = React.useState(null);
+  const [pdfB, setPdfB] = React.useState(null);
+  const [overlap, setOverlap] = React.useState(null);
+  const [overlapError, setOverlapError] = React.useState("");
+  const [isAnalyzing, setIsAnalyzing] = React.useState(false);
+
+  const readPdf = (file, setPdf) => {
+    if (!file) return;
+    if (file.type !== "application/pdf") {
+      setOverlapError("Please choose a PDF file.");
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      setOverlapError("Please choose a PDF smaller than 8 MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => { setPdf({ name: file.name, data: reader.result }); setOverlapError(""); };
+    reader.readAsDataURL(file);
+  };
+
+  const analyzeOverlap = async () => {
+    setOverlapError("");
+    setOverlap(null);
+    if (!(syllabusA.trim() || pdfA) || !(syllabusB.trim() || pdfB)) {
+      setOverlapError("Add syllabus text or a PDF for each of the two courses.");
+      return;
+    }
+    setIsAnalyzing(true);
+    try {
+      const response = await fetch("/api/syllabus-overlap", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ syllabusA, syllabusB, pdfA: pdfA?.data, pdfB: pdfB?.data })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Unable to analyze these syllabi.");
+      setOverlap(result);
+    } catch (error) {
+      setOverlapError(error.message);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
   const getProviderClass = (provider) => {
     switch (provider.toLowerCase()) {
       case "udemy": return "prov-udemy";
@@ -120,6 +166,51 @@ export default function ComparePage({ compareList, onRemove, onClear }) {
           </button>
         </div>
       </div>
+
+      <section className="syllabus-panel glass-panel fade-in" aria-labelledby="syllabus-title">
+        <div className="syllabus-heading">
+          <div>
+            <span className="eyebrow"><Sparkles size={14} /> Syllabus intelligence</span>
+            <h2 id="syllabus-title">Find what these courses have in common</h2>
+            <p>Paste the syllabus or upload a text-based PDF for the first two courses. We compare meaningful topic terms, not filler words.</p>
+          </div>
+          {overlap && <div className="score-pill">{overlap.score}% similarity</div>}
+        </div>
+
+        <div className="syllabus-inputs">
+          {[{ course: compareList[0], text: syllabusA, setText: setSyllabusA, pdf: pdfA, setPdf: setPdfA }, { course: compareList[1], text: syllabusB, setText: setSyllabusB, pdf: pdfB, setPdf: setPdfB }].map(({ course, text, setText, pdf, setPdf }, index) => (
+            <div className="syllabus-source" key={course.id}>
+              <label htmlFor={`syllabus-${index}`} className="source-label">{index === 0 ? "Course A" : "Course B"}: <strong>{course.title}</strong></label>
+              <textarea id={`syllabus-${index}`} value={text} onChange={(e) => setText(e.target.value)} placeholder="Paste modules, units, and learning outcomes…" rows="6" />
+              <label className="pdf-upload">
+                <Upload size={15} />
+                <span>{pdf ? pdf.name : "Upload syllabus PDF"}</span>
+                <input type="file" accept="application/pdf" onChange={(e) => readPdf(e.target.files?.[0], setPdf)} />
+              </label>
+            </div>
+          ))}
+        </div>
+        <div className="syllabus-actions">
+          <button type="button" className="btn-primary analyze-btn" onClick={analyzeOverlap} disabled={isAnalyzing}>
+            {isAnalyzing ? <LoaderCircle size={16} className="spin" /> : <FileText size={16} />}
+            {isAnalyzing ? "Analyzing syllabi…" : "Analyze syllabus overlap"}
+          </button>
+          {overlapError && <p className="overlap-error" role="alert">{overlapError}</p>}
+        </div>
+
+        {overlap && <div className="overlap-result fade-in">
+          <div className="venn-chart" role="img" aria-label={`${overlap.score}% syllabus similarity`}>
+            <div className="venn-circle venn-a"><span>Course A</span><b>{overlap.termCounts.a}</b><small>topics</small></div>
+            <div className="venn-circle venn-b"><span>Course B</span><b>{overlap.termCounts.b}</b><small>topics</small></div>
+            <div className="venn-shared"><b>{overlap.termCounts.shared}</b><small>shared topics</small></div>
+          </div>
+          <div className="overlap-details">
+            <h3>{overlap.score}% syllabus similarity</h3>
+            <p>{overlap.sharedTerms.length ? "Shared topic terms:" : "No meaningful topic terms were shared."}</p>
+            <div className="topic-chips">{overlap.sharedTerms.map((term) => <span key={term}>{term}</span>)}</div>
+          </div>
+        </div>}
+      </section>
 
       {/* Comparison Matrix Table */}
       <div className="matrix-wrapper glass-panel fade-in">
@@ -303,6 +394,38 @@ export default function ComparePage({ compareList, onRemove, onClear }) {
         .clear-matrix-btn {
           font-size: 0.85rem;
         }
+
+        .syllabus-panel { padding: 28px; }
+        .syllabus-heading { display: flex; justify-content: space-between; gap: 20px; align-items: flex-start; margin-bottom: 24px; }
+        .eyebrow { display: inline-flex; align-items: center; gap: 6px; color: var(--primary); font-size: .76rem; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; }
+        .syllabus-heading h2 { color: var(--text-primary); font-size: 1.35rem; margin: 7px 0; }
+        .syllabus-heading p { color: var(--text-secondary); max-width: 700px; font-size: .9rem; line-height: 1.5; }
+        .score-pill { flex-shrink: 0; color: var(--primary); background: rgba(29, 92, 255, .1); border: 1px solid rgba(29, 92, 255, .25); border-radius: 999px; padding: 8px 12px; font-weight: 800; font-size: .82rem; }
+        .syllabus-inputs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+        .syllabus-source { display: flex; flex-direction: column; gap: 8px; }
+        .source-label { color: var(--text-secondary); font-size: .8rem; line-height: 1.4; }
+        .source-label strong { color: var(--text-primary); }
+        .syllabus-source textarea { resize: vertical; min-height: 130px; width: 100%; border: 1px solid var(--border-color); border-radius: var(--radius-sm); background: rgba(15,23,42,.03); color: var(--text-primary); padding: 12px; font: inherit; font-size: .85rem; }
+        .pdf-upload { cursor: pointer; display: inline-flex; width: fit-content; align-items: center; gap: 7px; color: var(--primary); font-size: .8rem; font-weight: 700; }
+        .pdf-upload input { display: none; }
+        .syllabus-actions { display: flex; align-items: center; gap: 14px; margin-top: 18px; }
+        .analyze-btn:disabled { opacity: .7; cursor: wait; }
+        .overlap-error { color: var(--error); font-size: .82rem; }
+        .spin { animation: syllabus-spin .8s linear infinite; }
+        @keyframes syllabus-spin { to { transform: rotate(360deg); } }
+        .overlap-result { display: grid; grid-template-columns: 240px 1fr; gap: 28px; align-items: center; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border-color); }
+        .venn-chart { height: 150px; position: relative; }
+        .venn-circle { width: 132px; height: 132px; border-radius: 50%; position: absolute; top: 6px; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; }
+        .venn-circle span, .venn-circle small, .venn-shared small { font-size: .68rem; }
+        .venn-circle b, .venn-shared b { font-size: 1.3rem; }
+        .venn-a { left: 0; background: rgba(29,92,255,.72); padding-right: 48px; }
+        .venn-b { right: 0; background: rgba(16,185,129,.68); padding-left: 48px; }
+        .venn-shared { position: absolute; z-index: 2; left: 50%; top: 49px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; color: var(--text-primary); }
+        .overlap-details h3 { color: var(--text-primary); font-size: 1.1rem; margin-bottom: 7px; }
+        .overlap-details p { color: var(--text-secondary); font-size: .85rem; margin-bottom: 10px; }
+        .topic-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+        .topic-chips span { padding: 4px 9px; color: var(--primary); background: rgba(29,92,255,.09); border-radius: 999px; font-size: .76rem; font-weight: 700; }
+        @media (max-width: 700px) { .syllabus-panel { padding: 20px; } .syllabus-heading, .syllabus-actions { align-items: flex-start; flex-direction: column; } .syllabus-inputs, .overlap-result { grid-template-columns: 1fr; } .venn-chart { width: 240px; } }
 
         /* Matrix Table Styling */
         .matrix-wrapper {

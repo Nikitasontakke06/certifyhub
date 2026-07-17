@@ -306,3 +306,18 @@ const loginHistorySchema = new mongoose.Schema({
 });
 
 export const LoginHistory = mongoose.model("LoginHistory", loginHistorySchema);
+
+// 13. User Roadmap Progress Schema
+const userRoadmapProgressSchema = new mongoose.Schema({
+  userEmail: { type: String, required: true },
+  roadmapId: { type: String, required: true },
+  completedSteps: { type: [String], default: [] }, // Array of step IDs (e.g., "step-1", "step-2")
+  completedCourses: { type: [String], default: [] }, // Array of course IDs (online or offline)
+  lastUpdated: { type: Date, default: Date.now }
+});
+
+// Ensure a user can only have one progress entry per roadmap ID
+userRoadmapProgressSchema.index({ userEmail: 1, roadmapId: 1 }, { unique: true });
+
+export const UserRoadmapProgress = mongoose.model("UserRoadmapProgress", userRoadmapProgressSchema);
+

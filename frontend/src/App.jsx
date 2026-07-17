@@ -18,6 +18,7 @@ import OfflineClassesPage from "./pages/OfflineClassesPage";
 import InstituteDetailPage from "./pages/InstituteDetailPage";
 import OfflineComparePage from "./pages/OfflineComparePage";
 import OfflineAdminPage from "./pages/OfflineAdminPage";
+import RoadmapsPage from "./pages/RoadmapsPage";
 
 // ProtectedRoute component helper
 function ProtectedRoute({ user, openAuth, children }) {
@@ -297,6 +298,17 @@ export default function App() {
                   <OfflineAdminPage 
                     user={user}
                     openAuth={() => setIsAuthOpen(true)}
+                  />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/roadmaps" 
+              element={
+                <ProtectedRoute user={user} openAuth={() => setIsAuthOpen(true)}>
+                  <RoadmapsPage 
+                    user={user} 
+                    courses={courses} 
                   />
                 </ProtectedRoute>
               } 

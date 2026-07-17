@@ -114,6 +114,17 @@ export default function Navbar({ user, onLogout, openAuth, theme, toggleTheme })
             )}
           </li>
 
+          <li>
+            <Link to="/roadmaps" className="menu-link" onClick={(e) => {
+              if (!user) {
+                e.preventDefault();
+                openAuth();
+              }
+            }}>
+              <span>ROADMAPS</span>
+            </Link>
+          </li>
+
           <li 
             className="menu-item-dropdown"
             onMouseEnter={() => setTrendingsDropdown(true)}
