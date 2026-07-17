@@ -2,8 +2,9 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
+import zlib from "node:zlib";
 import "./db.js"; // Connects to MongoDB and seeds data
-import { User, Course, Job, JobTrendHistory, UserPreference, ComparisonHistory, Institute, InstituteReview, UserInquiry, SavedInstitute, LoginHistory } from "./models.js";
+import { User, Course, Job, JobTrendHistory, UserPreference, ComparisonHistory, Institute, InstituteReview, UserInquiry, SavedInstitute, LoginHistory, UserRoadmapProgress } from "./models.js";
 import { protect } from "./auth.js";
 import "./scheduler.js"; // Starts cron schedule runner
 
@@ -17,7 +18,78 @@ app.use(cors({
   origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
   credentials: true
 }));
-app.use(express.json());
+app.use(express.json({ limit: "24mb" }));
+
+const STOP_WORDS = new Set([
+  "a", "an", "and", "are", "as", "at", "be", "by", "for", "from", "in", "is", "it", "of", "on", "or", "that", "the", "to", "with", "will", "this", "these", "those", "using", "use", "course", "students", "student", "learn", "learning", "introduction", "overview", "understanding", "basic", "basics", "advanced", "module", "topics"
+]);
+
+function decodePdfString(value) {
+  return value
+    .replace(/\\([()\\])/g, "$1")
+    .replace(/\\n/g, " ")
+    .replace(/\\r/g, " ")
+    .replace(/\\t/g, " ")
+    .replace(/\\([0-7]{1,3})/g, (_, octal) => String.fromCharCode(parseInt(octal, 8)));
+}
+
+// Handles text-based PDFs, including the common FlateDecode-compressed streams.
+// Scanned/image-only PDFs do not contain extractable text and should be pasted as text instead.
+function extractPdfText(base64) {
+  const buffer = Buffer.from(base64.replace(/^data:application\/pdf(?:;[^,]*)?,/, ""), "base64");
+  let source = buffer.toString("latin1");
+  const streams = [];
+  const streamPattern = /<<(.*?)>>\s*stream\r?\n([\s\S]*?)\r?\nendstream/g;
+  let match;
+  while ((match = streamPattern.exec(source))) {
+    let stream = Buffer.from(match[2], "latin1");
+    if (/\/FlateDecode/.test(match[1])) {
+      try { stream = zlib.inflateSync(stream); } catch { continue; }
+    }
+    streams.push(stream.toString("latin1"));
+  }
+  source = streams.join(" ") || source;
+  const text = [];
+  const arrayPattern = /\[([\s\S]*?)\]\s*TJ|\((?:\\.|[^\\()])*\)\s*Tj/g;
+  while ((match = arrayPattern.exec(source))) {
+    const strings = match[0].match(/\((?:\\.|[^\\()])*\)/g) || [];
+    strings.forEach((part) => text.push(decodePdfString(part.slice(1, -1))));
+  }
+  return text.join(" ").replace(/\s+/g, " ").trim();
+}
+
+function syllabusTerms(text) {
+  return new Set((text.toLowerCase().match(/[a-z][a-z0-9+#.-]{2,}/g) || [])
+    .map((word) => word.replace(/^[^a-z]+|[^a-z0-9+#]+$/g, ""))
+    .filter((word) => word.length > 2 && !STOP_WORDS.has(word)));
+}
+
+// Compare two student-provided syllabi using Jaccard similarity of meaningful terms.
+app.post("/api/syllabus-overlap", (req, res) => {
+  try {
+    const { syllabusA = "", syllabusB = "", pdfA, pdfB } = req.body || {};
+    const textA = `${syllabusA} ${pdfA ? extractPdfText(pdfA) : ""}`.trim();
+    const textB = `${syllabusB} ${pdfB ? extractPdfText(pdfB) : ""}`.trim();
+    const termsA = syllabusTerms(textA);
+    const termsB = syllabusTerms(textB);
+    if (!termsA.size || !termsB.size) {
+      return res.status(400).json({ error: "Add readable syllabus text or a text-based PDF for both courses." });
+    }
+    const shared = [...termsA].filter((term) => termsB.has(term)).sort();
+    const unionSize = new Set([...termsA, ...termsB]).size;
+    const score = Math.round((shared.length / unionSize) * 100);
+    res.json({
+      score,
+      sharedTerms: shared.slice(0, 18),
+      onlyInA: [...termsA].filter((term) => !termsB.has(term)).sort().slice(0, 10),
+      onlyInB: [...termsB].filter((term) => !termsA.has(term)).sort().slice(0, 10),
+      termCounts: { a: termsA.size, b: termsB.size, shared: shared.length }
+    });
+  } catch (err) {
+    console.error("Syllabus overlap error:", err);
+    res.status(400).json({ error: "We could not read that syllabus. Try pasting the text from the PDF instead." });
+  }
+});
 
 // 1. Endpoint: Fetch Courses from MongoDB
 app.get("/api/courses", async (req, res) => {
@@ -664,6 +736,115 @@ app.delete("/api/admin/institutes/:id", protect, async (req, res) => {
   } catch (err) {
     console.error("Error deleting institute:", err);
     res.status(500).json({ error: "Failed to delete institute" });
+  }
+});
+
+// --- Roadmap Progress Endpoints ---
+
+// Get or initialize progress for a specific roadmap
+app.get("/api/roadmap-progress/:roadmapId", protect, async (req, res) => {
+  const email = req.user.email;
+  const { roadmapId } = req.params;
+  try {
+    let progress = await UserRoadmapProgress.findOne({
+      userEmail: email.toLowerCase(),
+      roadmapId
+    });
+    if (!progress) {
+      progress = new UserRoadmapProgress({
+        userEmail: email.toLowerCase(),
+        roadmapId,
+        completedSteps: [],
+        completedCourses: []
+      });
+      await progress.save();
+    }
+    res.json(progress);
+  } catch (err) {
+    console.error("Error fetching roadmap progress:", err);
+    res.status(500).json({ error: "Failed to fetch roadmap progress" });
+  }
+});
+
+// Toggle a completed step
+app.post("/api/roadmap-progress/:roadmapId/toggle-step", protect, async (req, res) => {
+  const email = req.user.email;
+  const { roadmapId } = req.params;
+  const { stepId } = req.body;
+
+  if (!stepId) {
+    return res.status(400).json({ error: "stepId is required" });
+  }
+
+  try {
+    let progress = await UserRoadmapProgress.findOne({
+      userEmail: email.toLowerCase(),
+      roadmapId
+    });
+
+    if (!progress) {
+      progress = new UserRoadmapProgress({
+        userEmail: email.toLowerCase(),
+        roadmapId,
+        completedSteps: [],
+        completedCourses: []
+      });
+    }
+
+    const index = progress.completedSteps.indexOf(stepId);
+    if (index === -1) {
+      progress.completedSteps.push(stepId);
+    } else {
+      progress.completedSteps.splice(index, 1);
+    }
+    
+    progress.lastUpdated = new Date();
+    await progress.save();
+    res.json(progress);
+  } catch (err) {
+    console.error("Error toggling step progress:", err);
+    res.status(500).json({ error: "Failed to toggle step progress" });
+  }
+});
+
+// Toggle a completed course
+app.post("/api/roadmap-progress/:roadmapId/toggle-course", protect, async (req, res) => {
+  const email = req.user.email;
+  const { roadmapId } = req.params;
+  const { courseId } = req.body;
+
+  if (!courseId) {
+    return res.status(400).json({ error: "courseId is required" });
+  }
+
+  try {
+    let progress = await UserRoadmapProgress.findOne({
+      userEmail: email.toLowerCase(),
+      roadmapId
+    });
+
+    if (!progress) {
+      progress = new UserRoadmapProgress({
+        userEmail: email.toLowerCase(),
+        roadmapId,
+        completedSteps: [],
+        completedCourses: []
+      });
+    }
+
+    const index = progress.completedCourses.indexOf(courseId);
+    if (index === -1) {
+      progress.completedCourses.push(courseId);
+    } else {
+      progress.completedCourses.splice(index, 1);
+    }
+
+    progress.lastUpdated = new Date();
+    await progress.save();
+    res.json(progress);
+  } catch (err) {
+    console.error("Error toggling course progress:", err);
+    res.status(500).json({ error: "Failed to toggle course progress" });
   }
 });
 
