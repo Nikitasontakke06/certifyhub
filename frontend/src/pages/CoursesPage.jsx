@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Filter, SlidersHorizontal, Search, RefreshCw, X } from "lucide-react";
+import { Filter, SlidersHorizontal, Search, RefreshCw, X, Bookmark } from "lucide-react";
 import CourseCard from "../components/CourseCard";
 import { COURSES_DATA, CATEGORIES } from "../data/mockData";
+import { getAuthHeaders } from "../utils/auth";
 
-export default function CoursesPage({ courses = [], loading, onToggleCompare, compareList }) {
+export default function CoursesPage({ user, openAuth, courses = [], loading, onToggleCompare, compareList }) {
   const [searchParams, setSearchParams] = useSearchParams();
   
   // Get unique providers dynamically from loaded courses or mock fallback
@@ -21,6 +22,49 @@ export default function CoursesPage({ courses = [], loading, onToggleCompare, co
   const [priceFilter, setPriceFilter] = useState("all"); // "all" | "free" | "paid"
   const [sortBy, setSortBy] = useState("rating"); // "rating" | "price-asc" | "price-desc" | "reviews"
   const [filteredCourses, setFilteredCourses] = useState([]);
+  const [savedCourses, setSavedCourses] = useState([]);
+
+  // Fetch Bookmarks
+  const fetchSavedCourses = () => {
+    if (user && user.email) {
+      fetch("/api/saved-institutes", {
+        headers: getAuthHeaders()
+      })
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data && data.savedInstituteCourses) {
+            setSavedCourses(data.savedInstituteCourses);
+          }
+        })
+        .catch(err => console.error("Error loading bookmarks:", err));
+    }
+  };
+
+  useEffect(() => {
+    fetchSavedCourses();
+  }, [user]);
+
+  const handleToggleBookmark = (courseId) => {
+    if (!user) {
+      openAuth();
+      return;
+    }
+    fetch("/api/saved-institutes/toggle", {
+      method: "POST",
+      headers: {
+        ...getAuthHeaders(),
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ courseId })
+    })
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data && data.savedInstituteCourses) {
+          setSavedCourses(data.savedInstituteCourses);
+        }
+      })
+      .catch(err => console.error("Error toggling bookmark:", err));
+  };
 
   // Load URL parameters on mount / change
   useEffect(() => {
@@ -294,6 +338,8 @@ export default function CoursesPage({ courses = [], loading, onToggleCompare, co
                   course={course}
                   isCompared={compareList.some(item => item.id === course.id)}
                   onToggleCompare={onToggleCompare}
+                  isBookmarked={savedCourses.includes(course.id)}
+                  onToggleBookmark={handleToggleBookmark}
                 />
               ))
             ) : (
