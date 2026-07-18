@@ -1,7 +1,7 @@
 import React from "react";
-import { Star, Clock, Award, ShieldAlert, Check } from "lucide-react";
+import { Star, Clock, Award, ShieldAlert, Check, Bookmark } from "lucide-react";
 
-export default function CourseCard({ course, isCompared, onToggleCompare }) {
+export default function CourseCard({ course, isCompared, onToggleCompare, isBookmarked, onToggleBookmark }) {
   const getProviderClass = (provider) => {
     switch (provider.toLowerCase()) {
       case "udemy": return "prov-udemy";
@@ -27,9 +27,31 @@ export default function CourseCard({ course, isCompared, onToggleCompare }) {
   return (
     <div className="course-card-el glass-panel glass-panel-hover fade-in">
       <div className="card-header">
-        <span className={`provider-tag ${getProviderClass(course.provider)}`}>
-          {course.provider}
-        </span>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span className={`provider-tag ${getProviderClass(course.provider)}`}>
+            {course.provider}
+          </span>
+          {onToggleBookmark && (
+            <button 
+              onClick={() => onToggleBookmark(course.id)} 
+              className={`card-bookmark-icon-btn ${isBookmarked ? "saved" : ""}`}
+              title={isBookmarked ? "Remove from watchlist" : "Save for later"}
+              style={{
+                background: "transparent",
+                border: "none",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: 4,
+                color: isBookmarked ? "var(--primary)" : "var(--text-muted)",
+                transition: "color 0.2s"
+              }}
+            >
+              <Bookmark size={16} fill={isBookmarked ? "var(--primary)" : "none"} />
+            </button>
+          )}
+        </div>
         <span className="price-tag">
           {course.price === 0 ? "FREE" : `₹${course.price.toLocaleString("en-IN")}`}
         </span>

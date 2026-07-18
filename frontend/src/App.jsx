@@ -201,6 +201,8 @@ export default function App() {
                     courses={courses}
                     jobs={jobs}
                     loading={loading}
+                    compareList={compareList}
+                    onToggleCompare={handleToggleCompare}
                   />
                 </ProtectedRoute>
               } 
@@ -210,6 +212,8 @@ export default function App() {
               element={
                 <ProtectedRoute user={user} openAuth={() => setIsAuthOpen(true)}>
                   <CoursesPage 
+                    user={user}
+                    openAuth={() => setIsAuthOpen(true)}
                     courses={courses}
                     loading={loading}
                     onToggleCompare={handleToggleCompare} 

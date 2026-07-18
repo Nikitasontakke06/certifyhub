@@ -647,6 +647,48 @@ export const SEED_COURSES = [
     link: "https://www.pmi.org/certifications/certified-associate-capm",
     description: "Prepare for the CAPM exam. Master foundational project management terminology, agile concepts, and business analysis framework.",
     features: ["Official PMI CAPM prep hours", "Practice questions", "PMBOK guide exercises", "Shareable badge"]
+  },
+  {
+    id: "prog-udemy-new-1",
+    title: "React - The Complete Guide (Incl. Next.js, Redux, React Router)",
+    category: "programming",
+    provider: "Udemy",
+    price: 1299,
+    rating: 4.8,
+    reviewsCount: 185200,
+    duration: "48 hours",
+    level: "Beginner",
+    link: "https://www.udemy.com/course/react-the-complete-guide-incl-redux-react-router-nextjs/",
+    description: "Dive in and learn React.js from scratch! Learn React, Hooks, Redux, React Router, Next.js and build many projects.",
+    features: ["Certificate of completion", "Full lifetime access", "Access on mobile and TV", "20 coding exercises"]
+  },
+  {
+    id: "aiml-coursera-new-1",
+    title: "Generative AI with Large Language Models",
+    category: "aiml",
+    provider: "Coursera",
+    price: 3200,
+    rating: 4.9,
+    reviewsCount: 8400,
+    duration: "3 weeks",
+    level: "Intermediate",
+    link: "https://www.coursera.org/learn/generative-ai-with-llms",
+    description: "Learn the fundamentals of how generative AI works, including model selection, training, fine-tuning, and deployment.",
+    features: ["Shareable certificate", "Flexible schedule", "Hands-on labs", "Expert instruction"]
+  },
+  {
+    id: "design-coursera-new-1",
+    title: "Google UX Design Professional Certificate",
+    category: "design",
+    provider: "Coursera",
+    price: 3299,
+    rating: 4.8,
+    reviewsCount: 71000,
+    duration: "6 months",
+    level: "Beginner",
+    link: "https://www.coursera.org/professional-certificates/google-ux-design",
+    description: "Get started in the fast-growing field of user experience (UX) design. Learn foundational UX concepts, build a portfolio, and qualify for entry-level jobs.",
+    features: ["Shareable certificate", "Flexible schedule", "7 courses inside", "Portfolio projects"]
   }
 ];
 
